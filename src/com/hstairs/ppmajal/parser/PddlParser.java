@@ -1,4 +1,4 @@
-// $ANTLR 3.5.2 Pddl.g 2021-01-06 16:22:41
+// $ANTLR 3.5.2 Pddl.g 2021-11-03 08:32:55
 
 package com.hstairs.ppmajal.parser;
 
@@ -631,7 +631,7 @@ public class PddlParser extends Parser {
 			if ( state.backtracking==0 ) stream_72.add(char_literal14);
 
 			// AST REWRITE
-			// elements: functionsDef, constantsDef, domainName, structureDef, free_functionsDef, typesDef, predicatesDef, requireDef, constraints
+			// elements: constraints, domainName, functionsDef, requireDef, typesDef, structureDef, predicatesDef, free_functionsDef, constantsDef
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -1395,7 +1395,7 @@ public class PddlParser extends Parser {
 			}
 
 			// AST REWRITE
-			// elements: NAME, t
+			// elements: t, NAME
 			// token labels: 
 			// rule labels: t, retval
 			// token list labels: 
@@ -1409,10 +1409,10 @@ public class PddlParser extends Parser {
 			root_0 = (Object)adaptor.nil();
 			// 154:4: -> ( ^( NAME $t) )+
 			{
-				if ( !(stream_NAME.hasNext()||stream_t.hasNext()) ) {
+				if ( !(stream_t.hasNext()||stream_NAME.hasNext()) ) {
 					throw new RewriteEarlyExitException();
 				}
-				while ( stream_NAME.hasNext()||stream_t.hasNext() ) {
+				while ( stream_t.hasNext()||stream_NAME.hasNext() ) {
 					// Pddl.g:154:7: ^( NAME $t)
 					{
 					Object root_1 = (Object)adaptor.nil();
@@ -1422,8 +1422,8 @@ public class PddlParser extends Parser {
 					}
 
 				}
-				stream_NAME.reset();
 				stream_t.reset();
+				stream_NAME.reset();
 
 			}
 
@@ -2717,7 +2717,7 @@ public class PddlParser extends Parser {
 			}
 
 			// AST REWRITE
-			// elements: t, VARIABLE
+			// elements: VARIABLE, t
 			// token labels: 
 			// rule labels: t, retval
 			// token list labels: 
@@ -2731,10 +2731,10 @@ public class PddlParser extends Parser {
 			root_0 = (Object)adaptor.nil();
 			// 205:7: -> ( ^( VARIABLE $t) )+
 			{
-				if ( !(stream_t.hasNext()||stream_VARIABLE.hasNext()) ) {
+				if ( !(stream_VARIABLE.hasNext()||stream_t.hasNext()) ) {
 					throw new RewriteEarlyExitException();
 				}
-				while ( stream_t.hasNext()||stream_VARIABLE.hasNext() ) {
+				while ( stream_VARIABLE.hasNext()||stream_t.hasNext() ) {
 					// Pddl.g:205:10: ^( VARIABLE $t)
 					{
 					Object root_1 = (Object)adaptor.nil();
@@ -2744,8 +2744,8 @@ public class PddlParser extends Parser {
 					}
 
 				}
-				stream_t.reset();
 				stream_VARIABLE.reset();
+				stream_t.reset();
 
 			}
 
@@ -3136,7 +3136,7 @@ public class PddlParser extends Parser {
 			if ( state.backtracking==0 ) stream_72.add(char_literal91);
 
 			// AST REWRITE
-			// elements: actionDefBody, typedVariableList, actionSymbol
+			// elements: actionSymbol, actionDefBody, typedVariableList
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -3274,7 +3274,7 @@ public class PddlParser extends Parser {
 			if ( state.backtracking==0 ) stream_72.add(char_literal100);
 
 			// AST REWRITE
-			// elements: actionDefBody, actionSymbol, typedVariableList
+			// elements: actionSymbol, actionDefBody, typedVariableList
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -3412,7 +3412,7 @@ public class PddlParser extends Parser {
 			if ( state.backtracking==0 ) stream_72.add(char_literal109);
 
 			// AST REWRITE
-			// elements: typedVariableList, actionSymbol, actionDefBody
+			// elements: actionDefBody, actionSymbol, typedVariableList
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -4238,7 +4238,7 @@ public class PddlParser extends Parser {
 			}
 
 			// AST REWRITE
-			// elements: initEl, goalDesc
+			// elements: goalDesc, initEl
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -7728,7 +7728,7 @@ public class PddlParser extends Parser {
 					if ( state.backtracking==0 ) stream_72.add(char_literal290);
 
 					// AST REWRITE
-					// elements: typedVariableList, effect
+					// elements: effect, typedVariableList
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -7963,7 +7963,7 @@ public class PddlParser extends Parser {
 					if ( state.backtracking==0 ) stream_72.add(char_literal301);
 
 					// AST REWRITE
-					// elements: fHead, fExp, assignOp
+					// elements: assignOp, fExp, fHead
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -10035,7 +10035,7 @@ public class PddlParser extends Parser {
 			if ( state.backtracking==0 ) stream_72.add(char_literal397);
 
 			// AST REWRITE
-			// elements: requireDef, goal, problemDecl, objectDecl, metricSpec, probConstraints, problemDomain, init
+			// elements: init, metricSpec, problemDomain, requireDef, goal, objectDecl, probConstraints, problemDecl
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -10373,9 +10373,9 @@ public class PddlParser extends Parser {
 			retval.tree = root_0;
 			RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.getTree():null);
 
-                            root_0 = (Object) adaptor.nil();
-                            // 492:2: -> ^( OBJECTS typedNameList )
-                            {
+			root_0 = (Object)adaptor.nil();
+			// 492:2: -> ^( OBJECTS typedNameList )
+			{
                                 // Pddl.g:492:5: ^( OBJECTS typedNameList )
                                 {
                                     Object root_1 = (Object) adaptor.nil();
@@ -10385,7 +10385,8 @@ public class PddlParser extends Parser {
                                         adaptor.addChild(root_1, stream_typedNameList.nextTree());
                                         adaptor.addChild(root_0, root_1);
                                     }
-
+                                    adaptor.addChild(root_1, stream_typedNameList.nextTree());
+                                    adaptor.addChild(root_0, root_1);
                                 }
 
                             }
@@ -10756,7 +10757,7 @@ public class PddlParser extends Parser {
 					if ( state.backtracking==0 ) stream_72.add(char_literal423);
 
 					// AST REWRITE
-					// elements: fHead, NUMBER
+					// elements: NUMBER, fHead
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -12058,7 +12059,7 @@ public class PddlParser extends Parser {
 					if ( state.backtracking==0 ) stream_72.add(char_literal480);
 
 					// AST REWRITE
-					// elements: metricFExp, metricFExp, binaryOp
+					// elements: metricFExp, binaryOp, metricFExp
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -12140,7 +12141,7 @@ public class PddlParser extends Parser {
 					if ( state.backtracking==0 ) stream_72.add(char_literal485);
 
 					// AST REWRITE
-					// elements: metricFExp, metricFExp, multiOp
+					// elements: metricFExp, multiOp, metricFExp
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -14407,8 +14408,8 @@ public class PddlParser extends Parser {
 	static final String DFA73_acceptS =
 		"\4\uffff\1\1\4\uffff\1\2\125\uffff";
 	static final String DFA73_specialS =
-		"\31\uffff\1\2\3\uffff\1\1\1\4\21\uffff\1\6\13\uffff\1\7\5\uffff\1\0\2"+
-		"\uffff\1\11\1\12\20\uffff\1\10\2\uffff\1\3\1\5\3\uffff}>";
+		"\31\uffff\1\2\3\uffff\1\3\1\1\21\uffff\1\4\13\uffff\1\0\5\uffff\1\6\2"+
+		"\uffff\1\7\1\11\20\uffff\1\5\2\uffff\1\10\1\12\3\uffff}>";
 	static final String[] DFA73_transitionS = {
 			"\1\1",
 			"\1\2",
@@ -14552,28 +14553,28 @@ public class PddlParser extends Parser {
 			int _s = s;
 			switch ( s ) {
 					case 0 : 
-						int LA73_66 = input.LA(1);
+						int LA73_60 = input.LA(1);
 						 
-						int index73_66 = input.index();
+						int index73_60 = input.index();
 						input.rewind();
 						s = -1;
 						if ( (synpred121_Pddl()) ) {s = 4;}
 						else if ( (true) ) {s = 9;}
 						 
-						input.seek(index73_66);
+						input.seek(index73_60);
 						if ( s>=0 ) return s;
 						break;
 
 					case 1 : 
-						int LA73_29 = input.LA(1);
+						int LA73_30 = input.LA(1);
 						 
-						int index73_29 = input.index();
+						int index73_30 = input.index();
 						input.rewind();
 						s = -1;
 						if ( (synpred121_Pddl()) ) {s = 4;}
 						else if ( (true) ) {s = 9;}
 						 
-						input.seek(index73_29);
+						input.seek(index73_30);
 						if ( s>=0 ) return s;
 						break;
 
@@ -14591,45 +14592,19 @@ public class PddlParser extends Parser {
 						break;
 
 					case 3 : 
-						int LA73_90 = input.LA(1);
+						int LA73_29 = input.LA(1);
 						 
-						int index73_90 = input.index();
+						int index73_29 = input.index();
 						input.rewind();
 						s = -1;
 						if ( (synpred121_Pddl()) ) {s = 4;}
 						else if ( (true) ) {s = 9;}
 						 
-						input.seek(index73_90);
+						input.seek(index73_29);
 						if ( s>=0 ) return s;
 						break;
 
 					case 4 : 
-						int LA73_30 = input.LA(1);
-						 
-						int index73_30 = input.index();
-						input.rewind();
-						s = -1;
-						if ( (synpred121_Pddl()) ) {s = 4;}
-						else if ( (true) ) {s = 9;}
-						 
-						input.seek(index73_30);
-						if ( s>=0 ) return s;
-						break;
-
-					case 5 : 
-						int LA73_91 = input.LA(1);
-						 
-						int index73_91 = input.index();
-						input.rewind();
-						s = -1;
-						if ( (synpred121_Pddl()) ) {s = 4;}
-						else if ( (true) ) {s = 9;}
-						 
-						input.seek(index73_91);
-						if ( s>=0 ) return s;
-						break;
-
-					case 6 : 
 						int LA73_48 = input.LA(1);
 						 
 						int index73_48 = input.index();
@@ -14642,20 +14617,7 @@ public class PddlParser extends Parser {
 						if ( s>=0 ) return s;
 						break;
 
-					case 7 : 
-						int LA73_60 = input.LA(1);
-						 
-						int index73_60 = input.index();
-						input.rewind();
-						s = -1;
-						if ( (synpred121_Pddl()) ) {s = 4;}
-						else if ( (true) ) {s = 9;}
-						 
-						input.seek(index73_60);
-						if ( s>=0 ) return s;
-						break;
-
-					case 8 : 
+					case 5 : 
 						int LA73_87 = input.LA(1);
 						 
 						int index73_87 = input.index();
@@ -14668,7 +14630,20 @@ public class PddlParser extends Parser {
 						if ( s>=0 ) return s;
 						break;
 
-					case 9 : 
+					case 6 : 
+						int LA73_66 = input.LA(1);
+						 
+						int index73_66 = input.index();
+						input.rewind();
+						s = -1;
+						if ( (synpred121_Pddl()) ) {s = 4;}
+						else if ( (true) ) {s = 9;}
+						 
+						input.seek(index73_66);
+						if ( s>=0 ) return s;
+						break;
+
+					case 7 : 
 						int LA73_69 = input.LA(1);
 						 
 						int index73_69 = input.index();
@@ -14681,7 +14656,20 @@ public class PddlParser extends Parser {
 						if ( s>=0 ) return s;
 						break;
 
-					case 10 : 
+					case 8 : 
+						int LA73_90 = input.LA(1);
+						 
+						int index73_90 = input.index();
+						input.rewind();
+						s = -1;
+						if ( (synpred121_Pddl()) ) {s = 4;}
+						else if ( (true) ) {s = 9;}
+						 
+						input.seek(index73_90);
+						if ( s>=0 ) return s;
+						break;
+
+					case 9 : 
 						int LA73_70 = input.LA(1);
 						 
 						int index73_70 = input.index();
@@ -14691,6 +14679,19 @@ public class PddlParser extends Parser {
 						else if ( (true) ) {s = 9;}
 						 
 						input.seek(index73_70);
+						if ( s>=0 ) return s;
+						break;
+
+					case 10 : 
+						int LA73_91 = input.LA(1);
+						 
+						int index73_91 = input.index();
+						input.rewind();
+						s = -1;
+						if ( (synpred121_Pddl()) ) {s = 4;}
+						else if ( (true) ) {s = 9;}
+						 
+						input.seek(index73_91);
 						if ( s>=0 ) return s;
 						break;
 			}

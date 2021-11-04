@@ -404,7 +404,7 @@ public final class PDDLDomain {
 
         if (canBeDynamic == null) {
             canBeDynamic = new HashMap();
-            ArrayList<Transition> all = new ArrayList();
+            ArrayList<TransitionSchema> all = new ArrayList();
             all.addAll(this.ActionsSchema);
             all.addAll(this.processesSchemata);
             all.addAll(this.getEventsSchema());
@@ -413,7 +413,7 @@ public final class PDDLDomain {
                 terminalConditions.addAll(all.get(i).getPreconditions().getTerminalConditions());
             }
             for (int j = 0; j < all.size(); j++) {
-                Transition transition = all.get(j);
+                TransitionSchema transition = all.get(j);
                 for (final Condition cond : terminalConditions) {
                     Terminal p = null;
                     if (cond instanceof NotCond) {
@@ -427,6 +427,7 @@ public final class PDDLDomain {
                                 canBeDynamic.put(((BoolPredicate) p).getPredicateName(), true);
                             }
                         }
+                        
                     }
                     if (p != null && p instanceof Comparison) {
                         for (NumFluent nf : transition.getAllNumericAffected()) {

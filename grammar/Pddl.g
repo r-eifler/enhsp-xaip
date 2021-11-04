@@ -593,6 +593,7 @@ REQUIRE_KEY
     | ':timed-initial-literals'
     | ':preferences'
     | ':constraints'
+    | ':'ANY_CHAR*
     ;
 
 
