@@ -20,6 +20,7 @@ package com.hstairs.ppmajal.search;
 
 import java.util.ArrayList;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.objects.*;
 
 import java.io.PrintStream;
@@ -510,9 +511,10 @@ public class SearchEngine {
                 }
 
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
-                for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s, getActionsToSearch(currentNode, problem)); it.hasNext();) {
+                for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s, getActionsToSearch(currentNode, problem)); it.hasNext();) {
                     final Pair<State, Object> next = it.next();
                     final State successorState = next.getFirst();
+//                    advanceEvents(frontier,currentNode)
                     final Object act = next.getSecond();
                     //skip this if violates global constraints
                     final float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.gValue);

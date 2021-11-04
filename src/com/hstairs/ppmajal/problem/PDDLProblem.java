@@ -1400,6 +1400,7 @@ public class PDDLProblem implements SearchProblem {
                         newState = source.clone();
                         newState.apply(((TransitionGround) current), source);
                         if (newState.satisfy(globalConstraints)) {
+                            
                             return true;
                         }
                     }

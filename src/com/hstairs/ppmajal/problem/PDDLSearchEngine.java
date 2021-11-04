@@ -305,7 +305,7 @@ public class PDDLSearchEngine extends SearchEngine {
         return v >= Double.MIN_VALUE;
     }
     
-        private ArrayList<TransitionGround> applyAllEvents(State s) {
+    private ArrayList<TransitionGround> applyAllEvents(State s) {
         final ArrayList<TransitionGround> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
@@ -324,6 +324,11 @@ public class PDDLSearchEngine extends SearchEngine {
 
     }
 
+    private ArrayList<TransitionGround> actionConsequence(State successorState) {
+        return applyAllEvents(successorState);
+    }        
+    
+    
     public List<PDDLState> simulate(List<Pair<BigDecimal, TransitionGround>> timedPlan, String delta, PDDLState s, PDDLProblem problem, boolean fullStates) {
         BigDecimal previous = BigDecimal.ZERO;
         final BigDecimal deltaDecimal = new BigDecimal(delta);
