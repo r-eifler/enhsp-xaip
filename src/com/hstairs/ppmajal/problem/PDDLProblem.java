@@ -1415,10 +1415,10 @@ public class PDDLProblem implements SearchProblem {
             }
             while (i<actionsSet.length) {
                 current = actionsSet[i]; i++;
-                if (current instanceof TransitionGround) {
-                    if (((TransitionGround) current).isApplicable(source)) {
+                if (current instanceof TransitionGround transitionGround) {
+                    if (transitionGround.isApplicable(source)) {
                         newState = source.clone();
-                        newState.apply(((TransitionGround) current), source);
+                        newState.apply(transitionGround, source);
                         if (newState.satisfy(globalConstraints)) {
                             return true;
                         }
