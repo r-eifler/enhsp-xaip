@@ -75,8 +75,8 @@ public class PDDLProblem implements SearchProblem {
 
     final private boolean ignoreMetric;
     private boolean cleanUp = false;
-    public BigDecimal executionDelta;
-    public BigDecimal planningDelta;
+    final public BigDecimal executionDelta;
+    final public BigDecimal planningDelta;
     
     public PDDLProblem(PDDLDomain pddlDomain) {
         this(pddlDomain, "internal", System.out, false, false);
@@ -140,7 +140,12 @@ public class PDDLProblem implements SearchProblem {
     
     
 
-    public PDDLProblem (PDDLDomain domain, String groundingMethod, PrintStream out, boolean sdac, boolean ignoreMetric){        
+    public PDDLProblem (PDDLDomain domain, String groundingMethod, PrintStream out, boolean sdac, boolean ignoreMetric){
+        this(domain,groundingMethod,out,sdac,ignoreMetric,new BigDecimal(1.0),new BigDecimal(1.0));
+    }        
+
+    
+    public PDDLProblem (PDDLDomain domain, String groundingMethod, PrintStream out, boolean sdac, boolean ignoreMetric, BigDecimal planningDelta, BigDecimal executionDelta){        
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
@@ -160,16 +165,20 @@ public class PDDLProblem implements SearchProblem {
         readyForSearch = false;
         PDDLState.fastTransitionTable = null;
         this.ignoreMetric = ignoreMetric;
+        this.planningDelta = planningDelta;
+        this.executionDelta = executionDelta;
         
     }
     
     
     public PDDLProblem(String problemFile, PDDLObjects constants, Set<Type> types, 
-            PDDLDomain domain, PrintStream out, String groundingMethod, boolean sdac, boolean ignoreMetric) {
+            PDDLDomain domain, PrintStream out, String groundingMethod, boolean sdac, boolean ignoreMetric, BigDecimal planningDelta, BigDecimal executionDelta) {
+        
         this(domain, groundingMethod, out, sdac, ignoreMetric);
         try {
             objects.addAll(constants);
             this.types = types;
+
             this.parseProblem(problemFile);
         } catch (IOException ex) {
             Logger.getLogger(PDDLProblem.class.getName()).log(Level.SEVERE, null, ex);
@@ -201,7 +210,7 @@ public class PDDLProblem implements SearchProblem {
     public Object clone() throws CloneNotSupportedException {
 
         //EPddlProblem cloned = new PDDLProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
-        PDDLProblem cloned = new PDDLProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac, ignoreMetric);
+        PDDLProblem cloned = new PDDLProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac, ignoreMetric,planningDelta,executionDelta);
 
         cloned.processesSet = new LinkedHashSet();
         for (TransitionGround gr : this.actions) {
@@ -1392,6 +1401,7 @@ public class PDDLProblem implements SearchProblem {
         protected State newState;
         private int i;
         private boolean processDone;
+        private boolean eventsPriority = false;
 
         public stateIterator (State source, Object[] actionsSet) {
             this.source = source;
@@ -1405,7 +1415,7 @@ public class PDDLProblem implements SearchProblem {
             if (!processesSet.isEmpty()){
                 if (!processDone){
                     processDone = true;
-                    Pair<State, Collection<TransitionGround>> intelligentSimulation = intelligentSimulation(source, planningDelta, executionDelta, true);
+                    final Pair<State, Collection<TransitionGround>> intelligentSimulation = intelligentSimulation(source, planningDelta, executionDelta, true);
                     if (intelligentSimulation != null){
                         newState = intelligentSimulation.getFirst();
                         current = intelligentSimulation.getSecond();
@@ -1414,12 +1424,16 @@ public class PDDLProblem implements SearchProblem {
                 }
             }
             while (i<actionsSet.length) {
-                current = actionsSet[i]; i++;
+                current = actionsSet[i]; 
+                i++;
                 if (current instanceof TransitionGround transitionGround) {
                     if (transitionGround.isApplicable(source)) {
                         newState = source.clone();
                         newState.apply(transitionGround, source);
                         if (newState.satisfy(globalConstraints)) {
+                            if (eventsPriority){
+                                applyAllEvents(newState);
+                            }
                             return true;
                         }
                     }

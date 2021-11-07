@@ -106,14 +106,14 @@ public class ENHSP {
         return planLength;
     }
 
-    public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, String problemFile, String delta, PrintStream out) {
+public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, String problemFile, String delta, PrintStream out) {
         try {
             final PDDLDomain localDomain = new PDDLDomain(domainFile);
             //domain.substituteEqualityConditions();
             pddlPlus = !localDomain.getProcessesSchema().isEmpty() || !localDomain.getEventsSchema().isEmpty();
             out.println("Domain parsed");
             final PDDLProblem localProblem = new PDDLProblem(problemFile, localDomain.getConstants(),
-                    localDomain.getTypes(), localDomain, out, groundingType, sdac, ignoreMetric);
+                    localDomain.getTypes(), localDomain, out, groundingType, sdac, ignoreMetric,new BigDecimal(deltaPlanning),new BigDecimal(deltaExecution));
             if (!localDomain.getProcessesSchema().isEmpty()) {
                 localProblem.setDeltaTimeVariable(delta);
             }
@@ -122,11 +122,10 @@ public class ENHSP {
             //the third one is the validation model, where, also in this case we test our plan against a potentially more accurate description
             out.println("Problem parsed");
             out.println("Grounding..");
-            if (pddlPlus) {
-                localProblem.executionDelta = new BigDecimal(deltaExecution);
-                localProblem.planningDelta = new BigDecimal(deltaPlanning);
-            }
+
             localProblem.prepareForSearch(aibrPreprocessing, stopAfterGrounding);
+            
+   
             if (stopAfterGrounding) {
                 System.exit(1);
             }
