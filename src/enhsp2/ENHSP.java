@@ -122,6 +122,10 @@ public class ENHSP {
             //the third one is the validation model, where, also in this case we test our plan against a potentially more accurate description
             out.println("Problem parsed");
             out.println("Grounding..");
+            if (pddlPlus) {
+                localProblem.executionDelta = new BigDecimal(deltaExecution);
+                localProblem.planningDelta = new BigDecimal(deltaPlanning);
+            }
             localProblem.prepareForSearch(aibrPreprocessing, stopAfterGrounding);
             if (stopAfterGrounding) {
                 System.exit(1);
@@ -148,6 +152,7 @@ public class ENHSP {
             } else {
                 heuristicProblem = problem;
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -452,11 +457,7 @@ public class ENHSP {
                 }
             }
         });
-        if (pddlPlus) {
-            searchEngine.executionDelta = new BigDecimal(deltaExecution);
-            searchEngine.processes = true;
-            searchEngine.planningDelta = new BigDecimal(deltaPlanning);
-        }
+
 
         searchEngine.saveSearchTreeAsJson = saving_json;
 
@@ -539,13 +540,12 @@ public class ENHSP {
         boolean valid = true;
         if (printTrace) {
             String fileName = getProblem().getPddlFileReference() + "_search_" + searchEngineString + "_h_" + heuristic + "_break_ties_" + tieBreaking + ".npt";
-            valid = searchEngine.validate(rawPlan,new BigDecimal(this.deltaExecution), new BigDecimal(deltaExecution), fileName);
+            valid = problem.validate(rawPlan,new BigDecimal(this.deltaExecution), new BigDecimal(deltaExecution), fileName);
             System.out.println("Numeric Plan Trace saved to " + fileName);
         } else if (internalValidation) {
             Pair<PDDLDomain, PDDLProblem> res = parseDomainProblem(domainFile, problemFile, deltaValidation, new PrintStream(new OutputStream() {
                     public void write(int b) {}}));
-            PDDLSearchEngine validator = new PDDLSearchEngine(res.getRight(), h);
-            valid = validator.validate(rawPlan,new BigDecimal(this.deltaExecution), new BigDecimal(deltaValidation),"/tmp/temp_trace.pddl");
+            valid = res.getRight().validate(rawPlan,new BigDecimal(this.deltaExecution), new BigDecimal(deltaValidation),"/tmp/temp_trace.pddl");
             if (valid) {
                 System.out.println("Plan is valid");
             }else{

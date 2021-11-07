@@ -506,9 +506,6 @@ public class SearchEngine {
                 }
 
                 //if we have a pddl+ problem, we also branch on waiting.
-                if (processes) {
-                    advanceTime(frontier, currentNode, problem, gMap);
-                }
 
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
                 for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s, getActionsToSearch(currentNode, problem)); it.hasNext();) {
@@ -956,9 +953,6 @@ public class SearchEngine {
         return causalDeadEnds;
     }
 
-    protected void advanceTime(Object frontier, SearchNode current_node, SearchProblem problem, Object2FloatMap<State> g) {
-        return;
-    }
 
     protected void printInfo(PrintStream out) {
     }

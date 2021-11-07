@@ -10385,8 +10385,6 @@ public class PddlParser extends Parser {
                                         adaptor.addChild(root_1, stream_typedNameList.nextTree());
                                         adaptor.addChild(root_0, root_1);
                                     }
-                                    adaptor.addChild(root_1, stream_typedNameList.nextTree());
-                                    adaptor.addChild(root_0, root_1);
                                 }
 
                             }
