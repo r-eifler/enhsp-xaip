@@ -182,9 +182,9 @@ public class Utils {
 //
 //        return null;
 //    }
-    public static double epsilonPrecision = 0.000001;
+    public static double tolerance = 0.00001;
     public static int doubleComparator(Double a, Double b){
-       return DoubleMath.fuzzyCompare(a, b, epsilonPrecision);
+       return DoubleMath.fuzzyCompare(a, b, tolerance);
     }
     
 }

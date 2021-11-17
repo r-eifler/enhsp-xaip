@@ -174,7 +174,7 @@ public class PDDLProblem implements SearchProblem {
     public PDDLProblem(String problemFile, PDDLObjects constants, Set<Type> types, 
             PDDLDomain domain, PrintStream out, String groundingMethod, boolean sdac, boolean ignoreMetric, BigDecimal planningDelta, BigDecimal executionDelta) {
         
-        this(domain, groundingMethod, out, sdac, ignoreMetric);
+        this(domain, groundingMethod, out, sdac, ignoreMetric,planningDelta,executionDelta);
         try {
             objects.addAll(constants);
             this.types = types;

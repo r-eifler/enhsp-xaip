@@ -22,15 +22,20 @@
         <group>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/enhsp2/main.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/parser/PddlParser.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLSearchEngine.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/parser/hack_empty_objects.txt</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLProblem.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchProblem.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/test/ComparisonTest.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/enhsp2/ENHSP.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/transition/TransitionGround.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/PDDLDomain.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/test/planningTest.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Comparison.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLSearchEngine.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/propositionalFactory/FDGrounderInstantiate.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchProblem.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/Utils.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchHeuristic.java</file>
         </group>
     </open-files>
