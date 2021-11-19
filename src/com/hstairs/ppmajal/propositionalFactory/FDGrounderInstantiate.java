@@ -324,7 +324,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
             }
         }
         for (var v : predicatesInvolvedInInit) {
-            if (!v.getPredicateName().equals("=")) {
+            if (!v.getName().equals("=")) {
                 str.append(v.pddlPrint(false));
             }
         }

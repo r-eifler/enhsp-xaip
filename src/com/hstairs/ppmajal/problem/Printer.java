@@ -35,7 +35,7 @@ public class Printer {
 
         for (BoolPredicate a : p.getInitBoolFluentsValues().keySet()) {
             if (s.holds(a)) {
-                ret.append("  (").append(a.getPredicateName());
+                ret.append("  (").append(a.getName());
                 for (Object o1 : a.getTerms()) {
                     PDDLObject obj = (PDDLObject) o1;
                     ret.append(" ").append(obj.getName());

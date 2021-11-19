@@ -19,13 +19,22 @@
 package com.hstairs.ppmajal.extraUtils;
 
 import com.google.common.math.DoubleMath;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Type;
+import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import com.hstairs.ppmajal.problem.PDDLProblem;
+import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionSchema;
+import java.io.BufferedWriter;
 import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -184,7 +193,61 @@ public class Utils {
 //    }
     public static double tolerance = 0.00001;
     public static int doubleComparator(Double a, Double b){
-       return DoubleMath.fuzzyCompare(a, b, tolerance);
+        return DoubleMath.fuzzyCompare(a, b, tolerance);
+    }
+
+    public static StringBuilder printPDDLState(PDDLState s) {
+        final StringBuilder ret = new StringBuilder();
+        if (BoolPredicate.getPredicatesDB() != null) {
+            for (BoolPredicate p : BoolPredicate.getPredicatesDB().values()) {
+                if (p.isGrounded()) {
+                    if (!p.getName().equals("=")) {
+                        if (s.satisfy(p)) {
+                            ret.append(p.pddlPrint(false));
+                        }
+                    }
+                }
+            }
+        }
+        if (NumFluent.numFluentsBank != null) {
+            for (NumFluent p : NumFluent.numFluentsBank.values()) {
+                if (p.isGrounded()) {
+
+                    double fluentValue = s.fluentValue(p);
+                    if (!Double.isNaN(fluentValue)) {
+                        ret.append("(= ").append(p.pddlPrint(false)).append(" ").append(fluentValue).append(")");
+                    }
+
+
+                }
+
+            }
+        }
+        return ret;
+
     }
     
+    public static void saveProblem(PDDLProblem p, PDDLState s, String pddlNewFile) throws IOException {
+        
+        final StringBuilder str = new StringBuilder("");
+        str.append("(define (problem ").append(p.getName()).append(") ");
+        str.append("(:domain ").append(p.getDomainName()).append(") \n");
+        str.append(p.getObjects().pddlPrint());
+        str.append("(:init ");
+        str.append(printPDDLState(s));
+
+        str.append(")\n");
+        str.append("(:goal ");
+        str.append(p.getLiftedGoals().pddlPrint(false));
+        str.append(" )\n");
+        if (p.getMetric() != null){
+            str.append(p.getMetric().pddlPrint());
+        }
+        str.append("\n )");
+        
+       
+        final Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        file.append(str);
+        file.close();
+    }
 }

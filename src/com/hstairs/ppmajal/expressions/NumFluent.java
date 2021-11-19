@@ -21,11 +21,9 @@ package com.hstairs.ppmajal.expressions;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
-import net.sourceforge.interval.ia_math.RealInterval;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -425,5 +423,14 @@ public class NumFluent extends Expression {
     public Expression unifyVariablesReferences (PDDLProblem p) {
         p.putNumFluentReference(this);
         return this;
+    }
+    
+    public boolean isGrounded() {
+        for (var v: this.terms){
+            if (v instanceof Variable){
+                return false;
+            }
+        }
+        return true;
     }
 }

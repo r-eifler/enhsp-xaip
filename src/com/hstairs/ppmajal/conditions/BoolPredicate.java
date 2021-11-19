@@ -103,7 +103,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
     @Override
     public String pddlPrintWithExtraObject ( ) {
         String ret = "";
-        ret = ret.concat("  (" + this.getPredicateName());
+        ret = ret.concat("  (" + this.getName());
         for (Object o1 : this.getTerms()) {
             if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
@@ -121,7 +121,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
 
     public String pddlPrintWithTypedExtraObject ( ) {
         String ret = "";
-        ret = ret.concat("  (" + this.getPredicateName());
+        ret = ret.concat("  (" + this.getName());
         for (Object o1 : this.getTerms()) {
             if (o1 == null) {
                 System.out.println("There is some problem here with predicate:" + this);
@@ -173,7 +173,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
     }
 
 
-    public String getPredicateName ( ) {
+    public String getName ( ) {
         return name;
     }
 
@@ -315,7 +315,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
     public boolean isUngroundVersionOf (Condition con) {
         if (con instanceof BoolPredicate) {
             BoolPredicate p = (BoolPredicate) con;
-            if (this.getPredicateName().equals(p.getPredicateName())) {
+            if (this.getName().equals(p.getName())) {
                 if (this.getTerms().size() == p.getTerms().size()) {
                     for (int i = 0; i < this.getTerms().size(); i++) {
                         Variable v = (Variable) this.getTerms().get(i);
@@ -349,7 +349,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
         }
 
         String ret = "";
-        ret = ret.concat(this.getPredicateName());
+        ret = ret.concat(this.getName());
         for (Object o1 : this.getTerms()) {
             if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
@@ -442,7 +442,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
     @Override
     public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append(" (");
-        bui.append(getPredicateName());
+        bui.append(getName());
         if (this.getTerms() != null) {
             for (Object o1 : this.getTerms()) {
                 if (o1 instanceof PDDLObject) {
@@ -489,6 +489,15 @@ public class BoolPredicate extends Terminal implements PostCondition {
     @Override
     public Condition pushNotToTerminals( ) {
         return this;
+    }
+
+    public boolean isGrounded() {
+        for (var v: this.variables){
+            if (v instanceof Variable){
+                return false;
+            }
+        }
+        return true;
     }
 
     public enum trueFalse {

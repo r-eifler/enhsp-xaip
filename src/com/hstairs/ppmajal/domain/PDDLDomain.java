@@ -423,8 +423,8 @@ public final class PDDLDomain {
                     }
                     if (p != null && p instanceof BoolPredicate) {
                         for (BoolPredicate pred : transition.getPropositionAffected()) {
-                            if (pred.getPredicateName().equals(((BoolPredicate) p).getPredicateName())) {
-                                canBeDynamic.put(((BoolPredicate) p).getPredicateName(), true);
+                            if (pred.getName().equals(((BoolPredicate) p).getName())) {
+                                canBeDynamic.put(((BoolPredicate) p).getName(), true);
                             }
                         }
                         

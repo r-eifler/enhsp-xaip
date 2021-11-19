@@ -307,7 +307,7 @@ public class Grounder {
             for (final Object son : ((AndCond) preconditions).sons) {
                 if (son instanceof BoolPredicate){
                     final BoolPredicate predicateAction = (BoolPredicate) son;
-                    if (domain.getDynamicPredicateMap().get(predicateAction.getPredicateName()) == null) {
+                    if (domain.getDynamicPredicateMap().get(predicateAction.getName()) == null) {
                         if (!collection.contains(predicateAction)){
                             collection.add(predicateAction);
                         }
@@ -401,7 +401,7 @@ public class Grounder {
         BitSet[] res = new BitSet[length];
         for (Map.Entry<BoolPredicate, Boolean> ele : initBooleanState.entrySet()) {
             final BoolPredicate predicateInit = ele.getKey();
-            if (predicateInit.getPredicateName().equals(predicateAction.getPredicateName())) {
+            if (predicateInit.getName().equals(predicateAction.getName())) {
                 if (predicateInit.getTerms().size() == predicateAction.getTerms().size()) {
                     ArrayList<Pair<Variable,PDDLObject>> temp = new ArrayList<>();
                     for (int i = 0; i < predicateInit.getTerms().size(); i++) {
@@ -467,11 +467,11 @@ public class Grounder {
                 for (final Object o : and.sons) {
                     if (o instanceof BoolPredicate) {
                         final BoolPredicate predicateAction = (BoolPredicate) o;
-                        if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null && predicateAction.getTerms().size() > 0) {
+                        if (dynamicPredicateMap.get(predicateAction.getName()) == null && predicateAction.getTerms().size() > 0) {
                             final Collection<Map<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
                             for (final Map.Entry<BoolPredicate, Boolean> ele : initBooleanState.entrySet()) {
-                                final Pair<Map<Variable, Set<PDDLObject>>, Boolean> routine = routine(predicateAction.getPredicateName(),
-                                        ele.getKey().getPredicateName(),
+                                final Pair<Map<Variable, Set<PDDLObject>>, Boolean> routine = routine(predicateAction.getName(),
+                                        ele.getKey().getName(),
                                         predicateAction.getTerms(),
                                         ele.getKey().getTerms(), S1, S);
                                 final boolean foundToBeTrue = routine.getRight();

@@ -40,7 +40,7 @@ public class PredicateSet extends HashSet<BoolPredicate> {
     public boolean validate (BoolPredicate p) {
 
         for (final BoolPredicate elP : this) {
-            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
+            if (elP.getName() == null ? p.getName() == null : elP.getName().equalsIgnoreCase(p.getName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
                     return true;
                 }
@@ -52,7 +52,7 @@ public class PredicateSet extends HashSet<BoolPredicate> {
     public BoolPredicate findAssociated (BoolPredicate p) {
 
         for (final BoolPredicate elP : this) {
-            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
+            if (elP.getName() == null ? p.getName() == null : elP.getName().equalsIgnoreCase(p.getName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
 //                    for (Object o: elP.getTerms())
                     for (int i = 0; i < p.getTerms().size(); i++) {
@@ -74,7 +74,7 @@ public class PredicateSet extends HashSet<BoolPredicate> {
     public boolean validateInst (BoolPredicate p) {
 
         for (final BoolPredicate elP : this) {
-            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
+            if (elP.getName() == null ? p.getName() == null : elP.getName().equalsIgnoreCase(p.getName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {
                     int i = 0;
                     boolean found = true;
@@ -127,7 +127,7 @@ public class PredicateSet extends HashSet<BoolPredicate> {
     public void addIfNecessary (BoolPredicate p) {
         boolean found = false;
         for (final BoolPredicate elP : this) {
-            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
+            if (elP.getName() == null ? p.getName() == null : elP.getName().equalsIgnoreCase(p.getName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
                     found = true;
 //                    for (Object o: elP.getTerms())

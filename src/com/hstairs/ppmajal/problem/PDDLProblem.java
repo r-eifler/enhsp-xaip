@@ -73,6 +73,20 @@ import org.jgrapht.alg.util.Pair;
  */
 public class PDDLProblem implements SearchProblem {
 
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return the liftedGoals
+     */
+    public Condition getLiftedGoals() {
+        return liftedGoals;
+    }
+
     final private boolean ignoreMetric;
     private boolean cleanUp = false;
     final public BigDecimal executionDelta;
@@ -81,6 +95,11 @@ public class PDDLProblem implements SearchProblem {
     public PDDLProblem(PDDLDomain pddlDomain) {
         this(pddlDomain, "internal", System.out, false, false);
     }
+
+    public PDDLProblem(String arg, PDDLDomain d) {
+        this(arg,d.constants,d.getTypes(),d,System.out,"internal",false,false,new BigDecimal(1.0),new BigDecimal(1.0));
+    }
+
 
     /**
      * @return the readyForSearch
@@ -101,7 +120,7 @@ public class PDDLProblem implements SearchProblem {
     public Collection<OneOf> one_of_s;
     public Collection<OrCond> or_s;
     public Set<Type> types;
-    protected String name;
+    private String name;
     protected Integer indexObject;
     protected Integer indexInit;
     protected Integer indexGoals;
@@ -303,6 +322,7 @@ public class PDDLProblem implements SearchProblem {
 
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();
+        this.genActualFluentsAndCleanTransitions();
         out.println("Grounding Time: " + this.getGroundingTime());
         if (stopAfterGrounding) {
             return;
@@ -347,23 +367,25 @@ public class PDDLProblem implements SearchProblem {
         }
     }
 
-    private void groundingActionProcessesConstraints() throws Exception {
+    public void groundingActionProcessesConstraints() throws Exception {
         long start = System.currentTimeMillis();
 
         actualFluents = null;
         this.createGroundGoals();
         this.generateTransitions();
         this.generateConstraints();
+        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
+//        syncAllVariablesAndUpdateCollections(this);
+
+    }
+    
+    public void genActualFluentsAndCleanTransitions(){
         this.getActualFluents();
         if (this.metric != null && this.metric.getMetExpr() != null) {
             this.metric.setMetExpr(this.metric.getMetExpr().normalize());
         } else {
             this.metric = null;
         }
-
-        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-//        syncAllVariablesAndUpdateCollections(this);
-
     }
 
 
@@ -505,12 +527,9 @@ public class PDDLProblem implements SearchProblem {
     public void simplifyAndSetupInit(boolean aibrPreprocessing) throws Exception {
 
         long start = System.currentTimeMillis();
-//        out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-//        if (cleanUp){
-            easyCleanUp(aibrPreprocessing);
-//        }
-//        out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-        // normalize global constraints, once and forall
+
+        easyCleanUp(aibrPreprocessing);
+
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
         out.println("|F|:" + totNumberOfBoolVariables);
@@ -634,10 +653,14 @@ public class PDDLProblem implements SearchProblem {
         return res;
     }
     
-    private PDDLState makePddlState ( ) {
+    private PDDLState makePddlState () {
+        return this.makePddlState(true);
+    }
+    
+    private PDDLState makePddlState (boolean invAnalysis) {
         //ensure compactness
         //removeStaticPart();
-        PDDLState.optimised = this.processesSet.isEmpty() && this.eventsSet.isEmpty();
+        PDDLState.optimised = (this.processesSet == null || this.processesSet.isEmpty()) && (this.eventsSet == null || this.eventsSet.isEmpty());
         fixNecessaryFluents();
         
         HashMap<Integer,Double> numFluents = new HashMap();
@@ -645,14 +668,16 @@ public class PDDLProblem implements SearchProblem {
         totNumberOfBoolVariables = 0;
         if (NumFluent.numFluentsBank != null){
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
-                if (this.getActualFluents().contains(nf) && nf.has_to_be_tracked()) {
-                    PDDLNumber number = this.getInitNumFluentsValues().get(nf);
-                    if (number == null) {
-                        numFluents.put(nf.getId(), Double.NaN);
-                    } else {
-                        numFluents.put(nf.getId(), number.getNumber().doubleValue());
+                if ((this.getActualFluents().contains(nf) && nf.has_to_be_tracked())|| !invAnalysis) {
+                    if (nf.isGrounded()){
+                        PDDLNumber number = this.getInitNumFluentsValues().get(nf);
+                        if (number == null) {
+                            numFluents.put(nf.getId(), Double.NaN);
+                        } else {
+                            numFluents.put(nf.getId(), number.getNumber().doubleValue());
+                        }
+                        totNumberOfNumVariables++;
                     }
-                    totNumberOfNumVariables++;
                 }
             }
         }
@@ -660,15 +685,17 @@ public class PDDLProblem implements SearchProblem {
         BitSet boolFluents = new BitSet();
         if (BoolPredicate.getPredicatesDB() != null) {
             for (BoolPredicate p : BoolPredicate.getPredicatesDB().values()) {
-                if (this.getActualFluents().contains(p)) {
-                    Boolean r = this.getInitBoolFluentsValues().get(p);
-                    if (r == null || !r) {
-                        //boolFluents.set(p.getId(), false);
-                    } else {
-                        boolFluents.set(p.getId(), true);
+                if (this.getActualFluents().contains(p) || !invAnalysis) {
+                    if (p.isGrounded()){
+                        Boolean r = this.getInitBoolFluentsValues().get(p);
+                        if (r == null || !r) {
+                            //boolFluents.set(p.getId(), false);
+                        } else {
+                            boolFluents.set(p.getId(), true);
+                        }
+                        booleanFluents.add(p);
+                        totNumberOfBoolVariables++;
                     }
-                    booleanFluents.add(p);
-                    totNumberOfBoolVariables++;
                 }
 
             }
@@ -689,7 +716,13 @@ public class PDDLProblem implements SearchProblem {
         
     }
 
-    protected void makeInit ( ) {
+    
+    public void makeInit (boolean invAnalysis ) {
+        this.init = makePddlState(invAnalysis);
+        addTimeFluentToInit();
+    }
+    
+    public void makeInit ( ) {
         this.init = makePddlState();
         addTimeFluentToInit();
     }
@@ -700,7 +733,7 @@ public class PDDLProblem implements SearchProblem {
     }
 
     private void createGroundGoals ( ) {
-        groundGoals = (Condition) liftedGoals.pushNotToTerminals();
+        groundGoals = (Condition) getLiftedGoals().pushNotToTerminals();
         groundGoals = (Condition) groundGoals.ground(new HashMap(), getObjects());
     }
 
@@ -893,7 +926,7 @@ public class PDDLProblem implements SearchProblem {
     public void saveProblem(String pddlNewFile) throws IOException {
         pddlFilRef = pddlNewFile;
         final StringBuilder str = new StringBuilder("");
-        str.append("(define (problem ").append(name).append(") ");
+        str.append("(define (problem ").append(getName()).append(") ");
         str.append("(:domain ").append(this.getDomainName()).append(") \n");
         str.append(this.getObjects().pddlPrint());
         str.append("(:init ");
@@ -907,7 +940,7 @@ public class PDDLProblem implements SearchProblem {
         }
         str.append(")\n");
         str.append("(:goal ");
-        str.append(this.liftedGoals.pddlPrint(false));
+        str.append(this.getLiftedGoals().pddlPrint(false));
         str.append(" )\n");
         if (this.metric != null){
             str.append(this.metric.pddlPrint());
@@ -1110,7 +1143,7 @@ public class PDDLProblem implements SearchProblem {
      * A pretty representation for the pddl problem
      */
     public void prettyPrint() {
-        System.out.println("\ninit: (Bool Fluents)" + initBoolFluentsValues + "(Num Fluents)"+ initNumFluentsValues + "\nObjects: " + getProblemObjects() + "\nGoals:" + liftedGoals + "\n");
+        System.out.println("\ninit: (Bool Fluents)" + initBoolFluentsValues + "(Num Fluents)"+ initNumFluentsValues + "\nObjects: " + getProblemObjects() + "\nGoals:" + getLiftedGoals() + "\n");
 //        if (metric.getMetExpr() instanceof MultiOp) {
 //            MultiOp temp = (MultiOp) metric.getMetExpr();
 //            System.out.println("\n Metric:" + temp.getExpr().size());

@@ -70,9 +70,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
      */
     @Override
     public boolean eval (State s) {
-        for (Object o : this.sons) {
-            if (o instanceof Condition) {
-                Condition c = (Condition) o;
+        for (var o : this.sons) {
+            if (o instanceof Condition c) {
                 if (!c.eval(s)) {
                     return false;
                 }

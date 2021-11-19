@@ -71,7 +71,7 @@ public class Metric {
 
     }
 
-    String pddlPrint ( ) {
+    public String pddlPrint ( ) {
         if (!this.optimization.equals("NO")) {
             return "(:metric " + this.optimization + " " + this.metExpr.pddlPrint(false) + ")";
         } else {
