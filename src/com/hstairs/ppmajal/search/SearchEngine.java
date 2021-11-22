@@ -74,6 +74,7 @@ public class SearchEngine {
     private Object2FloatMap<State> idaStar;
     private PrintStream out;
     protected final SearchProblem problem;
+    private boolean printPrefixAtEachStep = false;
 
     public SearchEngine(SearchHeuristic h, SearchProblem problem) {
         this(System.out, h, problem);
@@ -506,7 +507,15 @@ public class SearchEngine {
                 }
 
                 //if we have a pddl+ problem, we also branch on waiting.
-
+                if (printPrefixAtEachStep){
+                    System.out.println("Current Prefix");
+                    SearchNode temp = currentNode;
+                    while (temp != null){
+                        System.out.println(temp.transition);
+                        temp = (SearchNode) temp.father;
+                    }
+                }
+                        
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
                 for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s, getActionsToSearch(currentNode, problem)); it.hasNext();) {
                     final Pair<State, Object> next = it.next();

@@ -295,10 +295,13 @@ public class PDDLProblem implements SearchProblem {
             groundingTime = System.currentTimeMillis();
 
             for (var act : transitions) {
+//                if (act.toString().contains("make-movable-and-stop")){
+//                    System.out.println(act);
+//                }
                 Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, getInitBoolFluentsValues(), linkedDomain);
                 switch (act.getSemantics()) {
-                    case ACTION :
-                        getActions().addAll(propositionalize);
+                    case ACTION:
+                        getActions().addAll(propositionalize);       
                         break;
                     case EVENT :
                         getEventsSet().addAll(propositionalize);
@@ -306,10 +309,15 @@ public class PDDLProblem implements SearchProblem {
                     case PROCESS :
                         getProcessesSet().addAll(propositionalize);
                         break;
-                }
+                }           
             }
             groundingTime = System.currentTimeMillis() - groundingTime;
         }
+//        for (var v: getActions()){
+//                    if (v.toString().contains("make-movable-and-stop")){
+//                        System.out.println(v);
+//                    }       
+//                }
 
     }
 
@@ -1459,7 +1467,9 @@ public class PDDLProblem implements SearchProblem {
             while (i<actionsSet.length) {
                 current = actionsSet[i]; 
                 i++;
+                
                 if (current instanceof TransitionGround transitionGround) {
+
                     if (transitionGround.isApplicable(source)) {
                         newState = source.clone();
                         newState.apply(transitionGround, source);
