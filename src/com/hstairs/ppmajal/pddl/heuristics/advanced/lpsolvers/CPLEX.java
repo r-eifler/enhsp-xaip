@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.hstairs.ppmajal.pddl.heuristics.advanced;
+package com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers;
 
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Terminal;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.LM;
 import com.hstairs.ppmajal.problem.State;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
@@ -35,12 +36,12 @@ public class CPLEX extends LPInterface{
     private void initLp(State s) {
         if (lp == null) {
             try {
-                lpvar = new IloNumVar[h.heuristicNumberOfActions];
-                lpcond = new IloRange[h.totNumberOfTerms];
+                lpvar = new IloNumVar[h.getHeuristicNumberOfActions()];
+                lpcond = new IloRange[h.getTotNumberOfTerms()];
                 lp = new IloCplex();
                 lp.setOut(null);
                 objectiveFunction = lp.linearNumExpr();
-                for (int p : h.allConditions) {
+                for (int p : h.getAllConditions()) {
                     final Terminal terminal = Terminal.getTerminal(p);
                     final IloLinearNumExpr expr = lp.linearNumExpr();
                     for (int a : h.getAchievers(p)) {
@@ -50,7 +51,7 @@ public class CPLEX extends LPInterface{
                         }
                         if (lpvar[a] == null) {
                             lpvar[a] = lp.numVar(0.0, 0.0, IloNumVarType.Float);
-                            objectiveFunction.addTerm(lpvar[a], h.actionCost[a]);
+                            objectiveFunction.addTerm(lpvar[a], h.getActionCost()[a]);
                         }
                         expr.addTerm(lpvar[a], numericContribution);
                     }
@@ -69,11 +70,11 @@ public class CPLEX extends LPInterface{
 
         try {
             initLp(s);
-            for (var i : h.allConditions) {//Need to be reset; only lm are going to be targeted with a value
+            for (var i : h.getAllConditions()) {//Need to be reset; only lm are going to be targeted with a value
                 lpcond[i].setLB(0f);
             }
             for (var lm : lms) {//by default they are not sat in the initial state
-                if (!h.conditionInit[lm]) {
+                if (!h.getConditionInit()[lm]) {
                     final Terminal t = Terminal.getTerminal(lm);
                     final IloRange constraint = lpcond[lm];
                     if (t instanceof Comparison) {
@@ -82,7 +83,7 @@ public class CPLEX extends LPInterface{
                     } else {
                         constraint.setLB(1f);
                     }
-                    for (var a : h.reachableAchievers[lm]) { //these are reachable actions achieving lm
+                    for (var a : h.getReachableAchievers()[lm]) { //these are reachable actions achieving lm
                         lpvar[a].setUB(Float.MAX_VALUE);
                     }
                 }

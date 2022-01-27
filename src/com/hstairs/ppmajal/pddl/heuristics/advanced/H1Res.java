@@ -52,7 +52,7 @@ public class H1Res extends H1 {
 //        System.out.println("-------------------------------------------------");
 //        System.out.println(Terminal.getTerminal(conditionId));
         if (depActions[term1] == null) {
-            depActions[term1] = new BitSet(heuristicNumberOfActions);
+            depActions[term1] = new BitSet(getHeuristicNumberOfActions());
             for (var actionId : getAchievers(term1)) {
                 final BitSet dep = depActions[term1];
     //            System.out.println(TransitionGround.getTransition(actionId));
@@ -67,7 +67,7 @@ public class H1Res extends H1 {
                         }
                     }
                     for (final var t : terminalConditions[actionId]) {
-                        if (!conditionInit[t]) {
+                        if (!getConditionInit()[t]) {
                             dep.or(getDep(t));
                         }
                     }
@@ -96,7 +96,7 @@ public class H1Res extends H1 {
             float minP = Float.MAX_VALUE;
             for (var v : getAchievers(t.getId())) {
 //                System.out.println("Under Analysis---"+TransitionGround.getTransition(v));
-                if (actionHCost[v] != Float.MAX_VALUE){
+                if (getActionHCost()[v] != Float.MAX_VALUE){
 //                if (actionHCost[v] <= conditionCost[t.getId()]){
                     
                     if (allSeen.get(v)) {
@@ -110,7 +110,7 @@ public class H1Res extends H1 {
                             minA = localCost[v][t.getId()];
                         }
                     }
-                    if (twolevel && !actionInit[v]){
+                    if (twolevel && !getActionInit()[v]){
                         minP = Math.min(minP, costPre(v,allSeen));
                     }else{
                         minP = 0;
@@ -127,7 +127,7 @@ public class H1Res extends H1 {
             float minA = Float.MAX_VALUE;
             for (var v : getAchievers(t.getId())) {
 //                System.out.println("Under Analysis---"+TransitionGround.getTransition(v));
-                if (actionHCost[v] != Float.MAX_VALUE){
+                if (getActionHCost()[v] != Float.MAX_VALUE){
 //                if (actionHCost[v] <= conditionCost[t.getId()]){
                     
                     if (allSeen.get(v)) {
@@ -135,7 +135,7 @@ public class H1Res extends H1 {
                         break;
                     }else{
                         float prec = 0;
-                        if (twolevel && !actionInit[v]){
+                        if (twolevel && !getActionInit()[v]){
                             prec = costPre(v,allSeen);
                         }
                         if (prec != Float.MAX_VALUE){
@@ -164,11 +164,11 @@ public class H1Res extends H1 {
             float max = 0;
             for (final var c : ((AndCond) name).sons) {
                 float min = Float.MAX_VALUE;
-                if (conditionInit[((Terminal) c).getId()]){
+                if (getConditionInit()[((Terminal) c).getId()]){
                     min = 0;
                 }else{
                     for (var a : getAchievers(((Terminal) c).getId())) {
-                        if (actionHCost[a] != Float.MAX_VALUE) {
+                        if (getActionHCost()[a] != Float.MAX_VALUE) {
 //                        if (actionHCost[a] <= conditionCost[((Terminal) c).getId()]){
                             
                             if (allSeen.get(a)) {
@@ -264,7 +264,7 @@ public class H1Res extends H1 {
             BitSet allSeen = null;
             for (int i = 0; i < toIterate.length;  i++) {
                 final Condition v = (Condition) toIterate[i];
-                if (i != best && !conditionInit[((Terminal) v).getId()]) {
+                if (i != best && !getConditionInit()[((Terminal) v).getId()]) {
                     if (first) {
 //                        System.out.println("Updating seen of: "+(Condition) sons[best]);
                         allSeen = new BitSet();
@@ -309,7 +309,7 @@ public class H1Res extends H1 {
         for (final float[] row : localCost) {
             Arrays.fill(row, Float.MAX_VALUE);
         }
-        depActions = new BitSet[totNumberOfTerms];
+        depActions = new BitSet[getTotNumberOfTerms()];
         return super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
 
     }

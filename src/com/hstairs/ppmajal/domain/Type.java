@@ -18,12 +18,9 @@
  */
 package com.hstairs.ppmajal.domain;
 
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
+import com.hstairs.ppmajal.extraUtils.DAG;
 import java.util.HashMap;
 import java.util.Set;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedAcyclicGraph;
 
 /**
  * @author enrico
@@ -33,7 +30,7 @@ public class Type extends Object {
     /**
      * @return the hierarchy
      */
-    public static DirectedAcyclicGraph getHierarchy() {
+    public static DAG getHierarchy() {
         return hierarchy;
     }
 
@@ -43,13 +40,13 @@ public class Type extends Object {
     final int id;
     
     private static HashMap<String,Type> typeDB;
-    private static DirectedAcyclicGraph hierarchy;
+    private static DAG hierarchy;
     
     
     public static Type type(String name) {
         Type father = Type.getType("object","null");
         if (getHierarchy() == null){
-            hierarchy = new DirectedAcyclicGraph(DefaultEdge.class);
+            hierarchy = new DAG();
         }
         if (typeDB == null){
             typeDB = new HashMap();
@@ -66,7 +63,7 @@ public class Type extends Object {
     }
     public static Type getType(String name, String father){
         if (getHierarchy() == null){
-            hierarchy = new DirectedAcyclicGraph(DefaultEdge.class);
+            hierarchy = new DAG();
         }
         if (typeDB == null){
             typeDB = new HashMap();

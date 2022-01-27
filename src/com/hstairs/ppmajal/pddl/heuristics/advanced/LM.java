@@ -5,6 +5,8 @@
  */
 package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
+import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.LPInterface;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.CPLEX;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
@@ -25,6 +27,13 @@ import java.util.Collection;
  */
 public class LM extends H1 {
 
+    /**
+     * @return the reachableAchievers
+     */
+    public IntArraySet[] getReachableAchievers() {
+        return reachableAchievers;
+    }
+
     final private boolean[] reachedConditions;
     final private boolean[] reachedActions;
     final private IntOpenHashSet[] lmC;
@@ -32,7 +41,7 @@ public class LM extends H1 {
     private final String mode;
     final private LPInterface lpSolver;
 
-    final  IntArraySet[] reachableAchievers;
+    private final  IntArraySet[] reachableAchievers;
     protected IloLinearNumExpr objectiveFunction;
             
 
@@ -110,7 +119,7 @@ public class LM extends H1 {
     }
 
     private void updateActions(int i, IntArrayList q, int a) {
-        final IntArraySet actions = conditionToAction[i];
+        final IntArraySet actions = getConditionToAction()[i];
         for (final int a1 : actions) {
             if (a == a1) {
                 continue;
@@ -123,7 +132,7 @@ public class LM extends H1 {
                     for (final Object t : ((AndCond) name).sons) {
                         if (t instanceof Terminal) {
                             lmA[a1].addAll(lmC[((Terminal) t).getId()]);
-                            if (!conditionInit[((Terminal) t).getId()]) {
+                            if (!getConditionInit()[((Terminal) t).getId()]) {
                                 lmA[a1].add(((Terminal) t).getId());
                             }
                         }
@@ -163,8 +172,8 @@ public class LM extends H1 {
     private void expand(int a, IntArrayList q) {
         final Collection<Integer> conditions = getConditionsAchievableById(a);
         for (final int p : conditions) {
-            if (!conditionInit[p]) {
-                reachableAchievers[p].add(a);
+            if (!getConditionInit()[p]) {
+                getReachableAchievers()[p].add(a);
                 final boolean changed = updateCondition(p, a);
                 if (changed) {
                     updateActions(p, q, a);
@@ -174,7 +183,7 @@ public class LM extends H1 {
     }
 
     private void printLandmarks() {
-        AndCond goal = (AndCond) problem.getGoals();
+        AndCond goal = (AndCond) getProblem().getGoals();
         System.out.println("Landmarks");
         for (int sg : lmA[pseudoGoal]) {
             System.out.println(Terminal.getTerminal(sg));
@@ -183,14 +192,14 @@ public class LM extends H1 {
 
     private IntArrayList quickReset(State s) {
         final IntArrayList q = new IntArrayList();
-        Arrays.fill(conditionInit, false);
+        Arrays.fill(getConditionInit(), false);
         Arrays.fill(reachedConditions, false);
         Arrays.fill(reachedActions, false);
         
-        for (final int i : allConditions) {
+        for (final int i : getAllConditions()) {
             reachableAchievers[i] = new IntArraySet();
             if (s.satisfy(Terminal.getTerminal(i))) {
-                conditionInit[i] = true;
+                getConditionInit()[i] = true;
                 reachedConditions[i] = true;
                 lmC[i] = new IntOpenHashSet();
                 updateActions(i, q, -1);
@@ -206,7 +215,7 @@ public class LM extends H1 {
     private int countMissing() {
         int lmCount = 0;
         for (int lm : lmA[pseudoGoal]) {
-            if (!conditionInit[lm]) {
+            if (!getConditionInit()[lm]) {
                 lmCount++;
             }
         }

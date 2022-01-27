@@ -88,7 +88,7 @@ public class H1Fix extends H1 {
                 DG.addVertex(a);
                 visitedActions[a] = true;
                 for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
-                        if (!conditionInit[conditionId]) {
+                        if (!getConditionInit()[conditionId]) {
                             final int b = establishedAchiever[conditionId];
                             maxNumRepetition[b] = (int) Math.max(maxNumRepetition[b],ceil(numRepetition[conditionId]));
 //                            minNumRepetition[b] = (int) Math.min(minNumRepetition[b],ceil(numRepetition[conditionId]));
@@ -120,7 +120,7 @@ public class H1Fix extends H1 {
         
         
         int extraCost =0;
-        final IntArraySet[] descendants = new IntArraySet[heuristicNumberOfActions];
+        final IntArraySet[] descendants = new IntArraySet[getHeuristicNumberOfActions()];
         Arrays.fill(descendants, null);
         
         computeDescendants(pseudoGoal, prec, descendants);
@@ -165,7 +165,7 @@ public class H1Fix extends H1 {
                                             best = i;
                                         }
                                     }
-                                    extraCost += actionCost[best];
+                                    extraCost += getActionCost()[best];
                                 }else{
                                     extraCost += 1;
                                 }
@@ -194,8 +194,8 @@ public class H1Fix extends H1 {
                                                     best = i;
                                                 }
                                             }
-                                            if (actionHCost[best] != Float.MAX_VALUE) {
-                                                extraCost += actionHCost[best];
+                                            if (getActionHCost()[best] != Float.MAX_VALUE) {
+                                                extraCost += getActionHCost()[best];
                                             } else {
                                                 extraCost += 1;
                                             }
@@ -211,7 +211,7 @@ public class H1Fix extends H1 {
         }
         float estimate = 0f;
         for (int aId : V){
-            estimate += maxNumRepetition[aId] * actionCost[aId];
+            estimate += maxNumRepetition[aId] * getActionCost()[aId];
         }
         return estimate+extraCost;
         

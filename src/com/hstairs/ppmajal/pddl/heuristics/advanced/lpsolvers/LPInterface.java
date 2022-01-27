@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.hstairs.ppmajal.pddl.heuristics.advanced;
+package com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers;
 
+import com.hstairs.ppmajal.pddl.heuristics.advanced.LM;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
@@ -12,7 +13,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
  *
  * @author enrico
  */
-abstract class LPInterface {
+abstract public class LPInterface {
 
     protected final LM h;
     public LPInterface(LM h){
