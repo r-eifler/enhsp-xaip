@@ -27,12 +27,7 @@ import java.util.Collection;
  */
 public class LM extends H1 {
 
-    /**
-     * @return the reachableAchievers
-     */
-    public IntArraySet[] getReachableAchievers() {
-        return reachableAchievers;
-    }
+
 
     final private boolean[] reachedConditions;
     final private boolean[] reachedActions;

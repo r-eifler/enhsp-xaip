@@ -96,7 +96,7 @@ public class H1 implements SearchHeuristic {
     protected final ArrayShifter termsArrayShifter;
     protected final ArrayShifter actionsArrayShifter;
     protected final int totNumberOfActionsRefactored;
-    private IntArraySet[] allAchievers;
+    IntArraySet[] allAchievers;
     final private IntArraySet[] deleters;
     protected int[] establishedAchiever;
     protected float[] numRepetition;
@@ -1080,6 +1080,13 @@ public class H1 implements SearchHeuristic {
      */
     public IntArraySet getAllConditions() {
         return allConditions;
+    }
+    
+        /**
+     * @return the reachableAchievers
+     */
+    public IntArraySet[] getReachableAchievers() {
+        return allAchievers;
     }
 
     /**
