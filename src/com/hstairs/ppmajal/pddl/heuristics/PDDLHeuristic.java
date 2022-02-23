@@ -11,6 +11,7 @@ import com.hstairs.ppmajal.pddl.heuristics.advanced.GoalCounting;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1Fix;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1Res;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.HGen;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.LM;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.search.SearchHeuristic;
@@ -115,6 +116,12 @@ public class PDDLHeuristic {
                 System.out.println("HLM selected");
                 System.out.println(redundantConstraints);
                 return new LM(heuristicProblem, "lp", redundantConstraints, "gurobi");
+
+            }
+            case "hgen":{
+                System.out.println("HGEN selected");
+                System.out.println(redundantConstraints);
+                return new HGen(heuristicProblem);
 
             }
             default:

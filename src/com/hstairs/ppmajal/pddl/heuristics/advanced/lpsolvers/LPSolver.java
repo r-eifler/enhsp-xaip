@@ -28,9 +28,7 @@ abstract public class LPSolver {
         this.universe = universe;
     }
     abstract public void initLp(State s);
+    
     abstract public float solve(State s, IntSet lms);
 
-    public Float solve(PDDLState s, ArrayList<Boolean> activeActions) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 }

@@ -28,11 +28,14 @@
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/CPLEX.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLProblem.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/LPSolver.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/PDDLHeuristic.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/plan/SimplePlan.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/HGen.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/CPLEXSingleAction.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1Res.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/GUROBI.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/LPSolverSingleAction.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1Fix.java</file>
         </group>
     </open-files>

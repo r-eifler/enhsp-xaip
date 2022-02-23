@@ -18,6 +18,7 @@ import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,7 +78,7 @@ public class CPLEX extends LPSolver{
 
         try {
             initLp(s);
-            for (var i : h.getAllConditions()) {//Need to be reset; only lm are going to be targeted with a value
+            for (var i : universe) {//Need to be reset; only lm are going to be targeted with a value
                 lpcond[i].setLB(0f);
             }
             for (var lm : lms) {//by default they are not sat in the initial state
@@ -104,5 +105,6 @@ public class CPLEX extends LPSolver{
         }
         return Float.MAX_VALUE;
     }
+
     
 }
