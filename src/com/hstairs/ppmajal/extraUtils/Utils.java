@@ -19,15 +19,18 @@
 package com.hstairs.ppmajal.extraUtils;
 
 import com.google.common.math.DoubleMath;
+import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
+import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
+import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionSchema;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import java.io.BufferedWriter;
 import net.sourceforge.interval.ia_math.RealInterval;
 
@@ -249,5 +252,17 @@ public class Utils {
         final Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
         file.append(str);
         file.close();
+    }
+
+    public static IntArraySet getNecessarySet(Condition condition) {
+        final IntArraySet ret = new IntArraySet();
+        if (condition  instanceof AndCond andCond){
+            for (var v: andCond.sons){
+                if (v instanceof Terminal terminal){
+                    ret.add(terminal.getId());
+                }
+            }
+        }
+        return ret;
     }
 }

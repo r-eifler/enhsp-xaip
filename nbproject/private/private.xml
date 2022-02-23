@@ -20,11 +20,20 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/LM.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/Utils.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/AndCond.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/ArrayShifter.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/CPLEX.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLProblem.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/LPSolver.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/plan/SimplePlan.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/HGen.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1Res.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/GUROBI.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1Fix.java</file>
         </group>
     </open-files>
 </project-private>

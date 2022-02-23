@@ -58,7 +58,7 @@ public class H1 implements SearchHeuristic {
         return heuristicNumberOfActions;
     }
 
-    private static final boolean DEBUG = false;
+    static final boolean DEBUG = false;
     final public boolean extractRelaxedPlan;
     final public boolean maxMRP;
 
@@ -72,13 +72,13 @@ public class H1 implements SearchHeuristic {
 
     protected final PDDLProblem problem;
     final private boolean helpfulActionsComputation;
-    private final IntArraySet[] conditionsAchievableBy;
-    private final IntArraySet[] conditionsDeletableBy;
-    private final IntArraySet[] conditionToAction;
-    private final IntArraySet allConditions;
+    final IntArraySet[] conditionsAchievableBy;
+    final IntArraySet[] conditionsDeletableBy;
+    final IntArraySet[] conditionToAction;
+    final IntArraySet allConditions;
     private final IntArraySet allComparisons;
     private final FibonacciHeapNode[] nodeOf;
-    private boolean reachability;
+    boolean reachability;
     private final boolean conjunctionsMax;
 
     private final float[] actionCost;
@@ -86,7 +86,7 @@ public class H1 implements SearchHeuristic {
     private final float[] conditionCost;
     private final boolean[] closed;
 
-    private final boolean additive;
+    final boolean additive;
     private final boolean[] conditionInit;
     private final boolean[] actionInit;
     private final boolean helpfulTransitions;
@@ -101,10 +101,10 @@ public class H1 implements SearchHeuristic {
     protected int[] establishedAchiever;
     protected float[] numRepetition;
     private IntArraySet helpfulActions;
-    private IntArraySet reachableTransitions;
+    IntArraySet reachableTransitions;
     private Collection<TransitionGround> reachableTransitionsInstances;
 
-    final private float UNKNOWNEFFECT = Float.NEGATIVE_INFINITY;
+    final float UNKNOWNEFFECT = Float.NEGATIVE_INFINITY;
     final protected IntArraySet freePreconditionActions;
 //    private List<Pair<Integer, IntArraySet>> plan;
     private IntArraySet plan;
@@ -113,7 +113,7 @@ public class H1 implements SearchHeuristic {
     protected IntArraySet allActions;
 
     Map<AndCond, Collection<IntArraySet>> redundantMap;
-    private final boolean useSmartConstraints;
+    final boolean useSmartConstraints;
     
     final int[] maxNumRepetition ;
     
@@ -890,7 +890,7 @@ public class H1 implements SearchHeuristic {
         deleters[i].add(actId);
     }
 
-    private void updateDeleters(int t, int actionId) {
+    void updateDeleters(int t, int actionId) {
         addDeleter(t, actionId);
     }
 

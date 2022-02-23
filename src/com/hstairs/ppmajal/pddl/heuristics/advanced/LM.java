@@ -5,7 +5,7 @@
  */
 package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
-import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.LPInterface;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.LPSolver;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.CPLEX;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
@@ -34,9 +34,8 @@ public class LM extends H1 {
     final private IntOpenHashSet[] lmC;
     final private IntOpenHashSet[] lmA;
     private final String mode;
-    final private LPInterface lpSolver;
+    final private LPSolver lpSolver;
 
-    private final  IntArraySet[] reachableAchievers;
     protected IloLinearNumExpr objectiveFunction;
             
 
@@ -57,7 +56,7 @@ public class LM extends H1 {
             throw new RuntimeException(solver+" is not supported");
 //            lpSolver = new GUROBI(this);
         }
-        reachableAchievers = new IntArraySet[totNumberOfTerms];
+        allAchievers = new IntArraySet[totNumberOfTerms];
     }
 
 
@@ -192,7 +191,7 @@ public class LM extends H1 {
         Arrays.fill(reachedActions, false);
         
         for (final int i : getAllConditions()) {
-            reachableAchievers[i] = new IntArraySet();
+            allAchievers[i] = new IntArraySet();
             if (s.satisfy(Terminal.getTerminal(i))) {
                 getConditionInit()[i] = true;
                 reachedConditions[i] = true;

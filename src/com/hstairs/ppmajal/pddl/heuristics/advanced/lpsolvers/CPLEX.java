@@ -7,6 +7,7 @@ package com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers;
 
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Terminal;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.LM;
 import com.hstairs.ppmajal.problem.State;
 import ilog.concert.IloException;
@@ -15,6 +16,7 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,17 +25,22 @@ import java.util.logging.Logger;
  *
  * @author enrico
  */
-public class CPLEX extends LPInterface{
+public class CPLEX extends LPSolver{
 
     private IloCplex lp;
     private IloNumVar[] lpvar;
     private IloRange[] lpcond;
     private IloLinearNumExpr objectiveFunction;
 
-    public CPLEX(LM h){
+    public CPLEX(H1 h, IntArraySet universe) {
+        super(h, universe);
+    }
+    public CPLEX(H1 h) {
         super(h);
     }
-    private void initLp(State s) {
+
+    @Override
+    public void initLp(State s) {
         if (lp == null) {
             try {
                 lpvar = new IloNumVar[h.getHeuristicNumberOfActions()];
@@ -41,7 +48,7 @@ public class CPLEX extends LPInterface{
                 lp = new IloCplex();
                 lp.setOut(null);
                 objectiveFunction = lp.linearNumExpr();
-                for (int p : h.getAllConditions()) {
+                for (int p : universe) {
                     final Terminal terminal = Terminal.getTerminal(p);
                     final IloLinearNumExpr expr = lp.linearNumExpr();
                     for (int a : h.getAchievers(p)) {
@@ -97,4 +104,5 @@ public class CPLEX extends LPInterface{
         }
         return Float.MAX_VALUE;
     }
+    
 }
