@@ -62,8 +62,8 @@ public class H1 implements SearchHeuristic {
     final public boolean extractRelaxedPlan;
     final public boolean maxMRP;
 
-    final protected int pseudoGoal;
-    final protected Condition[] preconditionFunction;
+    public final int pseudoGoal;
+    public final Condition[] preconditionFunction;
     final protected Collection<Integer>[] propEffectFunction;
     final protected Collection<NumEffect>[] numericEffectFunction;
     protected final int heuristicNumberOfActions;
@@ -82,7 +82,7 @@ public class H1 implements SearchHeuristic {
     private final boolean conjunctionsMax;
 
     private final float[] actionCost;
-    private final float[] actionHCost;
+    final float[] actionHCost;
     private final float[] conditionCost;
     private final boolean[] closed;
 
