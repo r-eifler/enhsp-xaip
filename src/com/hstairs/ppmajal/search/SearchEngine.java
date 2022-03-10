@@ -310,6 +310,8 @@ public class SearchEngine {
 
     }
 
+    
+    
     public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> UCS(SearchProblem problem) {
         final ObjectHeapPriorityQueue<SearchNode> frontier = new ObjectHeapPriorityQueue<>(new TieBreaker(this.tbRule));
         final State init = problem.getInit();
@@ -357,6 +359,53 @@ public class SearchEngine {
                 }
             }
         }
+        return null;
+    }
+    
+    private SearchNode _breathFirstSearch(SearchProblem problem){
+        State init = problem.getInit();
+        SearchNode sn = new SearchNode(init, null,null, 0, 0);
+        if (problem.goalSatisfied(init)){
+            return sn;
+        }
+        this.beginningTime = System.currentTimeMillis();
+        ObjectOpenHashSet<State> reached = new ObjectOpenHashSet<>();
+        reached.add(sn.s);
+        ObjectArrayFIFOQueue<SearchNode> frontier = new ObjectArrayFIFOQueue();
+        frontier.enqueue(sn);
+        int level = 0;
+        while(!frontier.isEmpty()){
+            SearchNode currentNode = frontier.dequeue();
+            nodesExpanded++;
+            if (level != currentNode.gValue){
+                out.println("d(n): "+ currentNode.gValue +" Expanded: "+nodesExpanded);
+                level = (int) currentNode.gValue;
+            }
+            for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s, getActionsToSearch(currentNode, problem)); it.hasNext();) {
+                Pair<State, Object> next = it.next();
+                if (!reached.contains(next.getFirst())) {
+                    this.numberOfEvaluatedStates++;
+                    SearchNode newNode;
+                    if (next.getSecond() instanceof ArrayList) {
+                        //TODO This needs to be fixed to make the check depends on the problem search node. Surely not here!!
+                        newNode = new SearchNode(next.getFirst(), (ArrayList) next.getSecond(), currentNode, currentNode.gValue+1, 0, this.saveSearchTreeAsJson, this.gw, this.hw);
+                    } else {
+                        newNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, currentNode.gValue+1, 0, this.saveSearchTreeAsJson, this.gw, this.hw);
+                    }
+                    if (problem.goalSatisfied(newNode.s)) {
+                        this.overallSearchTime = System.currentTimeMillis()-this.beginningTime;
+                        return newNode;
+                    }else{
+                        reached.add(newNode.s);
+                        frontier.enqueue(newNode);
+                    }
+                }else{
+                    
+                }
+            }
+        }
+        this.overallSearchTime = System.currentTimeMillis()-this.beginningTime;
+
         return null;
     }
 
@@ -564,6 +613,16 @@ public class SearchEngine {
             return null;
         }
     }
+    
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> breathFirstSearch(SearchProblem problem) throws Exception {
+        SimpleSearchNode end = this._breathFirstSearch(problem);
+        if (end != null) {
+            return this.extractPlan(end);
+        } else {
+            return null;
+        }
+    }
+    
 
     public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem) throws Exception {
         this.optimality = false;
@@ -870,9 +929,9 @@ public class SearchEngine {
 
     
     
-    Object[] getActionsToSearch(SearchNode currentNode, SearchProblem problem) {
+    Object[] getActionsToSearch(SimpleSearchNode currentNode, SearchProblem problem) {
         if (helpfulActionsPruning && currentNode != null) {
-            return currentNode.helpfulActions;
+            return ((SearchNode)currentNode).helpfulActions;
         }
         return heuristic.getTransitions(false);
     }
