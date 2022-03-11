@@ -175,23 +175,23 @@ public class SearchEngine {
 
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> a_star(SearchProblem problem) throws Exception {
+    private LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> a_star(SearchProblem problem) throws Exception {
         this.gw = 1f;
         this.hw = 1f;
         return this.WAStar();
     }
 
-    public LinkedList<Object> enforced_hill_climbing(SearchProblem problem) throws Exception {
-        return this.enforced_hill_climbing(problem, Explorator.BRFS);
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> enforceHillClimbing(SearchProblem problem) throws Exception {
+        return this.enforcedHillClimbing(problem, Explorator.BRFS);
     }
 
-    public LinkedList<Object> enforced_hill_climbing(SearchProblem problem, Explorator explorator) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> enforcedHillClimbing(SearchProblem problem, Explorator explorator) throws Exception {
         long start_global = System.currentTimeMillis();
         setEvaluatedStates(getEvaluatedStates() + 1);
 
         State current = problem.getInit();
 
-        LinkedList<Object> plan = new LinkedList<>();
+        LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> plan = new LinkedList<>();
 //        rel_actions = getHeuristic().reachable;
         setNumberOfEvaluatedStates(0);
         Object visited = null;
@@ -212,9 +212,8 @@ public class SearchEngine {
             final SearchNode succ;
             System.gc();
             if (explorator.equals(Explorator.BRFS)) {
-                succ = breadth_first_search(current, problem, (Object2BooleanMap<State>) visited);
+                succ = oldBreathFirstSearchImplementation(current, problem, (Object2BooleanMap<State>) visited);
             } else {
-
                 succ = WAStar(problem, current, true, (Object2FloatMap<State>) visited, false, Long.MAX_VALUE);
             }
 
@@ -237,20 +236,21 @@ public class SearchEngine {
 
     }
     
-    public SearchNode breadth_first_search(State current, SearchProblem problem, Object2BooleanMap<State> visited) throws Exception {
+    private SearchNode oldBreathFirstSearchImplementation(State current, SearchProblem problem, Object2BooleanMap<State> visited) throws Exception {
         //out.println("Visited size:"+visited.size());
 
         Queue<SearchNode> frontier = new LinkedList<>();
-        Float current_value = heuristic.computeEstimate(current);
+        float currentValue = heuristic.computeEstimate(current);
 
-        SearchNode init = new SearchNode(current, null, null, 0, current_value);
+        SearchNode init = new SearchNode(current, null, null, 0, currentValue);
         frontier.add(init);
+        visited.put(init.s, true);
         if (this.helpfulActionsPruning) {
             throw new UnsupportedOperationException();
 //            init.helpfulActions = getHeuristic().getHelpfulActions();
         }
 //        out.println(init.relaxed_plan_from_heuristic);
-        out.println("h(n):" + current_value + " ");
+        out.println("h(n):" + currentValue + " ");
         float current_gn = 0;
         while (!frontier.isEmpty()) {
             SearchNode node = frontier.poll();
@@ -260,14 +260,10 @@ public class SearchEngine {
                 current_gn = node.gValue;
 
             }
-
-            visited.put(node.s, true);
             for (Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s, getActionsToSearch(node, problem)); it.hasNext();) {
                 final Pair<State, Object> next = it.next();
                 final Object act = next.getSecond();
                 State temp = next.getFirst();
-//                    out.println("Depth:"+node.gValue);
-                //act.normalize();
                 if (!problem.satisfyGlobalConstraints(temp)) {
                     continue;
                 }
@@ -280,7 +276,7 @@ public class SearchEngine {
                         continue;
                     }
                     long start = System.currentTimeMillis();
-                    Float d = heuristic.computeEstimate(temp);
+                    final Float d = heuristic.computeEstimate(temp);
                     setHeuristicCpuTime(getHeuristicCpuTime() + System.currentTimeMillis() - start);
                     //out.println("try");
                     setEvaluatedStates(getEvaluatedStates() + 1);
@@ -292,7 +288,7 @@ public class SearchEngine {
                             throw new UnsupportedOperationException();
 //                            new_node.helpfulActions = heuristic.getHelpfulActions();
                         }
-                        if (problem.milestoneReached(d, current_value, temp)) {
+                        if (problem.milestoneReached(d, currentValue, temp)) {
 //                            if (d < current_value && problem.isSafeState(temp)) {
                             setNodesExpanded(getNodesExpanded() + 1);
                             out.println("h(n):" + d);
@@ -386,12 +382,7 @@ public class SearchEngine {
                 if (!reached.contains(next.getFirst())) {
                     this.numberOfEvaluatedStates++;
                     SearchNode newNode;
-                    if (next.getSecond() instanceof ArrayList) {
-                        //TODO This needs to be fixed to make the check depends on the problem search node. Surely not here!!
-                        newNode = new SearchNode(next.getFirst(), (ArrayList) next.getSecond(), currentNode, currentNode.gValue+1, 0, this.saveSearchTreeAsJson, this.gw, this.hw);
-                    } else {
-                        newNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, currentNode.gValue+1, 0, this.saveSearchTreeAsJson, this.gw, this.hw);
-                    }
+                    newNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, currentNode.gValue+1, 0, this.saveSearchTreeAsJson, this.gw, this.hw);
                     if (problem.goalSatisfied(newNode.s)) {
                         this.overallSearchTime = System.currentTimeMillis()-this.beginningTime;
                         return newNode;
@@ -769,11 +760,11 @@ public class SearchEngine {
 
     }
 
-    public LinkedList<Object> dfsbnb(SearchProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> dfsbnb(SearchProblem problem) throws Exception {
         return this.dfsbnb(problem, false);
     }
 
-    public LinkedList<Object> dfsbnb(SearchProblem problem, boolean memory) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> dfsbnb(SearchProblem problem, boolean memory) throws Exception {
         State initState = problem.getInit();
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;
@@ -794,6 +785,9 @@ public class SearchEngine {
         }
 
         long startSearch = System.currentTimeMillis();
+        if (Float.isNaN(depthLimit)){
+            depthLimit = Float.MAX_VALUE;
+        }
 
         final Pair<IdaStarSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true, memory);
         setOverallSearchTime((System.currentTimeMillis() - startSearch));

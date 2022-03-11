@@ -1,6 +1,7 @@
 package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.problem.State;
+import java.util.ArrayList;
 
 public class SimpleSearchNode {
     final public State s;
@@ -11,7 +12,11 @@ public class SimpleSearchNode {
 
     public SimpleSearchNode (State s, Object transition, SimpleSearchNode father, float g) {
         this.s = s;
-        this.transition = transition;
+        if (!(transition instanceof ArrayList))
+            this.transition = transition;
+        else{
+            this.transition = null;
+        }
         this.father = father;
         this.gValue = g;
     }

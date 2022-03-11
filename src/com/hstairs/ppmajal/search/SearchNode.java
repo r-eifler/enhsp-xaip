@@ -57,7 +57,9 @@ public class SearchNode extends SimpleSearchNode {
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         super(s1, action, father, action_cost_to_get_here);
         this.h = goal_distance;
-
+        if (action instanceof ArrayList){
+            this.list_of_actions = (ArrayList<Object>) action;
+        }
         this.wh = wh;
         this.wg = wg;
         f = this.h * this.wh + this.gValue * this.wg;
@@ -67,10 +69,12 @@ public class SearchNode extends SimpleSearchNode {
             if (action == null) {
                 json_rep.put("action", "init_state");
             } else {
-                if (action instanceof TransitionGround){
-                    json_rep.put("action", ((TransitionGround) action).toString().replace("(", "").replace(")", ""));
-                }else{
-                    json_rep.put("action", "<waiting>");
+                if (transition == null && this.list_of_actions == null) {
+                    json_rep.put("action", "init_state");
+                } else if (transition == null) {
+                    json_rep.put("list_of_actions", "waiting");
+                } else {
+                    json_rep.put("action", transition.toString());
                 }
             }
             json_rep.put("distance", goal_distance);
@@ -137,51 +141,51 @@ public class SearchNode extends SimpleSearchNode {
         }
 
     }
-
-    public SearchNode (State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        super(s1, null, father, action_cost_to_get_here);
-        this.h = goal_distance;
-        this.list_of_actions = list;
-
-        this.wh = wh;
-        this.wg = wg;
-        f = this.h * this.wh + this.gValue * this.wg;
-        //System.out.println("F:"+f);
-        if (saving_json) {
-            json_rep = new JSONObject();
-            if (transition == null && this.list_of_actions == null) {
-                json_rep.put("action", "init_state");
-            } else if (transition == null) {
-                json_rep.put("list_of_actions", "waiting");
-            } else {
-                json_rep.put("action", transition.toString());
-            }
-
-            json_rep.put("distance", goal_distance);
-            json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
-            if (father == null) {
-                json_rep.put("ancestor", "init_state");
-            } else {
-                json_rep.put("ancestor", father.json_rep.get("visited_step"));
-            }
-            json_rep.put("visited", false);
-            json_rep.put("visit_step", -1);
-            json_rep.put("descendants", new JSONArray());
-            JSONParser parser = new JSONParser();
-            JSONObject json;
-            try {
-                json = (JSONObject) parser.parse(s1.toString());
-                json_rep.put("state", json);
-            } catch (ParseException ex) {
-                json_rep.put("state", s1.toString());
-            }
-
-
-        } else {
-            json_rep = null;
-        }
-
-    }
+//
+//    public SearchNode (State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+//        super(s1, null, father, action_cost_to_get_here);
+//        this.h = goal_distance;
+//        this.list_of_actions = list;
+//
+//        this.wh = wh;
+//        this.wg = wg;
+//        f = this.h * this.wh + this.gValue * this.wg;
+//        //System.out.println("F:"+f);
+//        if (saving_json) {
+//            json_rep = new JSONObject();
+//            if (transition == null && this.list_of_actions == null) {
+//                json_rep.put("action", "init_state");
+//            } else if (transition == null) {
+//                json_rep.put("list_of_actions", "waiting");
+//            } else {
+//                json_rep.put("action", transition.toString());
+//            }
+//
+//            json_rep.put("distance", goal_distance);
+//            json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
+//            if (father == null) {
+//                json_rep.put("ancestor", "init_state");
+//            } else {
+//                json_rep.put("ancestor", father.json_rep.get("visited_step"));
+//            }
+//            json_rep.put("visited", false);
+//            json_rep.put("visit_step", -1);
+//            json_rep.put("descendants", new JSONArray());
+//            JSONParser parser = new JSONParser();
+//            JSONObject json;
+//            try {
+//                json = (JSONObject) parser.parse(s1.toString());
+//                json_rep.put("state", json);
+//            } catch (ParseException ex) {
+//                json_rep.put("state", s1.toString());
+//            }
+//
+//
+//        } else {
+//            json_rep = null;
+//        }
+//
+//    }
 
 
     public void add_descendant (SearchNode desc) {
