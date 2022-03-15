@@ -62,7 +62,6 @@ public class SearchEngine {
     private int numberOfEvaluatedStates;
     private float hw;
     final private SearchHeuristic heuristic;
-    private float gw;
     private boolean optimality;
     private long beginningTime;
     //dealing with continuous change
@@ -74,6 +73,7 @@ public class SearchEngine {
     private PrintStream out;
     protected final SearchProblem problem;
     private boolean printPrefixAtEachStep = false;
+    private boolean gbfs;
 
     public SearchEngine(SearchHeuristic h, SearchProblem problem) {
         this(System.out, h, problem);
@@ -85,7 +85,6 @@ public class SearchEngine {
         setNumberOfEvaluatedStates(0);
         duplicatesNumber = 0;
         hw = 1;
-        gw = 1;
         saveSearchTreeAsJson = false;
         depthLimit = Long.MAX_VALUE;
         bfsTieBreaking = true;
@@ -116,15 +115,11 @@ public class SearchEngine {
         if (Objects.equals(prev_cost, this.G_DEFAULT) || succ_g < prev_cost) {
             setEvaluatedStates(getEvaluatedStates() + 1);
             long start = System.currentTimeMillis();
-            Float d = getHeuristic().computeEstimate(successorState);
+            final float hValue = getHeuristic().computeEstimate(successorState);
             setHeuristicCpuTime(getHeuristicCpuTime() + System.currentTimeMillis() - start);
-            if (d != Float.MAX_VALUE) {// && (d + succ_g) < this.depthLimit) {
-                SearchNode node = null;
-                if (actionsBefore instanceof ArrayList) {
-                    node = new SearchNode(successorState, (ArrayList) actionsBefore, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
-                } else {
-                    node = new SearchNode(successorState, actionsBefore, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
-                }
+            if (hValue != Float.MAX_VALUE) {// && (d + succ_g) < this.depthLimit) {
+                final SearchNode node = gbfs ? new SearchNode(successorState, actionsBefore, current_node, succ_g, hValue * this.getHw(), hValue, this.saveSearchTreeAsJson)
+                        : new SearchNode(successorState, actionsBefore, current_node, succ_g, hValue * this.getHw() + succ_g, hValue, this.saveSearchTreeAsJson);
                 if (this.helpfulActionsPruning) {
                     node.helpfulActions = getHeuristic().getTransitions(helpfulActionsPruning);
                 }
@@ -176,7 +171,6 @@ public class SearchEngine {
     }
 
     private LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> a_star(SearchProblem problem) throws Exception {
-        this.gw = 1f;
         this.hw = 1f;
         return this.WAStar();
     }
@@ -311,7 +305,7 @@ public class SearchEngine {
     public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> UCS(SearchProblem problem) {
         final ObjectHeapPriorityQueue<SearchNode> frontier = new ObjectHeapPriorityQueue<>(new TieBreaker(this.tbRule));
         final State init = problem.getInit();
-        frontier.enqueue(new SearchNode(init, 0, heuristic.computeEstimate(init), false, gw, hw));
+        frontier.enqueue(new SearchNode(init, 0,0, 0, false));
         final Object2BooleanOpenHashMap closed = new Object2BooleanOpenHashMap();
         final Object2FloatLinkedOpenHashMap gNode = new Object2FloatLinkedOpenHashMap();
         long start = System.currentTimeMillis();
@@ -344,7 +338,7 @@ public class SearchEngine {
                             final float gValue = problem.gValue(currentNode.s, next.getSecond(), next.getFirst(), currentNode.gValue);
                             float aFloat = gNode.getOrDefault(next.getFirst(),-1);
                             if (aFloat == -1 || aFloat > gValue){
-                                final SearchNode searchNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, gValue, heuristic.computeEstimate(next.getFirst()), false, this.gw, this.hw);
+                                final SearchNode searchNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, gValue, gValue, 0, false);
                                 frontier.enqueue(searchNode);
                                 gNode.put(next.getFirst(),gValue);
                             }
@@ -382,7 +376,7 @@ public class SearchEngine {
                 if (!reached.contains(next.getFirst())) {
                     this.numberOfEvaluatedStates++;
                     SearchNode newNode;
-                    newNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, currentNode.gValue+1, 0, this.saveSearchTreeAsJson, this.gw, this.hw);
+                    newNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, currentNode.gValue+1,currentNode.gValue+1, 0, this.saveSearchTreeAsJson);
                     if (problem.goalSatisfied(newNode.s)) {
                         this.overallSearchTime = System.currentTimeMillis()-this.beginningTime;
                         return newNode;
@@ -460,7 +454,7 @@ public class SearchEngine {
         out.println("h(n = s_0)=" + hAtInit);//debugging information
 
 //        getHeuristic().why_not_active = false;
-        SearchNode init = new SearchNode(initState.clone(), 0, hAtInit, this.saveSearchTreeAsJson, this.gw, this.hw);
+        SearchNode init = new SearchNode(initState.clone(), 0,hw*hAtInit,hAtInit, this.saveSearchTreeAsJson);
         if (this.helpfulActionsPruning) {
             init.helpfulActions = getHeuristic().getTransitions(helpfulActionsPruning);
         }
@@ -507,17 +501,20 @@ public class SearchEngine {
                     previous = fromTheBeginning;
 
                 }
-                if (optimality && (bestf < currentNode.gValue + currentNode.h)) {//this is the debugLevel for when the planner is run in optimality modality
-                    bestf = currentNode.gValue + currentNode.h;
+                
+                final float hValueInCurrentNode = !gbfs ? currentNode.f-currentNode.gValue : currentNode.f;
+                
+                if (optimality && (bestf < currentNode.f)) {//this is the debugLevel for when the planner is run in optimality modality
+                    bestf = currentNode.gValue + hValueInCurrentNode;
                     out.println("f(n) = " + bestf + " (Expanded Nodes: " + getNodesExpanded()
                             + ", Evaluated States: " + getNumberOfEvaluatedStates() + ", Time: " + 
                             (float) ((System.currentTimeMillis() - start_global)) / 1000.0 + ")"+
                             " Frontier Size: "+frontier.size());
 
                 }
-                if (!optimality && hAtInit > currentNode.h) {
-                    out.println(" g(n)= " + currentNode.gValue + " h(n)=" + currentNode.h);
-                    hAtInit = currentNode.h;
+                if (!optimality && hAtInit > (hValueInCurrentNode)) {
+                    out.println(" g(n)= " + currentNode.gValue + " h(n)=" + (hValueInCurrentNode));
+                    hAtInit = hValueInCurrentNode;
                     currentG = currentNode.gValue;
                 }
 
@@ -534,8 +531,8 @@ public class SearchEngine {
                     deadEndsDetected++;
                     continue;
                 }
-                if (exitOnBestH && problem.milestoneReached(currentNode.h, hAtInit, currentNode.s)) {
-                    out.println("***************Best H: " + currentNode.h);
+                if (exitOnBestH && problem.milestoneReached(hValueInCurrentNode, hAtInit, currentNode.s)) {
+                    out.println("***************Best H: " + hValueInCurrentNode);
                     return currentNode;
                 }
                 setNodesExpanded(getNodesExpanded() + 1);
@@ -615,18 +612,19 @@ public class SearchEngine {
     }
     
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem) throws Exception {
-        this.optimality = false;
-        return this.greedy_best_first_search(problem, Long.MAX_VALUE);
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> gbfs(SearchProblem problem) throws Exception {
+
+        return this.gbfs(problem, Long.MAX_VALUE);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem, boolean optimality) throws Exception {
+    private LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> gbfs(SearchProblem problem, boolean optimality) throws Exception {
         this.optimality = optimality;
         return this.WAStar();
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> gbfs(SearchProblem problem, long timeout) throws Exception {
         this.optimality = false;
+        this.gbfs = true;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.WAStar(problem, timeout);
     }
@@ -643,19 +641,7 @@ public class SearchEngine {
         return plan;
     }
 
-    /**
-     * @return the gw
-     */
-    public float getGw() {
-        return gw;
-    }
 
-    /**
-     * @param gw the gw to set
-     */
-    public void setWG(float gw) {
-        this.gw = gw;
-    }
 
     /**
      * @return the hw

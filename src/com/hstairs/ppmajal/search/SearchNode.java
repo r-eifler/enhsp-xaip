@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.transition.TransitionGround;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -28,7 +27,6 @@ import org.json.simple.parser.ParseException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,10 +35,7 @@ import java.util.logging.Logger;
  */
 public class SearchNode extends SimpleSearchNode {
 
-    public final float h;
     public final JSONObject json_rep;
-    public final float wg;
-    public final float wh;
     public float f;
     public ArrayList<Object> list_of_actions;
     public Object[] helpfulActions;
@@ -48,21 +43,16 @@ public class SearchNode extends SimpleSearchNode {
 
     public SearchNode (State s1, Object action, SearchNode father, float g, float h) {
         super(s1, action, father, g);
-        this.h = h;
         json_rep = null;
-        wh = 1f;
-        wg = 1f;
     }
 
-    public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        super(s1, action, father, action_cost_to_get_here);
-        this.h = goal_distance;
+    public SearchNode (State s1, Object action, SearchNode father, float gValue, float fExt,float hValue, boolean saving_json) {
+        super(s1, action, father, gValue);
         if (action instanceof ArrayList){
             this.list_of_actions = (ArrayList<Object>) action;
         }
-        this.wh = wh;
-        this.wg = wg;
-        f = this.h * this.wh + this.gValue * this.wg;
+        f = fExt;
+//        f = this.h * this.wh + this.gValue * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -77,8 +67,8 @@ public class SearchNode extends SimpleSearchNode {
                     json_rep.put("action", transition.toString());
                 }
             }
-            json_rep.put("distance", goal_distance);
-            json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
+            json_rep.put("distance", hValue);
+            json_rep.put("action_cost_to_get_here", gValue);
             if (father == null) {
                 json_rep.put("ancestor", "init_state");
             } else {
@@ -102,13 +92,10 @@ public class SearchNode extends SimpleSearchNode {
 
     }
 
-    public SearchNode (State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode (State s1, float action_cost_to_get_here, float fExt,float hValue, boolean saving_json) {
         super(s1, null, null, action_cost_to_get_here);
-        this.h = goal_distance;
 
-        this.wh = wh;
-        this.wg = wg;
-        f = this.h * this.wh + this.gValue * this.wg;
+        f = fExt;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -117,7 +104,7 @@ public class SearchNode extends SimpleSearchNode {
             } else {
                 json_rep.put("action", transition.toString());
             }
-            json_rep.put("distance", goal_distance);
+            json_rep.put("distance", hValue);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
             if (father == null) {
                 json_rep.put("ancestor", "init_state");
@@ -211,33 +198,10 @@ public class SearchNode extends SimpleSearchNode {
         System.out.println("Successfully Copied JSON Object to File...");
     }
 
-//    @Override
-//    public boolean equals (Object obj) {
-//        if (obj == null) {
-//            return false;
-//        }
-//        if (getClass() != obj.getClass()) {
-//            return false;
-//        }
-//        final SearchNode other = (SearchNode) obj;
-//
-//        return this.s.equals(other.s);
-//    }
-//
-//    @Override
-//    public int hashCode ( ) {
-//        int hash = 5;
-//        hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
-////        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
-////        hash = 29 * hash + (int) this.h_n;
-////        hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
-////        hash = 29 * hash + (int) this.gValue;
-//        return hash;
-//    }
 
     @Override
     public String toString ( ) {
-        return "SearchNode{" + "s=" + s + ", action=" + transition + ", h_n=" + h + ", gValue=" + gValue + '}';
+        return "SearchNode{" + "s=" + s + ", action=" + transition  + ", gValue=" + gValue + '}';
     }
 
 }

@@ -484,13 +484,6 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
         } else {
             searchEngine.setWH(1);
         }
-        if (gw != null) {
-            searchEngine.setWG(Float.parseFloat(gw));
-            System.out.println("g_h set to be " + gw);
-        } else {
-            searchEngine.setWG(1);
-
-        }
 
         if (depthLimit != Float.NaN) {
             searchEngine.depthLimit = depthLimit;
@@ -510,16 +503,11 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
             rawPlan = searchEngine.WAStar();
         } else if ("gbfs".equals(searchEngineString)) {
             System.out.println("Running Greedy Best First Search");
-            if (gw == null) {
-                searchEngine.setWG(0);
-            }
-            rawPlan = searchEngine.greedy_best_first_search(getProblem(), timeOut);
+
+            rawPlan = searchEngine.gbfs(getProblem(), timeOut);
         } else if ("gbfs_ha".equals(searchEngineString)) {
             System.out.println("Running Greedy Best First Search with Helpful Actions");
-            if (gw == null) {
-                searchEngine.setWG(0);
-            }
-            rawPlan = searchEngine.greedy_best_first_search(getProblem(), timeOut);
+            rawPlan = searchEngine.gbfs(getProblem(), timeOut);
         } else if ("ida".equals(searchEngineString)) {
             System.out.println("Running IDAStar");
             rawPlan = searchEngine.idastar(getProblem(), true);
