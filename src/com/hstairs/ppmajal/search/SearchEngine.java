@@ -114,7 +114,7 @@ public class SearchEngine {
 
         if (Objects.equals(prev_cost, this.G_DEFAULT) || succ_g < prev_cost) {
             setEvaluatedStates(getEvaluatedStates() + 1);
-            long start = System.currentTimeMillis();
+            final long start = System.currentTimeMillis();
             final float hValue = getHeuristic().computeEstimate(successorState);
             setHeuristicCpuTime(getHeuristicCpuTime() + System.currentTimeMillis() - start);
             if (hValue != Float.MAX_VALUE) {// && (d + succ_g) < this.depthLimit) {

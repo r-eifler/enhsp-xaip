@@ -27,6 +27,7 @@
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/Utils.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/AndCond.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/ArrayShifter.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchHeuristic.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/CPLEX.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
@@ -36,6 +37,7 @@
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/plan/SimplePlan.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/CPLEXSingleAction.java</file>
+            <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/enhsp2/ENHSP.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1Res.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/GUROBI.java</file>
             <file>file:/Users/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/lpsolvers/LPSolverSingleAction.java</file>
