@@ -1,0 +1,6 @@
+0.00000: (start_car )
+0.00000: (accelerate )
+9.00000: (decelerate )
+13.00000: (decelerate )
+14.00000: (accelerate )
+14.00000: (stop_car )
