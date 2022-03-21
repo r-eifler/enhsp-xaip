@@ -12,13 +12,11 @@ import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import static java.lang.Math.ceil;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
 import org.jgrapht.graph.DirectedAcyclicGraph;
+
+import java.util.*;
+
+import static java.lang.Math.ceil;
 import org.jgrapht.opt.graph.fastutil.FastutilFastLookupIntVertexGSS;
 
 /**
