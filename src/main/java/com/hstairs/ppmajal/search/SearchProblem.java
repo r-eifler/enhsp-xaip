@@ -21,6 +21,7 @@ package com.hstairs.ppmajal.search;
 import com.hstairs.ppmajal.problem.State;
 import java.util.Collection;
 import java.util.Iterator;
+
 import org.jgrapht.alg.util.Pair;
 
 /**

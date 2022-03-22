@@ -324,11 +324,10 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
             helpfulTransitions = cmd.getOptionValue("ht") != null && "true".equals(cmd.getOptionValue("ht"));
             ignoreMetric = cmd.hasOption("im");
         } catch (ParseException exp) {
-//            Logger.getLogger(ENHSP.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("enhsp", options);
-            System.exit(-1);
+            System.exit(1);
         }
 
     }

@@ -18,11 +18,12 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.conditions.ComplexCondition;
+import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.PDDLObject;
+import com.hstairs.ppmajal.conditions.PostCondition;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
-import net.sourceforge.interval.ia_math.IAMath;
-import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.*;
 

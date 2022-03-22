@@ -255,7 +255,8 @@ public class SearchEngine {
 
             }
             for (Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s, getActionsToSearch(node, problem)); it.hasNext();) {
-                final Pair<State, Object> next = it.next();
+                final Pair<State, Object> next = (Pair<State, Object>) it.next();
+
                 final Object act = next.getSecond();
                 State temp = next.getFirst();
                 if (!problem.satisfyGlobalConstraints(temp)) {

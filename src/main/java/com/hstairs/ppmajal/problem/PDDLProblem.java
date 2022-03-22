@@ -18,54 +18,40 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.hstairs.ppmajal.propositionalFactory.MetricFFGrounder;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PDDLDomain;
+import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
 import com.hstairs.ppmajal.domain.Type;
-import com.hstairs.ppmajal.expressions.BinaryOp;
-import com.hstairs.ppmajal.expressions.Expression;
-import com.hstairs.ppmajal.expressions.MinusUnary;
-import com.hstairs.ppmajal.expressions.MultiOp;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
+import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
-import com.hstairs.ppmajal.propositionalFactory.ExternalGrounder;
-import com.hstairs.ppmajal.propositionalFactory.FDGrounder;
-import com.hstairs.ppmajal.propositionalFactory.FDGrounderInstantiate;
-import com.hstairs.ppmajal.propositionalFactory.Grounder;
+import com.hstairs.ppmajal.propositionalFactory.*;
 import com.hstairs.ppmajal.search.SearchNode;
 import com.hstairs.ppmajal.search.SearchProblem;
-import com.hstairs.ppmajal.search.SimpleSearchNode;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.Writer;
-import java.math.BigDecimal;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jgrapht.alg.util.Pair;
 
 /**
@@ -808,7 +794,7 @@ public class PDDLProblem implements SearchProblem {
     }
 
     @Override
-    public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Object[] acts) {
+    public Iterator<Pair<State, Object>> getSuccessors (State s, Object[] acts) {
         return new stateIterator(s, acts);
     }
 

@@ -18,7 +18,6 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.domain.PredicateSet;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.domain.Type;

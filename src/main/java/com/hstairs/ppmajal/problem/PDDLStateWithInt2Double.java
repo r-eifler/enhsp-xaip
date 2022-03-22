@@ -26,15 +26,8 @@ import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
-import net.sourceforge.interval.ia_math.RealInterval;
-
-import java.util.Arrays;
-
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
+import java.util.*;
 
 /**
  * @author enrico
@@ -73,7 +66,7 @@ public class PDDLStateWithInt2Double extends PDDLState {
             
         this.numFluentsViaDoubleArray = new Int2DoubleOpenHashMap();
         if (NumFluent.numFluentsBank != null){
-            for (Entry<Integer,Double> ele: numFluents.entrySet()){
+            for (Map.Entry<Integer, Double> ele: numFluents.entrySet()){
                 this.numFluentsViaDoubleArray.put(ele.getKey().intValue(), ele.getValue().doubleValue());
             }
         }
@@ -223,16 +216,17 @@ public class PDDLStateWithInt2Double extends PDDLState {
 
     public RelState relaxState ( ) {
         RelState ret_val = new RelState();
-//        for (int i = 0; i < this.numFluentsViaDoubleArray.size(); i++) {  
-        for (Int2DoubleMap.Entry int2DoubleEntrySet : this.numFluentsViaDoubleArray.int2DoubleEntrySet()){
-            int i = int2DoubleEntrySet.getIntKey();
-            double ele = int2DoubleEntrySet.getDoubleValue();
+//        for (int i = 0; i < this.numFluentsViaDoubleArray.size(); i++) {
+        for (var v: this.numFluentsViaDoubleArray.int2DoubleEntrySet()){
+            int i = v.getIntKey();
+            double ele = v.getDoubleValue();
             if (Double.isNaN(ele)) {
                 ret_val.possNumValues.put(i, null);
             } else
                 ret_val.possNumValues.put(i, new HomeMadeRealInterval(ele));
 
         }
+
 
         for (int i = 0; i < this.boolFluents.length(); i++) {
             if (this.boolFluents.get(i))
