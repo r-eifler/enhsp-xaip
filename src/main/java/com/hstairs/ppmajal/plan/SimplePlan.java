@@ -29,7 +29,6 @@ import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.util.*;

@@ -12,7 +12,7 @@ public class MAPPDDLState extends PDDLState {
 
     final HashMap<String, Boolean> predicateValue;
     final HashMap<String, PDDLNumber> numFluentValue;
-
+    
     public MAPPDDLState (Map<NumFluent, PDDLNumber> numFluentReference, Map<BoolPredicate, Boolean> initBoolFluentsValues) {
         numFluentValue = new HashMap<>();
         predicateValue = new HashMap<>();
