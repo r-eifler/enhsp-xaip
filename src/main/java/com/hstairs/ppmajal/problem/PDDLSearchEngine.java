@@ -109,7 +109,6 @@ public class PDDLSearchEngine extends SearchEngine {
             while ((c.transition != null || c.list_of_actions != null)) {
                 if (c.transition != null){
                     // This is an action
-                    System.out.println(c);
                     plan.addFirst(Pair.of(((PDDLState)c.s).time, (TransitionGround) c.transition));
                 }else{
                     //c is the next state actually. Be careful!!
