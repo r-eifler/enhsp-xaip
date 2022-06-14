@@ -96,7 +96,8 @@ public final class PDDLDomain {
     private PDDLDomain(Collection<TransitionSchema> eventsSchema, PDDLObjects constants,
             Set<TransitionSchema> processesSchema, Collection<NumFluent> derived_variables, PredicateSet p) {
         SchemaGlobalConstraints = null;
-        types = null;
+        types = new LinkedHashSet();
+        types.add(Type.type("object"));
         ActionsSchema = new TreeSet<>(new ActionComparator());
         functions = new ArrayList();
         requirements = null;

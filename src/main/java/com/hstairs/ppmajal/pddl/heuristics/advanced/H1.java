@@ -553,7 +553,7 @@ public class H1 implements SearchHeuristic {
     Pair<Collection, Float> getActivatingConditions(final Condition c) {
         if (c instanceof AndCond) {
             final AndCond and = (AndCond) c;
-            if (and.sons == null) {
+            if (and.sons == null || and.sons.length == 0) {
                 return Pair.of(Collections.EMPTY_LIST, 0f);
             }
             IntArraySet left = new IntArraySet();
@@ -566,13 +566,13 @@ public class H1 implements SearchHeuristic {
             return Pair.of(left, cost);
 
         } else if (c instanceof OrCond) {
-            final OrCond and = (OrCond) c;
-            if (and.sons == null) {
+            final OrCond or = (OrCond) c;
+            if (or.sons == null || or.sons.length==0) {
                 return Pair.of(Collections.EMPTY_LIST, 0f);
             }
             float ret = Float.MAX_VALUE;
             Collection left = null;
-            for (final var son :  and.sons) {
+            for (final var son :  or.sons) {
                 final Pair<Collection, Float> estimate = getActivatingConditions((Condition) son);
                 if (estimate.getSecond() != Float.MAX_VALUE) {
                     if (estimate.getSecond() < ret) {

@@ -44,7 +44,11 @@ public class Type extends Object {
     
     
     public static Type type(String name) {
+       
         Type father = Type.getType("object","null");
+        if (name.equals("object")){
+            return father;
+        }
         if (getHierarchy() == null){
             hierarchy = new DAG();
         }
