@@ -203,7 +203,7 @@ public class TransitionGround extends Transition {
         float impact = 0f;
         for (Pair<Condition,Float> ele : sdac1){
             if (ele.getLeft().isSatisfied(s)){
-                impact+=ele.getRight();
+                impact += ele.getRight();
             }
         }
         return impact;

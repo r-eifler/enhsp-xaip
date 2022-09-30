@@ -272,7 +272,7 @@ public class FactoryConditions {
                 return ret;
             }
             case PddlParser.NUMBER: {
-                PDDLNumber ret = new PDDLNumber(new Float(t.getText()));
+                PDDLNumber ret = new PDDLNumber(Float.parseFloat(t.getText()));
                 return ret;
             }
             case PddlParser.FUNC_HEAD: {

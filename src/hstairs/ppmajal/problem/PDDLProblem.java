@@ -1534,7 +1534,7 @@ public class PDDLProblem implements SearchProblem {
                 lastEle = ele;
             }
             previous = ele.getKey();
-            if (ele.getRight() != null && !right.getSemantics().equals(Transition.Semantics.PROCESS)) {
+            if (ele.getRight() != null && right.getSemantics().equals(Transition.Semantics.ACTION)) {
                 current.apply(right, current.clone());
                 if (planTrace != null) {
                     planTraceString.append(current.toString()).append("\n");
@@ -1577,7 +1577,6 @@ public class PDDLProblem implements SearchProblem {
             System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
             System.out.println("WARNING: Planning delta should be a multiple of delta execution");
         }
-//        final int iterations = (int) Math.ceil(horizon / executionDelta);
         final int iterations = horizon.divideToIntegralValue(executionDelta).intValue();
         PDDLState previousNext = next;
         final ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
@@ -1616,11 +1615,12 @@ public class PDDLProblem implements SearchProblem {
                 }
                 return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
             }
+            
+            executedProcesses.add(waiting);
+            executedProcesses.addAll(applyAllEvents(next));
             if (traceString != null) {
                 traceString.append(next.toString()).append("\n");
             }
-            executedProcesses.add(waiting);
-            executedProcesses.addAll(applyAllEvents(next));
             if (intelligent && next.satisfy(this.getGoals())) {
                 return new org.jgrapht.alg.util.Pair(next, executedProcesses);
             }
