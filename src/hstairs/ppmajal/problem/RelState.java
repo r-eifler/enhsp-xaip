@@ -153,7 +153,7 @@ public class RelState extends Object {
         if (con == null) {
             throw new RuntimeException("The testing condition appears to be null, and it shouldn't");
         }
-        return con.can_be_true(this);
+        return con.canBeTrue(this);
 
     }
 

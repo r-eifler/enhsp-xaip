@@ -64,7 +64,7 @@ public abstract class Terminal extends Condition {
         int current_dist = dist.get(this.getId());
         if (current_dist < i) {
             return true;
-        } else if (this.can_be_true(rs)) {
+        } else if (this.canBeTrue(rs)) {
             dist.set(this.getId(), i);
             return true;
         }

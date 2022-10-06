@@ -105,9 +105,9 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean can_be_true (RelState s) {
+    public boolean canBeTrue (RelState s) {
 
-        return son.can_be_false(s);
+        return son.canBeFalse(s);
 
     }
 
@@ -125,18 +125,6 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Condition clone ( ) {
         return this;
-    }
-
-    @Override
-    public boolean isUngroundVersionOf (Condition con) {
-        if (con instanceof NotCond) {
-            NotCond nc = (NotCond) con;
-            Condition c1 = this.son;
-            Condition c2 = nc.son;
-            return c1.isUngroundVersionOf(c2);
-
-        }
-        return false;
     }
 
 
@@ -165,7 +153,6 @@ public class NotCond extends Terminal implements PostCondition {
     public Condition weakEval (PDDLProblem s, Set invF) {
 
         Condition el = son;
-        el.setFreeVarSemantic(freeVarSemantic);
         el = el.weakEval(s, invF);
         if (el == null) {
             this.setValid(true);
@@ -215,8 +202,8 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean can_be_false (RelState s) {
-        return son.can_be_true(s);
+    public boolean canBeFalse (RelState s) {
+        return son.canBeTrue(s);
     }
 
 

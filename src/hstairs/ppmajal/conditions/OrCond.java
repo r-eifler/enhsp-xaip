@@ -118,10 +118,10 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean can_be_true (RelState s) {
+    public boolean canBeTrue (RelState s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
-            if (c.can_be_true(s)) {
+            if (c.canBeTrue(s)) {
                 return true;
             }
         }
@@ -148,11 +148,6 @@ public class OrCond extends ComplexCondition {
         return new OrCond(ret);
     }
 
-
-    @Override
-    public boolean isUngroundVersionOf (Condition conditions) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String toSmtVariableString (int i) {
@@ -272,7 +267,6 @@ public class OrCond extends ComplexCondition {
                 Object o2 = it.next();
                 if (o2 instanceof Condition) {
                     Condition c = (Condition) o2;
-                    c.setFreeVarSemantic(this.freeVarSemantic);
                     c = c.weakEval(s, invF);
                     if (c.isValid()) {
                         this.setValid(true);
@@ -359,10 +353,10 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean can_be_false (RelState s) {
+    public boolean canBeFalse (RelState s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
-            if (!c.can_be_false(s)) {
+            if (!c.canBeFalse(s)) {
                 return false;
             }
         }

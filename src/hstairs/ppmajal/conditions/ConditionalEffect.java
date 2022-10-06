@@ -131,7 +131,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
 //    }
 
     @Override
-    public boolean can_be_true (RelState aThis) {
+    public boolean canBeTrue (RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -151,10 +151,6 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
 
-    @Override
-    public boolean isUngroundVersionOf (Condition conditions) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String toSmtVariableString (int i) {
@@ -178,7 +174,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public boolean can_be_false (RelState aThis) {
+    public boolean canBeFalse (RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

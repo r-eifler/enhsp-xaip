@@ -176,7 +176,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean can_be_true (RelState s) {
+    public boolean canBeTrue (RelState s) {
 
         if (s.possNumValues.isEmpty()) {
             return false;
@@ -353,18 +353,6 @@ public class Comparison extends Terminal {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public boolean isUngroundVersionOf (Condition c) {
-        if (c instanceof Comparison) {
-            Comparison comp = (Comparison) c;
-            if (comp.getComparator().equals(this.getComparator())) {
-
-                return this.getLeft().isUngroundVersionOf(comp.getLeft()) && this.getRight().isUngroundVersionOf(comp.getRight());
-            }
-        }
-        return false;
-    }
-
 
     public ArrayList<NumFluent> susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
 
@@ -528,7 +516,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean can_be_false (RelState s) {
+    public boolean canBeFalse (RelState s) {
 
         if (s.possNumValues.isEmpty()) {
             return true;

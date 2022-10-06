@@ -91,32 +91,16 @@ public abstract class Condition extends PDDLProblemComponent {
      * @param aThis
      * @return
      */
-    public abstract boolean can_be_true (RelState aThis);
+    public abstract boolean canBeTrue (RelState aThis);
 
-    public abstract boolean can_be_false (RelState aThis);
+    public abstract boolean canBeFalse (RelState aThis);
 
     public abstract Condition normalize ( );
 
 
-    public abstract boolean isUngroundVersionOf (Condition conditions);
-
     public abstract String toSmtVariableString (int i);//just for and condition
 
     public abstract Set<NumFluent> getInvolvedFluents ( );
-
-    /**
-     * @return the freeVarSemantic
-     */
-    public boolean isFreeVarSemantic ( ) {
-        return freeVarSemantic;
-    }
-
-    /**
-     * @param freeVarSemantic the freeVarSemantic to set
-     */
-    public void setFreeVarSemantic (boolean freeVarSemantic) {
-        this.freeVarSemantic = freeVarSemantic;
-    }
 
     /**
      * @return the unsatisfiable

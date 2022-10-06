@@ -142,7 +142,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean can_be_false (RelState s) {
+    public boolean canBeFalse (RelState s) {
         if (s.possNumValues.isEmpty())
             return true;
         if (this.isValid())
@@ -265,7 +265,7 @@ public class BoolPredicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean can_be_true (RelState s) {
+    public boolean canBeTrue (RelState s) {
         if (this.isValid())
             return true;
         if (this.isUnsatisfiable())
@@ -308,34 +308,6 @@ public class BoolPredicate extends Terminal implements PostCondition {
     @Override
     public Condition normalize ( ) {
         return this;
-    }
-
-
-    @Override
-    public boolean isUngroundVersionOf (Condition con) {
-        if (con instanceof BoolPredicate) {
-            BoolPredicate p = (BoolPredicate) con;
-            if (this.getName().equals(p.getName())) {
-                if (this.getTerms().size() == p.getTerms().size()) {
-                    for (int i = 0; i < this.getTerms().size(); i++) {
-                        Variable v = (Variable) this.getTerms().get(i);
-                        PDDLObject obj = (PDDLObject) p.getTerms().get(i);
-                        //System.out.print("Matching Types between: "+ v.type() + obj.type());
-                        if (!v.getType().equals(obj.getType())) {
-                            if (!v.getType().isAncestorOf(obj.getType())) {
-                                //System.out.println("Sottotipo di:"+obj.type().getSubTypeOf());
-                                //System.out.println(" FAILURE!!");
-                                return false;
-                            }
-                        }
-                    }
-                    return true;
-                }
-
-            }
-
-        }
-        return false;
     }
 
     @Override

@@ -119,11 +119,11 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean can_be_true (RelState s) {
+    public boolean canBeTrue (RelState s) {
         for (final Object o : this.sons) {
             if (o instanceof Condition) {
                 final Condition c = (Condition) o;
-                if (!c.can_be_true(s)) {
+                if (!c.canBeTrue(s)) {
                     //System.out.println(c.pddlPrint() + " is not satisfied in " + s);
                     return false;
                 }
@@ -172,7 +172,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
-                if (!c.can_be_true(s)) {
+                if (!c.canBeTrue(s)) {
                     //System.out.println(c.pddlPrint() + " is not satisfied in " + s);
                     return c;
                 }
@@ -200,31 +200,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
 
-    public Condition requireAnInstanceOf (Condition con) {
 
-        for (Object o : this.sons) {
-            //System.out.println("testing "+con+" with"+o);
-            if (con.isUngroundVersionOf((Condition) o)) {
-                //System.out.println("ok");
-                return (Condition) o;
-            }
-        }
-        return null;
-
-    }
-
-    public BoolPredicate requireAnInstanceOfAndWhichis (Condition con) {
-
-        for (Object o : this.sons) {
-            //System.out.println("testing "+con+" with"+o);
-            if (con.isUngroundVersionOf((Condition) o)) {
-                //System.out.println("ok");
-                return (BoolPredicate) o;
-            }
-        }
-        return null;
-
-    }
 
 
     @Override
@@ -273,7 +249,6 @@ public class AndCond extends ComplexCondition implements PostCondition {
                 Object o2 = it.next();
                 if (o2 instanceof Condition) {
                     Condition c = (Condition) o2;
-                    c.setFreeVarSemantic(this.freeVarSemantic);
                     c = c.weakEval(s, invF);
                     if (c != null && this instanceof PostCondition){
                         if (c.isValid()) {
@@ -364,11 +339,11 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public boolean can_be_false (RelState s) {
+    public boolean canBeFalse (RelState s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
-                if (c.can_be_false(s)) {
+                if (c.canBeFalse(s)) {
                     //System.out.println(c.pddlPrint() + " is not satisfied in " + s);
                     return true;
                 }
@@ -536,11 +511,6 @@ public class AndCond extends ComplexCondition implements PostCondition {
         return new AndCond(ret);
     }
 
-
-    @Override
-    public boolean isUngroundVersionOf (Condition conditions) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Condition normalize() {

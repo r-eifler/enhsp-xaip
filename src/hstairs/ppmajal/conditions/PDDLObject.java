@@ -112,7 +112,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public boolean can_be_true (RelState s) {
+    public boolean canBeTrue (RelState s) {
         return true;
     }
 
@@ -132,12 +132,6 @@ public class PDDLObject extends Terminal implements ActionParameter {
     @Override
     public Condition normalize ( ) {
         return this;
-    }
-
-
-    @Override
-    public boolean isUngroundVersionOf (Condition conditions) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -172,7 +166,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public boolean can_be_false (RelState aThis) {
+    public boolean canBeFalse (RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -67,7 +67,6 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         //a.normalizeAndCopy();
 
         Condition con = constr.condition;
-        con.setFreeVarSemantic(true);
         //System.out.println(con);
         //con.normalize();
         //System.out.println(con);
@@ -153,7 +152,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
                     Object o = nc.getSon();
                     if (o instanceof BoolPredicate) {
                         BoolPredicate p = (BoolPredicate) o;
-                        if (!p.can_be_true(reacheableState)) {
+                        if (!p.canBeTrue(reacheableState)) {
                             return true;
                         }
                     }
