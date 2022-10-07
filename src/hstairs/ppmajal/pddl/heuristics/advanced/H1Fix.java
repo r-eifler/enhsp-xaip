@@ -58,7 +58,7 @@ public class H1Fix extends H1 {
      private float fixPlan(State gs) {
         
         //Compute DG
-        final Condition goal = preconditionFunction[pseudoGoal];
+        final Condition goal = cp.preconditionFunction()[pseudoGoal];
 
         final IntArraySet V = new IntArraySet();
 
@@ -85,7 +85,7 @@ public class H1Fix extends H1 {
                 V.add(a);
                 DG.addVertex(a);
                 visitedActions[a] = true;
-                for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
+                for (final int conditionId : (Collection<Integer>)getActivatingConditions(cp.preconditionFunction()[a]).getFirst()) {
                         if (!getConditionInit()[conditionId]) {
                             final int b = establishedAchiever[conditionId];
                             maxNumRepetition[b] = (int) Math.max(maxNumRepetition[b],ceil(numRepetition[conditionId]));
@@ -125,7 +125,7 @@ public class H1Fix extends H1 {
         
         for (idx = DG.vertexSet().size()-1; idx >= 0; idx--){
             int a = orderedActions[idx];
-            for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
+            for (final int conditionId : (Collection<Integer>)getActivatingConditions(cp.preconditionFunction()[a]).getFirst()) {
                 final Terminal terminal = Terminal.getTerminal(conditionId);
                 if (terminal instanceof Comparison){
                     final Comparison c = (Comparison)terminal;

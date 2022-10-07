@@ -59,7 +59,7 @@ public class H1Res extends H1 {
                 if (!dep.get(actionId)) {
                     dep.set(actionId);
                     if (terminalConditions[actionId] == null) {
-                        Condition name = preconditionFunction[actionId];
+                        Condition name = cp.preconditionFunction()[actionId];
                         terminalConditions[actionId] = new IntArraySet();
                         for (final var v : name.getTerminalConditions()) {
                             Terminal t = (Terminal) v;
@@ -159,7 +159,7 @@ public class H1Res extends H1 {
 
 
     private float costPre(Integer v, BitSet allSeen) {
-        Condition name = preconditionFunction[v];
+        Condition name = cp.preconditionFunction()[v];
         if (name instanceof AndCond) {
             float max = 0;
             for (final var c : ((AndCond) name).sons) {

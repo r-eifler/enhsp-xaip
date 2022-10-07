@@ -118,7 +118,7 @@ public class LM extends H1 {
             if (a == a1) {
                 continue;
             }
-            final Condition name = preconditionFunction[a1];
+            final Condition name = cp.preconditionFunction()[a1];
             if (reachedActions[a1] || checkReached(name)) {
                 reachedActions[a1] = true;
                 lmA[a1] = new IntOpenHashSet();

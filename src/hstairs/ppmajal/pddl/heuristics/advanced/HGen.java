@@ -50,7 +50,7 @@ public class HGen extends H1 {
         Arrays.fill(getActionHCost(), Float.MAX_VALUE);
         Arrays.fill(getClosed(), false);
         for (int v : allActions) {
-            Condition c = preconditionFunction[v];
+            Condition c = cp.preconditionFunction()[v];
             if (c == null || s.satisfy(c)) {
                 actionHCost[v] = 0f;
                 addActionsInPriority(v, q, 0f);
@@ -127,7 +127,7 @@ public class HGen extends H1 {
         final IntArraySet ret = new IntArraySet();
         IntSet conditionsAchievableById = getInfluencedConditions(actionId);
         for (int v : allActions) {
-            IntArraySet necessarySet = Utils.getNecessarySet(preconditionFunction[v]);
+            IntArraySet necessarySet = Utils.getNecessarySet(cp.preconditionFunction()[v]);
             for (int c : conditionsAchievableById) {
                 if (necessarySet.contains(c)) {
                     ret.add(v);
@@ -148,7 +148,7 @@ public class HGen extends H1 {
                     achievableTerms.add(t);
                 }
             }
-            Sets.SetView<Integer> intersection = Sets.intersection(getAllConditions(), (Set<Integer>)propEffectFunction[actionId]);
+            Sets.SetView<Integer> intersection = Sets.intersection(getAllConditions(), (Set<Integer>)cp.propEffectFunction()[actionId]);
             achievableTerms.addAll(intersection);
             for (final int o : intersection) {
                 updateAchievers(o, actionId);
@@ -162,7 +162,7 @@ public class HGen extends H1 {
 
     private LPSolverSingleAction getLP(int actionId, State gs) {
         if (lps[actionId] == null){
-            final CPLEXSingleAction solver = new CPLEXSingleAction(Utils.getNecessarySet(preconditionFunction[actionId]), allActions, this, actionId);
+            final CPLEXSingleAction solver = new CPLEXSingleAction(Utils.getNecessarySet(cp.preconditionFunction()[actionId]), allActions, this, actionId);
             solver.initLp(gs);
             lps[actionId] = solver;
         }
@@ -172,7 +172,7 @@ public class HGen extends H1 {
 
     public IntArraySet getActionsAchievingAtLeastATerminalOfActionIdPreconditions(int actionId) {
         final IntArraySet ret = new IntArraySet();
-        final IntArraySet necessarySet = Utils.getNecessarySet(preconditionFunction[actionId]);
+        final IntArraySet necessarySet = Utils.getNecessarySet(cp.preconditionFunction()[actionId]);
         for (int a: allActions){
             if (a != actionId){
                 for (int c: necessarySet){
@@ -182,7 +182,7 @@ public class HGen extends H1 {
                             ret.add(a);
                         }
                     }else{
-                        if (propEffectFunction[a].contains(c)){
+                        if (cp.propEffectFunction()[a].contains(c)){
                             ret.add(a);
                         }
                     }
