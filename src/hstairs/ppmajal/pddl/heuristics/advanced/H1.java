@@ -148,14 +148,12 @@ public class H1 implements SearchHeuristic {
         this.reachability = reachability;
         this.helpfulActionsComputation = helpfulActionsComputation;
         this.extractRelaxedPlan = extractRelaxedPlan;
-        pseudoGoal = Transition.totNumberOfTransitions;
-        heuristicNumberOfActions = Transition.totNumberOfTransitions + 1;
         allComparisons = new IntArraySet();
         freePreconditionActions = new IntArraySet();
         this.redundantMap = redundantMap;
-        cp = ProblemTransfomer.generateCompactProblem(problem, redConstraints);
-        
-
+        cp = ProblemTransfomer.generateCompactProblem(problem, redConstraints).getLeft();
+        heuristicNumberOfActions = cp.numActions();
+        pseudoGoal = cp.goal();
         useSmartConstraints = "smart".equals(redConstraints);
 
         totNumberOfTerms = Terminal.getTotCounter();
@@ -784,82 +782,7 @@ public class H1 implements SearchHeuristic {
         return res;
     }
 
-    void addToRedundantMap(AndCond cond, IntArraySet ele) {
-        if (redundantMap == null) {
-            redundantMap = new HashMap();
-        }
-        Collection<IntArraySet> get = redundantMap.get(cond);
-        if (get == null) {
-            get = new HashSet();
-        }
-        get.add(ele);
-        redundantMap.put(cond, get);
-    }
-
-    public Map<AndCond, Collection<IntArraySet>> generateSmartRedundantConstraints() {
-        redundantMap = new HashMap();
-        for (final int tid : allActions) {
-            updateSmartConstraints(cp.preconditionFunction()[tid]);
-        }
-        if (false) {
-            Set<Map.Entry<AndCond, Collection<IntArraySet>>> entrySet = redundantMap.entrySet();
-            for (var v : entrySet) {
-                System.out.println(v.getKey());
-                for (IntArraySet i : v.getValue()) {
-                    System.out.println("Redundant Set");
-                    for (int j : i) {
-                        System.out.println("-----" + Comparison.getTerminal(j));
-                    }
-                }
-            }
-        }
-        return redundantMap;
-    }
-
-    private void updateSmartConstraints(Condition condition) {
-        if ((condition instanceof BoolPredicate) || (condition instanceof NotCond)) {
-            return;
-        }
-        if (condition instanceof AndCond) {
-            final IntArraySet comparisons = new IntArraySet();
-            for (var con : ((AndCond) condition).sons) {
-                if (con instanceof Comparison) {
-                    comparisons.add(((Comparison) con).getId());
-                } else {
-                    updateSmartConstraints((Condition) con);
-                }
-            }
-            for (int id : comparisons) {
-                IntArraySet achActs = getAllAchievers()[id];
-                if (achActs != null) {
-                    for (int actId : achActs) {
-                        IntArraySet toberedundantwith = new IntArraySet();
-                        toberedundantwith.add(id);
-                        IntArraySet deleter = getConditionsDeletableBy()[actId];
-                        for (int id2 : comparisons) {
-                            if (id != id2) {
-                                if (deleter.contains(id2)) {
-                                    toberedundantwith.add(id2);
-                                }
-                            }
-                        }
-                        if (toberedundantwith.size() > 1) {
-                            addToRedundantMap((AndCond) condition, toberedundantwith);
-                        }
-                    }
-                }
-
-            }
-
-        }
-        if (condition instanceof OrCond) {
-            for (var con : ((OrCond) condition).sons) {
-                updateSmartConstraints((Condition) con);
-            }
-        }
-
-    }
-
+   
     public void addDeleter(int i, int actId) {
         if (deleters[i] == null) {
             deleters[i] = new IntArraySet();

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  *
@@ -32,9 +33,9 @@ public class ProblemTransfomer {
         private static PDDLProblem p;
         private static Map<AndCond, Collection<IntArraySet>> redundantMap;
     
-    public static CompactPDDLProblem generateCompactProblem(PDDLProblem problem, String redConstraints){
-        int nTransitions = Transition.totNumberOfTransitions;
-        int pseudoGoal = nTransitions;
+    public static Pair<CompactPDDLProblem,int[]> generateCompactProblem(PDDLProblem problem, String redConstraints){
+        int nTransitions = Transition.totNumberOfTransitions+1;
+        int pseudoGoal = nTransitions-1;
         p = problem;
         preconditionFunction = new Condition[nTransitions];
         propEffectFunction = new Collection[nTransitions];
@@ -42,10 +43,11 @@ public class ProblemTransfomer {
         actionCost = new float[nTransitions];
         Arrays.fill(actionCost, Float.MAX_VALUE);
         preconditionFunction[pseudoGoal] = normalizeAndTighthenCondition(p.getGoals(), redConstraints);
+        int[] actionMApping = new int[nTransitions];
         normalizeModel(redConstraints, new LinkedHashSet(p.actions));
         normalizeModel(redConstraints, new LinkedHashSet(p.getEventsSet()));
         normalizeModel(redConstraints, new LinkedHashSet(p.getProcessesSet()));
-        return new CompactPDDLProblem(preconditionFunction,propEffectFunction,numericEffectFunction,actionCost,Transition.totNumberOfTransitions,pseudoGoal);
+        return Pair.of(new CompactPDDLProblem(preconditionFunction,propEffectFunction,numericEffectFunction,actionCost,nTransitions,pseudoGoal),actionMApping);
     }
     
     private static void normalizeModel(String redConstraints, Collection<TransitionGround> transitions) {
@@ -58,10 +60,11 @@ public class ProblemTransfomer {
             }
             propEffectFunction[b.getId()] = propositional;
             numericEffectFunction[b.getId()] = b.getConditionalNumericEffects().getAllEffects();
-            for (NumEffect neff : numericEffectFunction[b.getId()]) {
+            for (final NumEffect neff : numericEffectFunction[b.getId()]) {
                 neff.normalize();
             }
             actionCost[b.getId()] = b.getActionCost(p.getInit(), p.getMetric(), p.isSdac());
+            //TODO Add management for conditional effects
         }
 
     }
