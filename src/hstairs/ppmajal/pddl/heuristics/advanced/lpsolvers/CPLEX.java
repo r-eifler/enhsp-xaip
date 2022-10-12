@@ -44,7 +44,7 @@ public class CPLEX extends LPSolver{
     public void initLp(State s) {
         if (lp == null) {
             try {
-                lpvar = new IloNumVar[h.getHeuristicNumberOfActions()];
+                lpvar = new IloNumVar[h.cp.numActions()];
                 lpcond = new IloRange[h.getTotNumberOfTerms()];
                 lp = new IloCplex();
                 lp.setOut(null);

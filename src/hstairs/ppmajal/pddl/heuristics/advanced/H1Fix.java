@@ -35,9 +35,9 @@ public class H1Fix extends H1 {
     public H1Fix(PDDLProblem problem, boolean saferVersion,  boolean maxHelpfulTransitions, String redConstraints, 
             boolean helpfulActionsComputation, boolean reachability, boolean helpfulTransitions, boolean conjunctionsMax, boolean hmprpEstimate) {
         super(problem, true, true, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax);
-        this.prec = new IntArraySet[heuristicNumberOfActions];
+        this.prec = new IntArraySet[cp.numActions()];
         this.saferVersion = saferVersion;
-        visitedActions = new boolean[heuristicNumberOfActions];
+        visitedActions = new boolean[cp.numActions()];
         this.hmrpEstimate = hmprpEstimate;
 
     }
@@ -58,7 +58,7 @@ public class H1Fix extends H1 {
      private float fixPlan(State gs) {
         
         //Compute DG
-        final Condition goal = cp.preconditionFunction()[pseudoGoal];
+        final Condition goal = cp.preconditionFunction()[cp.goal()];
 
         final IntArraySet V = new IntArraySet();
 
@@ -78,7 +78,7 @@ public class H1Fix extends H1 {
         
         //Construct graph;
         final LinkedList<Integer> stack = new LinkedList();
-        stack.push(pseudoGoal);
+        stack.push(cp.goal());
         while (!stack.isEmpty()) {
             int a = stack.pollLast();
             if (!visitedActions[a]){                
@@ -118,10 +118,10 @@ public class H1Fix extends H1 {
         
         
         int extraCost =0;
-        final IntArraySet[] descendants = new IntArraySet[getHeuristicNumberOfActions()];
+        final IntArraySet[] descendants = new IntArraySet[cp.numActions()];
         Arrays.fill(descendants, null);
         
-        computeDescendants(pseudoGoal, prec, descendants);
+        computeDescendants(cp.goal(), prec, descendants);
         
         for (idx = DG.vertexSet().size()-1; idx >= 0; idx--){
             int a = orderedActions[idx];
@@ -139,7 +139,7 @@ public class H1Fix extends H1 {
                                 cum += numericContribution1 * repetitionToConsider[b];
                             }
                         }
-                        if (a != pseudoGoal && repetitionToConsider[a]>1){
+                        if (a != cp.goal() && repetitionToConsider[a]>1){
                             float numericContribution1 = numericContribution(a, c);
                             if (numericContribution1 != 0f || numericContribution1 != Float.MAX_VALUE){
                                 cum += numericContribution1*(repetitionToConsider[a]-1);

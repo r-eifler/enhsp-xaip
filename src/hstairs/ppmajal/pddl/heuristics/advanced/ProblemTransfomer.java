@@ -13,9 +13,12 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -26,49 +29,122 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author enrico
  */
 public class ProblemTransfomer {
-        private static Condition[] preconditionFunction;
-        private static Collection<Integer>[] propEffectFunction;
-        private static  Collection<NumEffect>[] numericEffectFunction;
-        private static float[] actionCost;
-        private static PDDLProblem p;
-        private static Map<AndCond, Collection<IntArraySet>> redundantMap;
-    
-    public static Pair<CompactPDDLProblem,int[]> generateCompactProblem(PDDLProblem problem, String redConstraints){
-        int nTransitions = Transition.totNumberOfTransitions+1;
-        int pseudoGoal = nTransitions-1;
+
+    private static Condition[] preconditionFunction;
+    private static Collection<Integer>[] propEffectFunction;
+    private static Collection<NumEffect>[] numericEffectFunction;
+    private static float[] actionCost;
+    private static PDDLProblem p;
+    private static Map<AndCond, Collection<IntArraySet>> redundantMap;
+    private static Collection[] transition2cptransition;
+    private static int[] cptransition2transition;
+    private static boolean conditionalEffectsSensitive = true;
+    private static int pseudoGoal;
+    private static Int2ObjectOpenHashMap preconditionFunctionMap;
+    private static Int2ObjectOpenHashMap propEffectFunctionMap;
+    private static Int2ObjectOpenHashMap numericEffectFunctionMap;
+
+    public static CompactPDDLProblem generateCompactProblem(PDDLProblem problem, String redConstraints) {
+        int nTransitions = Transition.totNumberOfTransitions + 1;
+        pseudoGoal = nTransitions - 1;
         p = problem;
-        preconditionFunction = new Condition[nTransitions];
-        propEffectFunction = new Collection[nTransitions];
-        numericEffectFunction = new Collection[nTransitions];
-        actionCost = new float[nTransitions];
-        Arrays.fill(actionCost, Float.MAX_VALUE);
-        preconditionFunction[pseudoGoal] = normalizeAndTighthenCondition(p.getGoals(), redConstraints);
-        int[] actionMApping = new int[nTransitions];
-        normalizeModel(redConstraints, new LinkedHashSet(p.actions));
-        normalizeModel(redConstraints, new LinkedHashSet(p.getEventsSet()));
-        normalizeModel(redConstraints, new LinkedHashSet(p.getProcessesSet()));
-        return Pair.of(new CompactPDDLProblem(preconditionFunction,propEffectFunction,numericEffectFunction,actionCost,nTransitions,pseudoGoal),actionMApping);
-    }
-    
-    private static void normalizeModel(String redConstraints, Collection<TransitionGround> transitions) {
-        for (final TransitionGround b : transitions) {
-            preconditionFunction[b.getId()] = normalizeAndTighthenCondition(b.getPreconditions(), redConstraints);
+        transition2cptransition = new Collection[nTransitions];
+        cptransition2transition = new int[nTransitions];
 
-            final IntArraySet propositional = new IntArraySet();
-            for (Terminal t : b.getAllAchievableLiterals()) {
-                propositional.add(t.getId());
-            }
-            propEffectFunction[b.getId()] = propositional;
-            numericEffectFunction[b.getId()] = b.getConditionalNumericEffects().getAllEffects();
-            for (final NumEffect neff : numericEffectFunction[b.getId()]) {
-                neff.normalize();
-            }
-            actionCost[b.getId()] = b.getActionCost(p.getInit(), p.getMetric(), p.isSdac());
-            //TODO Add management for conditional effects
+        if (conditionalEffectsSensitive){
+            preconditionFunctionMap = new Int2ObjectOpenHashMap();
+            propEffectFunctionMap = new Int2ObjectOpenHashMap();
+            numericEffectFunctionMap = new Int2ObjectOpenHashMap();
+        }else{
+            preconditionFunction = new Condition[nTransitions];
+            propEffectFunction = new Collection[nTransitions];
+            numericEffectFunction = new Collection[nTransitions];
+            actionCost = new float[nTransitions];  
         }
+        var v = fillPreEff(0,redConstraints, new LinkedHashSet(p.actions));
+        v = fillPreEff(v,redConstraints, new LinkedHashSet(p.getEventsSet()));
+        v = fillPreEff(v, redConstraints, new LinkedHashSet(p.getProcessesSet()));
+        if (conditionalEffectsSensitive){
+            pseudoGoal = v ;
+            preconditionFunction = new Condition[v+1];
+            propEffectFunction = new Collection[v+1];
+            numericEffectFunction = new Collection[v+1];
+            actionCost = new float[v+1];           
+            for (int v1: preconditionFunctionMap.keySet()){
+                preconditionFunction[v1] = (Condition)preconditionFunctionMap.get(v1);
+                propEffectFunction[v1] = (IntArraySet)propEffectFunctionMap.get(v1);
+                numericEffectFunction[v1] = (Collection)numericEffectFunctionMap.get(v1);
+                final TransitionGround t = (TransitionGround) Transition.getTransition(cptransition2transition[v1]);
+                actionCost[v1] = t.getActionCost(p.getInit(), p.getMetric(), p.isSdac());
+            }
+            nTransitions = v+1;
+        }
+        preconditionFunction[pseudoGoal] = normalizeAndTighthenCondition(p.getGoals(), redConstraints);
 
+        
+        return new CompactPDDLProblem(preconditionFunction,
+                propEffectFunction, numericEffectFunction, actionCost,
+                nTransitions, pseudoGoal, transition2cptransition, cptransition2transition);
     }
-    
+
+    private static int fillPreEff(int offset,String redConstraints, Collection<TransitionGround> transitions) {
+        
+        int i = offset;
+
+        if (conditionalEffectsSensitive) {
+             
+            for (final TransitionGround b : transitions) {
+                for (var v : b.getAllConditionalEffects().entrySet()) {
+                    var c = b.getPreconditions().and(v.getKey());
+                    
+                    preconditionFunctionMap.put(i, normalizeAndTighthenCondition(c, redConstraints));
+                    final IntArraySet propositional = new IntArraySet();
+                    final Collection numEffect = new LinkedHashSet();
+                    for (var t : v.getValue()) {
+                        if (t instanceof Terminal term) {
+                            propositional.add(term.getId());
+                        }
+                        if (t instanceof NumEffect neff) {
+                            numEffect.add(neff);
+                        }
+                    }
+                    Collection actions = transition2cptransition[b.getId()];
+                    if (actions == null){
+                        actions = new IntArraySet();
+                    }
+                    actions.add(i);
+                    transition2cptransition[b.getId()] = actions;
+                    cptransition2transition[i] = b.getId();
+                    propEffectFunctionMap.put(i, propositional);
+                    numericEffectFunctionMap.put(i, numEffect);
+                    i++;
+                }
+                
+            }            
+        } else {
+            for (final TransitionGround b : transitions) {
+                i++;
+                transition2cptransition[b.getId()] = Collections.singleton(b.getId());
+                cptransition2transition[b.getId()] = b.getId();
+
+                preconditionFunction[b.getId()] = normalizeAndTighthenCondition(b.getPreconditions(), redConstraints);
+
+                final IntArraySet propositional = new IntArraySet();
+                for (Terminal t : b.getAllAchievableLiterals()) {
+                    propositional.add(t.getId());
+                }
+                propEffectFunction[b.getId()] = propositional;
+                numericEffectFunction[b.getId()] = b.getConditionalNumericEffects().getAllEffects();
+                for (final NumEffect neff : numericEffectFunction[b.getId()]) {
+                    neff.normalize();
+                }
+                actionCost[b.getId()] = b.getActionCost(p.getInit(), p.getMetric(), p.isSdac());
+                //TODO Add management for conditional effects
+            }
+        }
+        return i;
+    }
+
     private static Condition normalizeAndTighthenCondition(Condition preconditions, String redConstraints) {
         switch (redConstraints) {
             case "smart":
@@ -82,6 +158,7 @@ public class ProblemTransfomer {
                 return preconditions.transformEquality();
         }
     }
+
     private static Condition addSmartRedundantConstraints(Condition cond) {
         if (cond instanceof Terminal) {
             return cond;

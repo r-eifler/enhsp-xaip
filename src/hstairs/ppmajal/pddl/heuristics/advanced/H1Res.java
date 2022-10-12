@@ -33,8 +33,8 @@ public class H1Res extends H1 {
     public H1Res(PDDLProblem p, String red, boolean twolevel, boolean ordering) {
         super(p, false, false, false, red, false, false, false, false);
         
-        localCost = new float[heuristicNumberOfActions][totNumberOfTerms];
-        terminalConditions = new IntArraySet[heuristicNumberOfActions];
+        localCost = new float[cp.numActions()][totNumberOfTerms];
+        terminalConditions = new IntArraySet[cp.numActions()];
         this.twolevel = twolevel;
 //        currentLocalCost =  new  float[heuristicNumberOfActions];
         for (var act: p.actions){
@@ -52,7 +52,7 @@ public class H1Res extends H1 {
 //        System.out.println("-------------------------------------------------");
 //        System.out.println(Terminal.getTerminal(conditionId));
         if (depActions[term1] == null) {
-            depActions[term1] = new BitSet(getHeuristicNumberOfActions());
+            depActions[term1] = new BitSet(cp.numActions());
             for (var actionId : getAchievers(term1)) {
                 final BitSet dep = depActions[term1];
     //            System.out.println(TransitionGround.getTransition(actionId));

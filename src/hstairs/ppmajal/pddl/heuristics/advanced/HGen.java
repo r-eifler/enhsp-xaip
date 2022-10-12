@@ -33,8 +33,8 @@ public class HGen extends H1 {
     private final IntArraySet[] activatedActions;
     public HGen(PDDLProblem problem) {
         super(problem, false);
-        lps = new CPLEXSingleAction[heuristicNumberOfActions]; 
-        activatedActions = new IntArraySet[heuristicNumberOfActions];
+        lps = new CPLEXSingleAction[cp.numActions()]; 
+        activatedActions = new IntArraySet[cp.numActions()];
         greedy = false; //TODO Check the semantics of this
     }
 
@@ -68,8 +68,8 @@ public class HGen extends H1 {
             while (!q.isEmpty()) {//take all the elements with equal distance from the initial state
                 
                 if (this.additive && !this.reachability) {
-                    if (actionHCost[pseudoGoal] != Float.MAX_VALUE) {
-                        return actionHCost[pseudoGoal] ;
+                    if (actionHCost[cp.goal()] != Float.MAX_VALUE) {
+                        return actionHCost[cp.goal()] ;
                     }
                 }       
                 int actionId = q.removeMin().getData();
@@ -84,7 +84,7 @@ public class HGen extends H1 {
 
                 closed[actionId] = true;;//this is the best cost so far; no need to reopen this condition again
 
-                if (actionId == pseudoGoal && !this.reachability) {
+                if (actionId == cp.goal() && !this.reachability) {
                     if (actionHCost[actionId] == Float.MAX_VALUE) {
                         System.out.println("Anomaly");
                     }
@@ -103,7 +103,7 @@ public class HGen extends H1 {
                     currentCost = lps[actionId].solve(s, activeActions);
                     lpInvokations++;
                     if (currentCost != Float.MAX_VALUE) {
-                        if (this.greedy && actionId == pseudoGoal && !this.reachability) {
+                        if (this.greedy && actionId == cp.goal() && !this.reachability) {
                             return Math.max(currentCost, 1f);
                         }
                         if (currentCost < getActionHCost()[actionId]) {
@@ -119,7 +119,7 @@ public class HGen extends H1 {
                 }
             }
         }
-        return Math.max(actionHCost[pseudoGoal], 1f);
+        return Math.max(actionHCost[cp.goal()], 1f);
         
     }
 

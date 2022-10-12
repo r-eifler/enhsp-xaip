@@ -29,10 +29,8 @@ public class PDDLHeuristic {
             boolean helpfulActionsPruning, boolean helpfulTransitions) {
         Map<AndCond, Collection<IntArraySet>> redConstraint = null;
         if ("smart".equals(redundantConstraints)) {
-            System.out.println("Redundant constriants");
             final H1 h1 = new H1(heuristicProblem, true, true, false, "smart", false, true, false, false);
             h1.computeEstimate(heuristicProblem.getInit());
-            redConstraint = h1.generateSmartRedundantConstraints();
         }
         switch (heuristic) {
             case "gc": {

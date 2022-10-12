@@ -42,7 +42,7 @@ public class CPLEXSingleAction extends LPSolverSingleAction {
             try {
                 lp = new IloCplex();
                 relevantActions = h.getActionsAchievingAtLeastATerminalOfActionIdPreconditions(actionId);
-                lpvar = new IloNumVar[h.getHeuristicNumberOfActions()];
+                lpvar = new IloNumVar[h.cp.numActions()];
                 lpcond = new IloRange[h.getTotNumberOfTerms()];
                 lp.setOut(null);
                 objectiveFunction = lp.linearNumExpr();

@@ -56,17 +56,12 @@ public class H1 implements SearchHeuristic {
     /**
      * @return the heuristicNumberOfActions
      */
-    public int getHeuristicNumberOfActions() {
-        return heuristicNumberOfActions;
-    }
 
     static final boolean DEBUG = false;
     final public boolean extractRelaxedPlan;
     final public boolean maxMRP;
 
-    public final int pseudoGoal;
     public final CompactPDDLProblem cp;
-    protected final int heuristicNumberOfActions;
     protected final int totNumberOfTerms;
     protected final int totNumberOfTermsRefactored;
 
@@ -151,24 +146,24 @@ public class H1 implements SearchHeuristic {
         allComparisons = new IntArraySet();
         freePreconditionActions = new IntArraySet();
         this.redundantMap = redundantMap;
-        cp = ProblemTransfomer.generateCompactProblem(problem, redConstraints).getLeft();
-        heuristicNumberOfActions = cp.numActions();
-        pseudoGoal = cp.goal();
+//        problem.prettyPrint();
+        cp = ProblemTransfomer.generateCompactProblem(problem, redConstraints);
+//        System.out.println(cp);
         useSmartConstraints = "smart".equals(redConstraints);
 
         totNumberOfTerms = Terminal.getTotCounter();
-        conditionsAchievableBy = new IntArraySet[heuristicNumberOfActions];
+        conditionsAchievableBy = new IntArraySet[cp.numActions()];
         conditionToAction = new IntArraySet[totNumberOfTerms];
         allConditions = new IntArraySet();
         allActions = new IntArraySet();
 
-        nodeOf = new FibonacciHeapNode[heuristicNumberOfActions];
+        nodeOf = new FibonacciHeapNode[cp.numActions()];
         fillPreEffFunctions(new LinkedHashSet(problem.actions));
         fillPreEffFunctions(new LinkedHashSet(problem.getEventsSet()));
         fillPreEffFunctions(new LinkedHashSet(problem.getProcessesSet()));
 
-        allActions.add(pseudoGoal);
-        updatePreconditionFunction(pseudoGoal);
+        allActions.add(cp.goal());
+        updatePreconditionFunction(cp.goal());
 
         termsArrayShifter = new ArrayShifter(getAllConditions());
         totNumberOfTermsRefactored = termsArrayShifter.getMaxTid();
@@ -176,11 +171,11 @@ public class H1 implements SearchHeuristic {
         actionsArrayShifter = new ArrayShifter(allActions);
         totNumberOfActionsRefactored = actionsArrayShifter.getMaxTid();
 
-        actionHCost = new float[heuristicNumberOfActions];
+        actionHCost = new float[cp.numActions()];
         conditionCost = new float[totNumberOfTerms];
-        closed = new boolean[heuristicNumberOfActions];
+        closed = new boolean[cp.numActions()];
 
-        hardcoreVersion = heuristicNumberOfActions * totNumberOfTermsRefactored < 1999999999;
+        hardcoreVersion = cp.numActions() * totNumberOfTermsRefactored < 1999999999;
 //        System.out.println("Heuristic Number of Actions:" + heuristicNumberOfActions);
 //        System.out.println("Heuristic Number of Actions Refactored:" + totNumberOfActionsRefactored);
 //        System.out.println("Tot Number of Terms:" + totNumberOfTerms);
@@ -200,13 +195,13 @@ public class H1 implements SearchHeuristic {
         //        numericContribution = new HashMap<>();
 
         conditionInit = new boolean[totNumberOfTerms];
-        actionInit = new boolean[heuristicNumberOfActions];
+        actionInit = new boolean[cp.numActions()];
         if (extractRelaxedPlan || useSmartConstraints || helpfulActionsComputation) {
             allAchievers = new IntArraySet[totNumberOfTerms];
         }
         if (useSmartConstraints) {
             deleters = new IntArraySet[totNumberOfTerms];
-            conditionsDeletableBy = new IntArraySet[heuristicNumberOfActions];
+            conditionsDeletableBy = new IntArraySet[cp.numActions()];
         }else{
             deleters = null;
             conditionsDeletableBy = null;
@@ -226,9 +221,9 @@ public class H1 implements SearchHeuristic {
 
 
         if (extractRelaxedPlan || helpfulActionsComputation){
-            maxNumRepetition = new int[heuristicNumberOfActions];
+            maxNumRepetition = new int[cp.numActions()];
             visited = new boolean[totNumberOfTerms];
-            repetitionsInThePlan = new IntArraySet[heuristicNumberOfActions];
+            repetitionsInThePlan = new IntArraySet[cp.numActions()];
         }else{
             visited = null;
             maxNumRepetition = null;
@@ -240,9 +235,10 @@ public class H1 implements SearchHeuristic {
     private void fillPreEffFunctions(LinkedHashSet<TransitionGround> transitions) {
 
         for (final TransitionGround b : transitions) {
-            final int i = b.getId();
-            allActions.add(b.getId());
-            updatePreconditionFunction(i);
+            for (final int i : cp.tr2CpTrMap()[b.getId()]){
+                allActions.add(i);
+                updatePreconditionFunction(i);
+            }
         }
 
     }
@@ -312,22 +308,22 @@ public class H1 implements SearchHeuristic {
 //            System.out.println(Transition.getTransition(actionId));
 //            for (int i=0;i<=Transition.totNumberOfTransitions;i++)
 //                System.out.println(cp.actionCost()[i]);
-            if (actionId == pseudoGoal && !isReachability()) {
+            if (actionId == cp.goal() && !isReachability()) {
                 break;
             }
-            if (isReachability() && actionId != pseudoGoal) {
+            if (isReachability() && actionId != cp.goal()) {
                 if (reachableTransitions == null) {
                     reachableTransitions = new IntArraySet();
                 }
                 reachableTransitions.add(actionId);
             }
             closed[actionId] = true;
-            if (actionId != pseudoGoal) {
+            if (actionId != cp.goal()) {
                 expand(actionId, h, gs);
             }
         }
         
-        if (getActionHCost()[pseudoGoal] == Float.MAX_VALUE ){
+        if (getActionHCost()[cp.goal()] == Float.MAX_VALUE ){
             return Float.MAX_VALUE;
         }
         
@@ -339,7 +335,7 @@ public class H1 implements SearchHeuristic {
             relaxedPlanCost(gs);
         }
 //        System.exit(-1);
-        return getActionHCost()[pseudoGoal];
+        return getActionHCost()[cp.goal()];
 
     }
 
@@ -379,7 +375,7 @@ public class H1 implements SearchHeuristic {
     }
 
     protected float relaxedPlanCost(State gs) {
-        final Condition goal = cp.preconditionFunction()[pseudoGoal];
+        final Condition goal = cp.preconditionFunction()[cp.goal()];
 
         final LinkedList<Pair<Collection, Float>> stack = new LinkedList();
         stack.push(getActivatingConditions(goal));
@@ -418,6 +414,7 @@ public class H1 implements SearchHeuristic {
                             maxNumRepetition[actionId] = Math.max(maxNumRepetition[actionId],rep);
                         }
                         plan.add(actionId);
+//                        plan.add(cp.cpTr2TrMap()[actionId]);
                         stack.push(getActivatingConditions(cp.preconditionFunction()[actionId]));
                     }
                     visited[conditionId] = true;
@@ -700,7 +697,7 @@ public class H1 implements SearchHeuristic {
                 } else {
                     reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
                     for (final int i : reachableTransitions) {
-                        reachableTransitionsInstances.add((TransitionGround) getTransition(i));
+                        reachableTransitionsInstances.add((TransitionGround) getTransition(cp.cpTr2TrMap()[i]));
                     }
                     reachableTransitionsInstances = new ArrayList<>(reachableTransitionsInstances);
                     res = reachableTransitionsInstances;
@@ -711,7 +708,7 @@ public class H1 implements SearchHeuristic {
         } else {
             final Collection actions = new ArrayList<>();
             for (final int i : helpfulActions) {
-                final TransitionGround transition = (TransitionGround) getTransition(i);
+                final TransitionGround transition = (TransitionGround) getTransition(cp.cpTr2TrMap()[i]);
                 if (transition.getSemantics() == Transition.Semantics.ACTION) {
                     actions.add(transition);
                 }
@@ -739,7 +736,7 @@ public class H1 implements SearchHeuristic {
             }
             reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
             for (final int i : reachableTransitions) {
-                reachableTransitionsInstances.add((TransitionGround) getTransition(i));
+                reachableTransitionsInstances.add((TransitionGround) getTransition(cp.cpTr2TrMap()[i]));
             }
             reachableTransitionsInstances = new ArrayList<>(reachableTransitionsInstances);
             return reachableTransitionsInstances;
@@ -764,7 +761,7 @@ public class H1 implements SearchHeuristic {
                         }
                     }
                     if (max > 1) {
-                        res.add(Pair.of((TransitionGround) getTransition(actionId), max));
+                        res.add(Pair.of((TransitionGround) getTransition(cp.cpTr2TrMap()[actionId]), max));
                     }
                 } else {
                     int min = Integer.MAX_VALUE;
@@ -850,7 +847,7 @@ public class H1 implements SearchHeuristic {
     }
 
     public Condition getGoalFormulation() {
-        return cp.preconditionFunction()[pseudoGoal];
+        return cp.preconditionFunction()[cp.goal()];
     }
 
     protected IntSet getConditionsAchievableById(int actionId) {

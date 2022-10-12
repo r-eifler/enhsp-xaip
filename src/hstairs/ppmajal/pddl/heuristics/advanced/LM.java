@@ -46,9 +46,9 @@ public class LM extends H1 {
     public LM(PDDLProblem problem, String mode, String redundantConstraints, String solver) {
         super(problem, true, true, false, redundantConstraints, false, false, false, false, null);
         reachedConditions = new boolean[totNumberOfTerms];
-        reachedActions = new boolean[heuristicNumberOfActions];
+        reachedActions = new boolean[cp.numActions()];
         lmC = new IntOpenHashSet[totNumberOfTerms];
-        lmA = new IntOpenHashSet[heuristicNumberOfActions];
+        lmA = new IntOpenHashSet[cp.numActions()];
         this.mode = mode;
         if ("cplex".equals(solver)) {
             lpSolver = new CPLEX(this);
@@ -67,7 +67,7 @@ public class LM extends H1 {
 
         while (!q.isEmpty()) {
             final int a = q.popInt();
-            if (a != pseudoGoal) {
+            if (a != cp.goal()) {
                 expand(a, q);
             }
         }
@@ -75,7 +75,7 @@ public class LM extends H1 {
         if ("lmCount".equals(mode)) {
             return countMissing();
         } else if ("lp".equals(mode)) {
-            return lpSolver.solve(s, lmA[pseudoGoal]);
+            return lpSolver.solve(s, lmA[cp.goal()]);
         }
         return 0f;
     }
@@ -179,7 +179,7 @@ public class LM extends H1 {
     private void printLandmarks() {
         AndCond goal = (AndCond) getProblem().getGoals();
         System.out.println("Landmarks");
-        for (int sg : lmA[pseudoGoal]) {
+        for (int sg : lmA[cp.goal()]) {
             System.out.println(Terminal.getTerminal(sg));
         }
     }
@@ -208,7 +208,7 @@ public class LM extends H1 {
 
     private int countMissing() {
         int lmCount = 0;
-        for (int lm : lmA[pseudoGoal]) {
+        for (int lm : lmA[cp.goal()]) {
             if (!getConditionInit()[lm]) {
                 lmCount++;
             }
