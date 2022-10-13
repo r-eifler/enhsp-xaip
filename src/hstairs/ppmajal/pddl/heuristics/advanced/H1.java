@@ -221,9 +221,9 @@ public class H1 implements SearchHeuristic {
 
 
         if (extractRelaxedPlan || helpfulActionsComputation){
-            maxNumRepetition = new int[cp.numActions()];
+            maxNumRepetition = new int[Transition.totNumberOfTransitions+1];
             visited = new boolean[totNumberOfTerms];
-            repetitionsInThePlan = new IntArraySet[cp.numActions()];
+            repetitionsInThePlan = new IntArraySet[Transition.totNumberOfTransitions+1];
         }else{
             visited = null;
             maxNumRepetition = null;
@@ -404,17 +404,17 @@ public class H1 implements SearchHeuristic {
                         
                         final int actionId = establishedAchiever[conditionId];
                         final int rep = (int) ceil(numRepetition[conditionId]);
-                        
-                        if (repetitionsInThePlan[actionId] == null){
-                            repetitionsInThePlan[actionId] = new IntArraySet();
+                        final int trActionId = cp.cpTr2TrMap()[actionId];
+                        if (repetitionsInThePlan[trActionId] == null){
+                            repetitionsInThePlan[trActionId] = new IntArraySet();
                         }
                         
-                        if (maxNumRepetition[actionId] != rep){
-                            repetitionsInThePlan[actionId].add(rep);
-                            maxNumRepetition[actionId] = Math.max(maxNumRepetition[actionId],rep);
+                        if (maxNumRepetition[trActionId] != rep){
+                            repetitionsInThePlan[trActionId].add(rep);
+                            maxNumRepetition[trActionId] = Math.max(maxNumRepetition[trActionId],rep);
                         }
-                        plan.add(actionId);
-//                        plan.add(cp.cpTr2TrMap()[actionId]);
+//                        plan.add(actionId);
+                        plan.add(cp.cpTr2TrMap()[actionId]);
                         stack.push(getActivatingConditions(cp.preconditionFunction()[actionId]));
                     }
                     visited[conditionId] = true;
@@ -425,7 +425,9 @@ public class H1 implements SearchHeuristic {
         //This is the MRP
         float ret = 0;
         for (final int action : plan) {
-            ret += maxNumRepetition[action] * getActionCost()[action];
+            //all cp actions for a given action have the same cost.
+            final var t = cp.tr2CpTrMap()[action].iterator().next();
+            ret += maxNumRepetition[action] * getActionCost()[t];
 //            System.out.println(TransitionGround.getTransition(action) + " " + maxNumRepetition[action]);
         }
 

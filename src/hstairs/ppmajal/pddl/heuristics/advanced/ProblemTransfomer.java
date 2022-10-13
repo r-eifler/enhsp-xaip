@@ -43,23 +43,28 @@ public class ProblemTransfomer {
     private static Int2ObjectOpenHashMap preconditionFunctionMap;
     private static Int2ObjectOpenHashMap propEffectFunctionMap;
     private static Int2ObjectOpenHashMap numericEffectFunctionMap;
+    private static Int2ObjectOpenHashMap transition2cptransitionMap;
+    private static Int2IntOpenHashMap cptransition2transitionMap;
 
     public static CompactPDDLProblem generateCompactProblem(PDDLProblem problem, String redConstraints) {
         int nTransitions = Transition.totNumberOfTransitions + 1;
         pseudoGoal = nTransitions - 1;
         p = problem;
-        transition2cptransition = new Collection[nTransitions];
-        cptransition2transition = new int[nTransitions];
+        
 
         if (conditionalEffectsSensitive){
             preconditionFunctionMap = new Int2ObjectOpenHashMap();
             propEffectFunctionMap = new Int2ObjectOpenHashMap();
             numericEffectFunctionMap = new Int2ObjectOpenHashMap();
+            transition2cptransitionMap = new Int2ObjectOpenHashMap();
+            cptransition2transitionMap = new Int2IntOpenHashMap(); 
         }else{
             preconditionFunction = new Condition[nTransitions];
             propEffectFunction = new Collection[nTransitions];
             numericEffectFunction = new Collection[nTransitions];
             actionCost = new float[nTransitions];  
+            transition2cptransition = new Collection[nTransitions];
+            cptransition2transition = new int[nTransitions];
         }
         var v = fillPreEff(0,redConstraints, new LinkedHashSet(p.actions));
         v = fillPreEff(v,redConstraints, new LinkedHashSet(p.getEventsSet()));
@@ -69,19 +74,30 @@ public class ProblemTransfomer {
             preconditionFunction = new Condition[v+1];
             propEffectFunction = new Collection[v+1];
             numericEffectFunction = new Collection[v+1];
+            transition2cptransition = new Collection[nTransitions];
+            cptransition2transition = new int[v+1];
+            
             actionCost = new float[v+1];           
             for (int v1: preconditionFunctionMap.keySet()){
                 preconditionFunction[v1] = (Condition)preconditionFunctionMap.get(v1);
                 propEffectFunction[v1] = (IntArraySet)propEffectFunctionMap.get(v1);
                 numericEffectFunction[v1] = (Collection)numericEffectFunctionMap.get(v1);
-                final TransitionGround t = (TransitionGround) Transition.getTransition(cptransition2transition[v1]);
+                final TransitionGround t = (TransitionGround) Transition.getTransition(cptransition2transitionMap.get(v1));
                 actionCost[v1] = t.getActionCost(p.getInit(), p.getMetric(), p.isSdac());
             }
+            for (int v1: transition2cptransitionMap.keySet()){
+                transition2cptransition[v1] = (Collection) transition2cptransitionMap.get(v1);
+                
+            }
+            for (int v1: cptransition2transitionMap.keySet()){
+                cptransition2transition[v1] = cptransition2transitionMap.get(v1);
+            }
+            
             nTransitions = v+1;
         }
         preconditionFunction[pseudoGoal] = normalizeAndTighthenCondition(p.getGoals(), redConstraints);
 
-        
+        System.out.println(nTransitions);
         return new CompactPDDLProblem(preconditionFunction,
                 propEffectFunction, numericEffectFunction, actionCost,
                 nTransitions, pseudoGoal, transition2cptransition, cptransition2transition);
@@ -95,7 +111,7 @@ public class ProblemTransfomer {
              
             for (final TransitionGround b : transitions) {
                 for (var v : b.getAllConditionalEffects().entrySet()) {
-                    var c = b.getPreconditions().and(v.getKey());
+                    final var c = b.getPreconditions().and(v.getKey());
                     
                     preconditionFunctionMap.put(i, normalizeAndTighthenCondition(c, redConstraints));
                     final IntArraySet propositional = new IntArraySet();
@@ -108,19 +124,20 @@ public class ProblemTransfomer {
                             numEffect.add(neff);
                         }
                     }
-                    Collection actions = transition2cptransition[b.getId()];
+                    Collection actions = (Collection) transition2cptransitionMap.get(b.getId());
                     if (actions == null){
                         actions = new IntArraySet();
                     }
                     actions.add(i);
-                    transition2cptransition[b.getId()] = actions;
-                    cptransition2transition[i] = b.getId();
+                    transition2cptransitionMap.put(b.getId(),actions);
+                    cptransition2transitionMap.put(i,b.getId());
                     propEffectFunctionMap.put(i, propositional);
                     numericEffectFunctionMap.put(i, numEffect);
                     i++;
                 }
                 
-            }            
+            }  
+            
         } else {
             for (final TransitionGround b : transitions) {
                 i++;
