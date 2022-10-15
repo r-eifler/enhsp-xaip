@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.hstairs.ppmajal.pddl.heuristics.advanced;
+package hstairs.ppmajal.pddl.heuristics.advanced.experimental;
 
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Terminal;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
@@ -207,7 +208,7 @@ public class H1Res extends H1 {
                 return 0f;
             }
             if (and.sons.length == 1){
-                return super.estimateCost(c);
+                return super.estimateCost(c,previous);
             }
 
             float max = 0;
@@ -215,7 +216,7 @@ public class H1Res extends H1 {
             final Object[] sons = ((AndCond)and).sons;
             for (int i = 0; i< sons.length; i++ ){
                 Condition v = (Condition)sons[i];
-                final float estimateCost = super.estimateCost(v);
+                final float estimateCost = super.estimateCost(v,previous);
                 if (estimateCost > max){
                     max = estimateCost;
                     best = i;
@@ -246,7 +247,7 @@ public class H1Res extends H1 {
 //                        int first = getDep(((Terminal) t).getId()).cardinality();
 //                        int second = getDep(((Terminal) t1).getId()).cardinality();
 //                        return first - second;
-                           return (int) (estimateCost((Condition) t1)-estimateCost((Condition) t));
+                           return (int) (estimateCost((Condition) t1,previous)-estimateCost((Condition) t,previous));
 //                        return (int) (estimateCost((Condition) t) - estimateCost((Condition) t1));
 
                     }
@@ -296,7 +297,7 @@ public class H1Res extends H1 {
 //            System.out.println("Tot Cost:"+max);
             return max;   
         }else if (c instanceof Terminal){
-            return super.estimateCost(c);
+            return super.estimateCost(c,previous);
         }else{
             throw new UnsupportedOperationException("Condition "+c.getClass()+" not supported");
         }

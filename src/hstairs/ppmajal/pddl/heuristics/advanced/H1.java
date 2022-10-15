@@ -111,7 +111,7 @@ public class H1 implements SearchHeuristic {
 
     //Plan Fixing Data Structures;
     final boolean[] visited;
-    final int[] maxNumRepetition ;
+    protected final int[] maxNumRepetition ;
    
     
     
@@ -519,7 +519,7 @@ public class H1 implements SearchHeuristic {
         return false;
     }
 
-    Pair<Collection, Float> getActivatingConditions(final Condition c) {
+    protected Pair<Collection, Float> getActivatingConditions(final Condition c) {
         if (c instanceof AndCond) {
             final AndCond and = (AndCond) c;
             if (and.sons == null || and.sons.length == 0) {
@@ -560,24 +560,21 @@ public class H1 implements SearchHeuristic {
     }
 
     
-    protected float estimateCost(final Condition c) {
-        return this.estimateCost(c, isAdditive());
+    protected float estimateCost(final Condition c, float previous) {
+        return this.estimateCost(c, isAdditive(),previous);
     }
     
-    protected float estimateCost(final Condition c, float previous) {
-        return this.estimateCost(c, isAdditive());
-    }
 
-    private float estimateCost(final Condition c, boolean additive) {
+    private float estimateCost(final Condition c, boolean additive, float previous) {
         if (c instanceof AndCond and) {
             if (and.sons == null) {
                 return 0f;
             }
             float ret = 0f;
             for (final var son : and.sons) {
-                final float estimate = estimateCost((Condition) son);
-                if (estimate == Float.MAX_VALUE) {
-                    return Float.MAX_VALUE;
+                final float estimate = estimateCost((Condition) son,previous);
+                if (estimate == Float.MAX_VALUE || estimate >=previous) {
+                    return estimate;
                 }
                 if (additive && !isConjunctionsMax()) {// && !this.extractRelaxedPlan) {
                     ret += estimate;
@@ -593,7 +590,7 @@ public class H1 implements SearchHeuristic {
             }
             float ret = Float.MAX_VALUE;
             for (final Object son : and.sons) {
-                final float estimate = estimateCost((Condition)son);
+                final float estimate = estimateCost((Condition)son,previous);
                 if (estimate != Float.MAX_VALUE) {
                     ret = (estimate < ret) ? estimate : ret;
                     if (ret == 0){
@@ -625,7 +622,7 @@ public class H1 implements SearchHeuristic {
     }
 
     //Semantics: UNKNOWEFFECT don't know because comp is hard. > 0 is achiever, 0 no
-    float numericContribution(int t, Comparison comp) {
+    protected float numericContribution(int t, Comparison comp) {
         
         if (cp.numericEffectFunction()[t] == null || cp.numericEffectFunction()[t].isEmpty()) {
             return 0f;

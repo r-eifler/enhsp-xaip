@@ -96,7 +96,6 @@ public class ProblemTransfomer {
         }
         preconditionFunction[pseudoGoal] = normalizeAndTighthenCondition(p.getGoals(), redConstraints);
 
-        System.out.println(nTransitions);
         return new CompactPDDLProblem(preconditionFunction,
                 propEffectFunction, numericEffectFunction, actionCost,
                 nTransitions, pseudoGoal, transition2cptransition, cptransition2transition);

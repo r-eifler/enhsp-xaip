@@ -45,10 +45,6 @@ public class AndCond extends ComplexCondition implements PostCondition {
         super(sons);
     }
     
-    private AndCond(Object[] input){
-        super(input);
-    }
-    
 
     /**
      * @return a string representation of the and tree
@@ -133,14 +129,13 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
 
+    @Override
     public String pddlPrintWithExtraObject ( ) {
         String ret_val = "(and ";
         for (Object o : sons) {
-            if (o instanceof Condition) {
-                Condition c = (Condition) o;
+            if (o instanceof Condition c) {
                 ret_val = ret_val.concat(c.pddlPrintWithExtraObject());
-            } else if (o instanceof Comparison) {
-                Comparison comp = (Comparison) o;
+            } else if (o instanceof Comparison comp) {
                 ret_val = ret_val.concat(comp.pddlPrintWithExtraObject());
             } else if (o instanceof NumEffect) {
                 System.out.println("Error in pddlPrint:" + this);
