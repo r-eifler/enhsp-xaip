@@ -106,17 +106,13 @@ public class H1 implements SearchHeuristic {
     private float[] minAchieverPreconditionCost;
     protected IntArraySet allActions;
 
-    Map<AndCond, Collection<IntArraySet>> redundantMap;
     final boolean useSmartConstraints;
-    
-    final int[] maxNumRepetition ;
     
 
     //Plan Fixing Data Structures;
-
-
     final boolean[] visited;
-
+    final int[] maxNumRepetition ;
+   
     
     
     public H1(PDDLProblem problem) {
@@ -145,7 +141,6 @@ public class H1 implements SearchHeuristic {
         this.extractRelaxedPlan = extractRelaxedPlan;
         allComparisons = new IntArraySet();
         freePreconditionActions = new IntArraySet();
-        this.redundantMap = redundantMap;
 //        problem.prettyPrint();
         cp = ProblemTransfomer.generateCompactProblem(problem, redConstraints);
 //        System.out.println(cp);
@@ -251,7 +246,7 @@ public class H1 implements SearchHeuristic {
         }
         for (final Condition c : terminalConditions) {
             if (c instanceof Terminal) {
-                Terminal t = (Terminal) c;
+                final Terminal t = (Terminal) c;
                 IntArraySet groundActions = getConditionToAction()[((Terminal) c).getId()];
                 if (groundActions == null) {
                     groundActions = new IntArraySet();
@@ -467,7 +462,7 @@ public class H1 implements SearchHeuristic {
                     final double v = this.numericContribution(actionId, (Comparison) t);
                     if (v > 0) {
                        
-                        float rep = computeRepetition(t,v,s);
+                        final float rep = computeRepetition(t,v,s);
                         final float newCost = rep * getActionCost()[actionId];
                         boolean localUpdate = false;
                         if (isAdditive()) {
@@ -574,8 +569,7 @@ public class H1 implements SearchHeuristic {
     }
 
     private float estimateCost(final Condition c, boolean additive) {
-        if (c instanceof AndCond) {
-            final AndCond and = (AndCond) c;
+        if (c instanceof AndCond and) {
             if (and.sons == null) {
                 return 0f;
             }
@@ -593,8 +587,7 @@ public class H1 implements SearchHeuristic {
             }
             return ret;
 
-        } else if (c instanceof OrCond) {
-            final OrCond and = (OrCond) c;
+        } else if (c instanceof OrCond and) {
             if (and.sons == null) {
                 return 0f;
             }
@@ -603,11 +596,13 @@ public class H1 implements SearchHeuristic {
                 final float estimate = estimateCost((Condition)son);
                 if (estimate != Float.MAX_VALUE) {
                     ret = (estimate < ret) ? estimate : ret;
+                    if (ret == 0){
+                        return 0f;
+                    }
                 }
             }
             return ret;
-        } else if (c instanceof Terminal) {
-            final Terminal t = (Terminal) c;
+        } else if (c instanceof Terminal t) {
             return getConditionCost()[t.getId()];
         } else {
             return 0f;
@@ -645,8 +640,8 @@ public class H1 implements SearchHeuristic {
                 setNumericContribution(t, comp.getId(), 0f);
                 return positiveness;
             }
-            if (comp.getLeft() instanceof ExtendedNormExpression) {
-                final ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
+            if (comp.getLeft() instanceof ExtendedNormExpression extendedNormExpression) {
+                final ExtendedNormExpression left = extendedNormExpression;
                 for (final ExtendedAddendum ad : left.summations) {
                     if (ad.bin != null) {
                         for (final NumEffect ne : cp.numericEffectFunction()[t]) {
@@ -793,60 +788,7 @@ public class H1 implements SearchHeuristic {
         addDeleter(t, actionId);
     }
 
-    private Condition getNormalizedPrecondition(Condition preconditions, String redConstraints) {
-        switch (redConstraints) {
-            case "smart":
-                if (redundantMap == null || redundantMap.isEmpty()) {
-                    return preconditions.transformEquality();
-                }
-                return addSmartRedundantConstraints(preconditions.transformEquality());
-            case "brute":
-                return preconditions.transformEquality().introduce_red_constraints();
-            default:
-                return preconditions.transformEquality();
-        }
-    }
 
-    private Condition addSmartRedundantConstraints(Condition cond) {
-        if (cond instanceof Terminal) {
-            return cond;
-        }
-        if (cond instanceof OrCond) {
-            Collection newOr = new HashSet();
-            for (var v : ((OrCond) cond).sons) {
-                newOr.add(addSmartRedundantConstraints((Condition) v));
-            }
-            return new OrCond(newOr);
-        }
-        if (cond instanceof AndCond) {
-            Collection and = new HashSet();
-            Collection<IntArraySet> get = redundantMap.get((AndCond) cond);
-            for (var v : ((AndCond) cond).sons) {
-                and.add((Condition) v);
-            }
-            if (get != null) {
-                System.out.println("One Redundant Constraint added");
-                for (var v : get) {
-                    Comparison previous = null;
-                    for (int i : v) {
-                        if (previous != null) {
-                            previous = AndCond.generateRedConstraints((Comparison) Comparison.getTerminal(i), previous);
-                        } else {
-                            previous = (Comparison) Comparison.getTerminal(i);
-                        }
-
-                    }
-                    if (previous != null) {
-                        and.add(previous);
-                    }
-                }
-            }
-            return new AndCond(and);
-        } else {
-            throw new RuntimeException("This was unexepected:" + cond);
-        }
-
-    }
 
     public Condition getGoalFormulation() {
         return cp.preconditionFunction()[cp.goal()];
