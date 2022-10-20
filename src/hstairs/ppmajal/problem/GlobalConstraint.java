@@ -18,17 +18,15 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.OrCond;
-import com.hstairs.ppmajal.conditions.BoolPredicate;
-import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PDDLDomain;
+import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.expressions.NumFluent;
-
-import java.util.Collection;
 import java.util.Set;
 
 /**

@@ -13,16 +13,15 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import hstairs.ppmajal.pddl.heuristics.advanced.CompactPDDLProblem;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  *

@@ -26,19 +26,17 @@ import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
-import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.Transition.Semantics;
 import com.hstairs.ppmajal.transition.TransitionSchema;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
-
-import java.io.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author enrico

@@ -18,9 +18,8 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
-import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import java.util.Map;

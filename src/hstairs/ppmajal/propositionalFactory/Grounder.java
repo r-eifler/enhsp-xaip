@@ -20,18 +20,17 @@ package com.hstairs.ppmajal.propositionalFactory;
 
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.AndCond;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.FactoryConditions;
 import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.GlobalConstraint;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
@@ -39,9 +38,8 @@ import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 
 public class Grounder {

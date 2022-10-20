@@ -22,7 +22,6 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

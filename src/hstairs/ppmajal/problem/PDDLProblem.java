@@ -36,22 +36,19 @@ import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
-import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jgrapht.alg.util.Pair;
 
 /**
@@ -1616,7 +1613,7 @@ public class PDDLProblem implements SearchProblem {
                 return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
             }
             
-            executedProcesses.add(waiting);
+            executedProcesses.add(null);
             executedProcesses.addAll(applyAllEvents(next));
             if (traceString != null) {
                 traceString.append(next.toString()).append("\n");

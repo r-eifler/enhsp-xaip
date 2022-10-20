@@ -18,17 +18,15 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.AndCond;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.BoolPredicate;
+import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import net.sourceforge.interval.ia_math.RealInterval;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

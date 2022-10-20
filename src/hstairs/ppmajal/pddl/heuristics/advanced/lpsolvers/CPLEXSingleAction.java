@@ -9,7 +9,6 @@ import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.HGen;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.LM;
 import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.transition.TransitionGround;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -17,7 +16,6 @@ import ilog.concert.IloNumVarType;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import java.util.BitSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

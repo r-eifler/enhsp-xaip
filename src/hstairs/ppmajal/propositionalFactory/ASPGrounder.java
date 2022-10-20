@@ -3,7 +3,6 @@ package com.hstairs.ppmajal.propositionalFactory;
 import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.Collection;
 import java.util.LinkedHashSet;
 

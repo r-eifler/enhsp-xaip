@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.pddl.heuristics.utils;
 
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.Set;
 
 /**

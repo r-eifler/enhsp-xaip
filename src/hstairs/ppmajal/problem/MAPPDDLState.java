@@ -3,7 +3,6 @@ package com.hstairs.ppmajal.problem;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -24,7 +24,6 @@ import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.*;
 
 /**
@@ -240,12 +239,6 @@ public class BoolPredicate extends Terminal implements PostCondition {
         return createPredicate;
     }
 
-    @Override
-    public Condition ground (Map substitution, int c) {
-        Condition ret = this.ground(substitution, null);
-        ret.setHeuristicId(c);
-        return ret;
-    }
 
     @Override
     public boolean eval (State s) {

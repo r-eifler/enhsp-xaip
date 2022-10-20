@@ -18,7 +18,6 @@ import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

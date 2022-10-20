@@ -13,11 +13,9 @@ import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import org.jgrapht.graph.DirectedAcyclicGraph;
-
-import java.util.*;
-
 import static java.lang.Math.ceil;
+import java.util.*;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.opt.graph.fastutil.FastutilFastLookupIntVertexGSS;
 
 /**

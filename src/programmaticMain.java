@@ -1,36 +1,36 @@
 
+import com.hstairs.ppmajal.conditions.BoolPredicate;
+import static com.hstairs.ppmajal.conditions.BoolPredicate.BoolFluent;
 import static com.hstairs.ppmajal.conditions.Comparison.comparison;
+import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import static com.hstairs.ppmajal.conditions.PDDLObject.object;
-import com.hstairs.ppmajal.conditions.BoolPredicate;
+import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.SchemaParameters;
+import static com.hstairs.ppmajal.domain.SchemaParameters.createPar;
 import com.hstairs.ppmajal.domain.Type;
+import static com.hstairs.ppmajal.domain.Type.type;
 import com.hstairs.ppmajal.domain.Variable;
+import static com.hstairs.ppmajal.domain.Variable.variable;
+import com.hstairs.ppmajal.expressions.NumEffect;
+import static com.hstairs.ppmajal.expressions.NumEffect.easyNumEffect;
+import static com.hstairs.ppmajal.expressions.NumFluent.numericFluent;
+import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLSearchEngine;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
+import static com.hstairs.ppmajal.transition.ConditionalEffects.numEffects;
 import static com.hstairs.ppmajal.transition.ConditionalEffects.stripsEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import static com.hstairs.ppmajal.transition.Transition.Semantics.ACTION;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import org.apache.commons.lang3.tuple.Pair;
-import static com.hstairs.ppmajal.conditions.BoolPredicate.BoolFluent;
-import com.hstairs.ppmajal.conditions.NotCond;
-import com.hstairs.ppmajal.conditions.Terminal;
-import static com.hstairs.ppmajal.domain.SchemaParameters.createPar;
-import static com.hstairs.ppmajal.domain.Type.type;
-import static com.hstairs.ppmajal.domain.Variable.variable;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import static com.hstairs.ppmajal.expressions.NumEffect.easyNumEffect;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import static com.hstairs.ppmajal.expressions.NumFluent.numericFluent;
-import static com.hstairs.ppmajal.transition.ConditionalEffects.numEffects;
-import com.hstairs.ppmajal.transition.TransitionGround;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

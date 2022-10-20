@@ -1,7 +1,6 @@
 package com.hstairs.ppmajal.extraUtils;
 
 import com.hstairs.ppmajal.conditions.Terminal;
-
 import java.util.Collection;
 
 public class ArrayShifter

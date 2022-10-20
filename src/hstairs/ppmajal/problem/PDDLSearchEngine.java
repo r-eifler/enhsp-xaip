@@ -19,22 +19,21 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.search.SearchEngine;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 import com.hstairs.ppmajal.search.SearchNode;
 import com.hstairs.ppmajal.search.SimpleSearchNode;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
-import com.hstairs.ppmajal.search.SearchHeuristic;
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 
 
@@ -115,11 +114,11 @@ public class PDDLSearchEngine extends SearchEngine {
                     ArrayList arrayList = new ArrayList(c.list_of_actions);
                     Collections.reverse(arrayList);
                     for (final Object o: arrayList ){
-                        TransitionGround t = (TransitionGround)o;
-                        if (t.getSemantics() == TransitionGround.Semantics.PROCESS){
+                        if (o == null){
                             time = time.subtract(executionDelta);
                             plan.addFirst(Pair.of(time, waiting));
                         }else{
+                            TransitionGround t = (TransitionGround)o;
                             plan.addFirst(Pair.of(time,t));
                         }
                     }

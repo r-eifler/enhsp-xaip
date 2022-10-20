@@ -24,9 +24,8 @@ import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author Enrico Scala

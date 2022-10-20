@@ -21,7 +21,6 @@ package com.hstairs.ppmajal.domain;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.problem.GlobalConstraint;
 import com.hstairs.ppmajal.problem.PDDLObjects;
-
 import java.util.HashMap;
 import java.util.Map;
 

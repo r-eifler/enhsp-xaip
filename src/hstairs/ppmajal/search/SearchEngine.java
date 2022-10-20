@@ -18,10 +18,8 @@
  */
 package com.hstairs.ppmajal.search;
 
-import java.util.ArrayList;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.objects.*;
-
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.*;

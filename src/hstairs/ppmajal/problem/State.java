@@ -20,7 +20,6 @@ package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.List;
 
 /**

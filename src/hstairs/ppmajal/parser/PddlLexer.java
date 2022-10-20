@@ -2,9 +2,6 @@
  package com.hstairs.ppmajal.parser; 
 
 import org.antlr.runtime.*;
-import java.util.Stack;
-import java.util.List;
-import java.util.ArrayList;
 
 @SuppressWarnings("all")
 public class PddlLexer extends Lexer {

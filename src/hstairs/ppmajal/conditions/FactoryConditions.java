@@ -27,12 +27,11 @@ import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import java.util.ArrayList;
-import org.antlr.runtime.tree.Tree;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import org.antlr.runtime.tree.Tree;
 
 /**
  * @author Enrico Scala

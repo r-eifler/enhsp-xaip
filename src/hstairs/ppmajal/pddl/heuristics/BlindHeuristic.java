@@ -23,13 +23,11 @@
  */
 package com.hstairs.ppmajal.pddl.heuristics;
 
-import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.transition.TransitionGround;
-
-import java.util.Collection;
 import com.hstairs.ppmajal.search.SearchHeuristic;
+import com.hstairs.ppmajal.transition.TransitionGround;
+import java.util.Collection;
 
 /**
  * @author enrico

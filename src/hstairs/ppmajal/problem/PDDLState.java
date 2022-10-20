@@ -18,15 +18,14 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import java.math.BigDecimal;
-
 import java.util.*;
 import java.util.Map.Entry;
 import org.apache.commons.lang3.tuple.Pair;

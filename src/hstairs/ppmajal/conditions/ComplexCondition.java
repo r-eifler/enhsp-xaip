@@ -22,9 +22,8 @@ import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLObjects;
-
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import java.util.*;
 
 /**
@@ -175,13 +174,6 @@ public abstract class ComplexCondition extends Condition {
         for (var c : this.sons) {
             ret.addAll(((Condition)c).getTerminalConditionsInArray());
         }
-        return ret;
-    }
-
-    @Override
-    public Condition ground (Map substitution, int c) {
-        Condition ret = this.ground(substitution, null);
-        ret.setHeuristicId(c);
         return ret;
     }
 

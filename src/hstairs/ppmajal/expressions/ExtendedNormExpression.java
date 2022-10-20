@@ -24,7 +24,6 @@ import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

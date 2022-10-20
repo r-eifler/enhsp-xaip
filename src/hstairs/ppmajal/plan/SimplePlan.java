@@ -18,24 +18,8 @@
  */
 package com.hstairs.ppmajal.plan;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.ParametersAsTerms;
-import com.hstairs.ppmajal.domain.PDDLDomain;
-import com.hstairs.ppmajal.domain.Variable;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.extraUtils.Pair;
-import com.hstairs.ppmajal.extraUtils.Utils;
-import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
-import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jgrapht.alg.connectivity.ConnectivityInspector;
-import org.jgrapht.graph.DirectedAcyclicGraph;
 
 /**
  * @author enrico

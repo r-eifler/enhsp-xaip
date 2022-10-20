@@ -21,11 +21,8 @@ package com.hstairs.ppmajal.domain;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author enrico

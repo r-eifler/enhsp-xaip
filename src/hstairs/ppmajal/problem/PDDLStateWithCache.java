@@ -21,7 +21,6 @@ package com.hstairs.ppmajal.problem;
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
-
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;

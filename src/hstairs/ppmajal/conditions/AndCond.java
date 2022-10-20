@@ -25,7 +25,6 @@ import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.RelState;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

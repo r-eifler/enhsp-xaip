@@ -2,6 +2,7 @@ package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
+import static com.google.common.collect.Range.closedOpen;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Terminal;
@@ -13,15 +14,12 @@ import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.RelState;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.*;
-
-import java.util.*;
-
-import static com.google.common.collect.Range.closedOpen;
 import java.io.PrintStream;
-import com.hstairs.ppmajal.search.SearchHeuristic;
+import java.util.*;
 
 public final class Aibr implements SearchHeuristic {
 

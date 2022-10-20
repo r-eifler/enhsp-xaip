@@ -22,7 +22,6 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.*;
 
 /**
@@ -32,7 +31,6 @@ public abstract class Condition extends PDDLProblemComponent {
 
     // TODO: Make a ConditionsWithSons class that sits between AndCond/OrCond/OneOf and Conditions
     protected boolean freeVarSemantic = false;
-    protected int heuristicId;
     private boolean unsatisfiable = false;
     private boolean valid = false;
 
@@ -71,7 +69,6 @@ public abstract class Condition extends PDDLProblemComponent {
      */
     public abstract Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects objects);
 
-    public abstract Condition ground (Map substitution, int c);
 
     public abstract boolean eval (State s);
 
@@ -118,14 +115,6 @@ public abstract class Condition extends PDDLProblemComponent {
     /**
      * @return the counter
      */
-
-    /**
-     * @param counter the counter to set
-     */
-    public void setHeuristicId (int counter) {
-//        System.out.println(this+ "Setting counter to"+counter);
-        this.heuristicId = counter;
-    }
 
     /**
      * @return the valid

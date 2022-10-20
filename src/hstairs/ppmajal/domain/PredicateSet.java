@@ -18,9 +18,8 @@
  */
 package com.hstairs.ppmajal.domain;
 
-import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
-
+import com.hstairs.ppmajal.conditions.PDDLObject;
 import java.util.HashSet;
 
 /**

@@ -22,7 +22,6 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.*;
 
 /**
@@ -78,13 +77,6 @@ public class NotCond extends Terminal implements PostCondition {
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         final Condition groundedSon = son.ground(substitution, po);
         NotCond ret = NotCond.createNotCond(groundedSon);
-        return ret;
-    }
-
-    @Override
-    public Condition ground (Map substitution, int c) {
-        Condition ret = this.ground(substitution, null);
-        ret.setHeuristicId(c);
         return ret;
     }
 

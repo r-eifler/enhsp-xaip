@@ -1,11 +1,9 @@
 package com.hstairs.ppmajal.transition;
 
 import com.google.common.collect.Sets;
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ConditionalEffect;
-import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
+import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -13,8 +11,6 @@ import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.Metric;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,17 +19,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 
 
 public class TransitionGround extends Transition {
     final protected List<PDDLObject> parameters;
     private ArrayList sdac;
 
+    
     public TransitionGround(String name, Semantics semantics, List<PDDLObject> parameters, Condition preconditions, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects) {
         super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantics);
         this.parameters = parameters;
     }
 
+    public static TransitionGround createEmptyAction(){
+        return new TransitionGround(null,Semantics.PROCESS,null,null,null,null);
+    }
     public TransitionGround(ArrayList<NumEffect> numEffect) {
         this(                "waiting", Transition.Semantics.PROCESS, null, null,
                 new ConditionalEffects(),

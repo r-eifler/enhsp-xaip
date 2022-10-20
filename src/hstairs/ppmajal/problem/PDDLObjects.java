@@ -20,7 +20,6 @@ package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Type;
-
 import java.util.Collection;
 import java.util.LinkedHashSet;
 

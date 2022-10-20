@@ -24,7 +24,6 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.*;
 
 /**
@@ -91,13 +90,6 @@ public class PDDLObject extends Terminal implements ActionParameter {
     @Override
     public PDDLObject ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         return this; // TODO: Why not return this?
-    }
-
-    @Override
-    public Condition ground (Map substitution, int c) {
-        Condition ret = this.ground(substitution, null);
-        ret.setHeuristicId(c);
-        return ret;
     }
 
     @Override

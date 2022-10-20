@@ -18,14 +18,11 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.RelState;
 import com.hstairs.ppmajal.problem.State;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author enrico

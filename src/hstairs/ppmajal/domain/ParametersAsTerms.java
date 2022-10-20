@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.domain;
 
 import com.hstairs.ppmajal.conditions.PDDLObject;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 

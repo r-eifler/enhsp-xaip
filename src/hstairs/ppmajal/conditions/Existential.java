@@ -26,7 +26,6 @@ import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.transition.TransitionGround;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,11 +72,6 @@ public class Existential extends ComplexCondition {
         return hash;
     }
 
-
-    @Override
-    public Condition ground (Map substitution, int c) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public boolean eval (State s) {

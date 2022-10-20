@@ -18,15 +18,13 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import org.apache.commons.lang3.tuple.Triple;
-
 import java.util.*;
+import org.apache.commons.lang3.tuple.Triple;
 
 /**
  * @author enrico
@@ -128,12 +126,6 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    @Override
-    public Condition ground (Map substitution, int c) {
-        Condition ret = this.ground(substitution, null);
-        ret.setHeuristicId(c);
-        return ret;
-    }
 
     public boolean eval_to_null (PDDLState s) {
         Double first = left.eval(s);

@@ -19,16 +19,16 @@
 package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.problem.State;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javax.swing.text.html.HTML.Tag.I;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * @author enrico
@@ -50,6 +50,7 @@ public class SearchNode extends SimpleSearchNode {
         super(s1, action, father, gValue);
         if (action instanceof ArrayList){
             this.list_of_actions = (ArrayList<Object>) action;
+            //System.out.println(this.list_of_actions.size());
         }
         f = fExt;
 //        f = this.h * this.wh + this.gValue * this.wg;

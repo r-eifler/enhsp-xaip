@@ -24,7 +24,6 @@ import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
-
 import java.util.*;
 
 /**
@@ -83,12 +82,6 @@ public class OrCond extends ComplexCondition {
         return new OrCond(ret);
     }
 
-    @Override
-    public Condition ground (Map substitution, int c) {
-        Condition ret = this.ground(substitution, null);
-        ret.setHeuristicId(c);
-        return ret;
-    }
 
     @Override
     public boolean eval (State s) {

@@ -20,7 +20,6 @@ package com.hstairs.ppmajal.conditions;
 
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.RelState;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -32,14 +32,13 @@ import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import java.io.BufferedWriter;
-import net.sourceforge.interval.ia_math.RealInterval;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 //import static sun.org.mozilla.javascript.Token.name;
 

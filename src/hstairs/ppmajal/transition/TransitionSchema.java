@@ -13,7 +13,6 @@ import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.Printer;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 public class TransitionSchema extends Transition {
     final protected SchemaParameters parameters;

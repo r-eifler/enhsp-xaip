@@ -1,16 +1,15 @@
 package com.hstairs.ppmajal.extraUtils;
 
 import com.hstairs.ppmajal.domain.PDDLDomain;
+import com.hstairs.ppmajal.pddl.heuristics.GoalSensitiveHeuristic;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
-import com.hstairs.ppmajal.pddl.heuristics.GoalSensitiveHeuristic;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLSearchEngine;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.LinkedList;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 import java.math.BigDecimal;
+import java.util.LinkedList;
+import org.apache.commons.lang3.tuple.Pair;
 
 /*
  * Copyright (C) 2018 enrico.

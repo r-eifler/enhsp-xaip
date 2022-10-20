@@ -5,12 +5,12 @@
  */
 package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
-import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.LPSolver;
-import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.CPLEX;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.CPLEX;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers.LPSolver;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import ilog.concert.IloLinearNumExpr;

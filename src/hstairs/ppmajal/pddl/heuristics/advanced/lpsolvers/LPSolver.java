@@ -6,11 +6,9 @@
 package com.hstairs.ppmajal.pddl.heuristics.advanced.lpsolvers;
 
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
-import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import java.util.ArrayList;
 
 /**
  *
