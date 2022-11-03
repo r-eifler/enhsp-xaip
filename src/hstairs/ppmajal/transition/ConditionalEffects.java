@@ -149,15 +149,17 @@ public class ConditionalEffects<T> {
         return res;
     }
 
-
+    private Collection<T> allEffects;
     public Collection<T> getAllEffects() {
-        final Collection<T> res = new ArrayList<>();
-        final Set<Map.Entry<Condition, Collection<T>>> ts = this.getActualConditionalEffects().entrySet();
-        for (Map.Entry<Condition, Collection<T>> entry : ts) {
-            res.addAll(entry.getValue());
+        if (allEffects == null){
+            allEffects = new ArrayList<>();
+            final Set<Map.Entry<Condition, Collection<T>>> ts = this.getActualConditionalEffects().entrySet();
+            for (Map.Entry<Condition, Collection<T>> entry : ts) {
+                allEffects.addAll(entry.getValue());
+            }
+            allEffects.addAll(this.getUnconditionalEffect());
         }
-        res.addAll(this.getUnconditionalEffect());
-        return res;
+        return allEffects;
     }
     public ConditionalEffects<T> ground(Map<Variable, PDDLObject> substitution, PDDLObjects po){
         ConditionalEffects res = new ConditionalEffects();

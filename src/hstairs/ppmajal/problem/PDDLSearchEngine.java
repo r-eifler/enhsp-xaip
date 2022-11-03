@@ -25,6 +25,9 @@ import com.hstairs.ppmajal.search.SimpleSearchNode;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -65,15 +68,15 @@ public class PDDLSearchEngine extends SearchEngine {
 
 
     @Override
-    public LinkedList<Pair<BigDecimal,TransitionGround>> extractPlan (SimpleSearchNode input) {
+    public LinkedList<ImmutablePair<BigDecimal,TransitionGround>> extractPlan (SimpleSearchNode input) {
 
-        LinkedList<Pair<BigDecimal,TransitionGround>> plan = new LinkedList<>();
+        final LinkedList<ImmutablePair<BigDecimal,TransitionGround>> plan = new LinkedList<>();
         lastState = input.s;
         if (!(input instanceof SearchNode)) {
             SimpleSearchNode temp = input;
             while (temp.transition != null) {
                 Double time = null;
-                plan.addFirst(Pair.of(BigDecimal.ZERO,(TransitionGround)temp.transition));
+                plan.addFirst(ImmutablePair.of(BigDecimal.ZERO,(TransitionGround)temp.transition));
                 temp = temp.father;
             }
             return plan;
@@ -81,7 +84,7 @@ public class PDDLSearchEngine extends SearchEngine {
         
         SearchNode c = (SearchNode) input;
         if (((PDDLProblem)problem).getProcessesSet().isEmpty()) {
-            while ((c.transition != null || c.list_of_actions != null)) {
+            while ((c.transition != null || c.waitingPoints > 0 )) {
                 BigDecimal time = null;
                 if (c.father != null && c.father.s instanceof PDDLState) {
                     time = ((PDDLState) c.father.s).time;
@@ -90,11 +93,11 @@ public class PDDLSearchEngine extends SearchEngine {
                     if (c.transition instanceof ImmutablePair) {
                         final ImmutablePair<TransitionGround, Integer> t = (ImmutablePair<TransitionGround, Integer>) c.transition;
                         for (int i = 0; i < t.right; i++) {
-                            plan.addFirst(Pair.of(time, t.left));
+                            plan.addFirst(ImmutablePair.of(time, t.left));
                         }
                         System.out.println("JUMP for " + t.left + ":" + t.right);
                     } else {
-                        plan.addFirst(Pair.of(time, (TransitionGround) c.transition));
+                        plan.addFirst(ImmutablePair.of(time, (TransitionGround) c.transition));
                     }
                 }
                 c = (SearchNode) c.father;
@@ -105,47 +108,52 @@ public class PDDLSearchEngine extends SearchEngine {
             System.out.println("Extracting plan with execution delta: "+executionDelta);
             BigDecimal time = ((PDDLState)c.s).time;
             TransitionGround waiting = new TransitionGround("------>waiting", Transition.Semantics.PROCESS, new ArrayList<>(), null,new ConditionalEffects(),new ConditionalEffects());
-            while ((c.transition != null || c.list_of_actions != null)) {
+            while ((c.transition != null || c.waitingPoints > 0)) {
                 if (c.transition != null){
                     // This is an action
-                    plan.addFirst(Pair.of(((PDDLState)c.s).time, (TransitionGround) c.transition));
-                }else{
-                    //c is the next state actually. Be careful!!
-                    ArrayList arrayList = new ArrayList(c.list_of_actions);
-                    Collections.reverse(arrayList);
-                    for (final Object o: arrayList ){
-                        if (o == null){//This is when this is a process
-                            time = time.subtract(executionDelta);
-                            plan.addFirst(Pair.of(time, waiting));
-                        }else{ //This case is when this is an event
-                            TransitionGround t = (TransitionGround)o;
-                            plan.addFirst(Pair.of(time,t));
-                        }
+                    plan.addFirst(ImmutablePair.of(((PDDLState)c.s).time, (TransitionGround) c.transition));
+                }else{ //This is when I am waiting
+                    for (int i = 0 ; i < c.waitingPoints; i++ ){
+                        time = time.subtract(executionDelta);
+                        plan.addFirst(ImmutablePair.of(time, waiting));                       
                     }
                 }
                 c = (SearchNode) c.father;
             }
-//            LinkedList<Pair<Float,TransitionGround>> newPlan = new LinkedList<>();
-//
-//            Pair<Float,TransitionGround> waitingTransition = null;
-//            for (Pair<Float, TransitionGround> ele : plan) {
-//                final TransitionGround transition = ele.getRight();
-//                if (transition.getSemantics() == Transition.Semantics.PROCESS){
-//                    time+=ele.getKey();
-//                    waitingTransition = Pair.of(time,transition);
-//                }else{
-//                    if (waitingTransition != null) {
-//                        newPlan.add(waitingTransition);
-//                    }
-//                    newPlan.add(Pair.of(time,ele.getRight()));
-//                    waitingTransition = null;
-//                }
-//            }
-//            if (waitingTransition != null){
-//                final Pair<Float, TransitionGround> of = Pair.of(endTime, waitingTransition.getRight());
-//                newPlan.add(of);
-//            }
-            return plan;
+            State current = c.s;
+            final LinkedList<ImmutablePair<BigDecimal,TransitionGround>> finalPlan = new LinkedList<>();
+            BigDecimal currentTime = new BigDecimal(0);
+            for (org.apache.commons.lang3.tuple.Pair<BigDecimal, TransitionGround> ele : plan) {
+                TransitionGround right = (TransitionGround) ele.getRight();
+                if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
+                    ArrayList<TransitionGround> sponteneousTransitions = new ArrayList();
+                    final ImmutablePair<State, Integer> stateCollectionPair
+                            = ((PDDLProblem)problem).simulation(current, executionDelta, 
+                                    executionDelta, false, null,sponteneousTransitions);
+                    if (stateCollectionPair == null) {
+                        throw new RuntimeException("This can't be possible");
+                    } else {
+                        for (var v: sponteneousTransitions){
+                            finalPlan.add(ImmutablePair.
+                                    of(currentTime, v));
+                            if (v.getSemantics().equals(Transition.Semantics.PROCESS)){
+                                currentTime = currentTime.add(executionDelta);
+                            }
+                        }
+                    }
+                    current = stateCollectionPair.getLeft();
+                }else{
+                    if (ele.getRight() != null && right.getSemantics().equals(Transition.Semantics.ACTION)) {
+                        current.apply(right, current.clone());
+                        finalPlan.add(ImmutablePair.
+                                of(currentTime, right));
+                    }else{
+                        throw new RuntimeException("We can't have something different from actions or processes");
+                    }
+                }
+            }
+            
+            return finalPlan;
         }
 
         return plan;

@@ -1388,9 +1388,10 @@ public class PDDLProblem implements SearchProblem {
                 return gValue;
             }
             return getTransitionCost(s, gr,gValue,ignoreMetric,m);
-        }else if (act instanceof Collection){ //this was just a waiting action
+        }else if (act instanceof Integer){ //this was just a waiting action
             return gValue + 1;
-        }{
+        }
+        {
             final ImmutablePair<TransitionGround,Integer> res = (ImmutablePair<TransitionGround, Integer>) act;
 
             return getTransitionCost(s, res.left,gValue,ignoreMetric,m,res.right);
@@ -1439,10 +1440,10 @@ public class PDDLProblem implements SearchProblem {
             if (!processesSet.isEmpty()){
                 if (!processDone){
                     processDone = true;
-                    final Pair<State, Collection<TransitionGround>> intelligentSimulation = intelligentSimulation(source, planningDelta, executionDelta, true);
+                    final ImmutablePair<State, Integer> intelligentSimulation = intelligentSimulation(source, planningDelta, executionDelta, true);
                     if (intelligentSimulation != null){
-                        newState = intelligentSimulation.getFirst();
-                        current = intelligentSimulation.getSecond();
+                        newState = intelligentSimulation.getLeft();
+                        current = intelligentSimulation.getRight();
                         return true;
                     }
                 }
@@ -1519,13 +1520,13 @@ public class PDDLProblem implements SearchProblem {
         for (org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> ele : internalPlanRepresentation) {
             TransitionGround right = (TransitionGround) ele.getRight();
             if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
-                final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
+                final ImmutablePair<State, Integer> stateCollectionPair
                         = simulation(current,  execDelta, stepSize, false, planTraceString);
                 if (stateCollectionPair == null) {
                     System.out.println("Constraint violated");
                     return false;
                 } else {
-                    current = stateCollectionPair.getFirst();
+                    current = stateCollectionPair.getLeft();
                 }
                 lastEle = ele;
             }
@@ -1550,59 +1551,61 @@ public class PDDLProblem implements SearchProblem {
         return current.satisfy(this.getGoals());
     }
 
-    public ArrayList<Pair<BigDecimal,TransitionGround>> constructPlan(List<org.apache.commons.lang3.tuple.Pair<BigDecimal,Object>> internalPlanRepresentation,BigDecimal execDelta, BigDecimal stepSize, boolean events) throws CloneNotSupportedException {
-        BigDecimal previous = BigDecimal.ZERO;
-        State current = (PDDLState) this.getInit();
-        System.out.println("Internal Plan: "+internalPlanRepresentation);
-        ArrayList<Pair<BigDecimal,TransitionGround>> explicitPlan = new ArrayList();
-        org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> lastEle = null;
-        
-        for (org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> ele : internalPlanRepresentation) {
-            TransitionGround right = (TransitionGround) ele.getRight();
-            if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
-                final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
-                        = simulation(current,  execDelta, stepSize, false, null);
-                if (stateCollectionPair == null) {
-                    System.out.println("Constraint violated");
-                    return null;
-                } else {
-                    current = stateCollectionPair.getFirst();
-                }
-                for (var v: stateCollectionPair.getSecond()){
-                    previous.add(stepSize);
-                    if (v.getSemantics().equals(Transition.Semantics.EVENT)){
-                            explicitPlan.add(Pair.of(previous, v));
-                    }
-                }
-                lastEle = ele;
-            }else{
-                
-            }
-            previous = ele.getKey();
-            if (ele.getRight() != null && right.getSemantics().equals(Transition.Semantics.ACTION)) {
-                current.apply(right, current.clone());
-            }
-        }
-//        System.out.println(current);
-        if (current.satisfy(this.getGoals()))
-            return explicitPlan;
-        return null;
-                  
-    }
+//    public ArrayList<Pair<BigDecimal,TransitionGround>> constructPlan(List<org.apache.commons.lang3.tuple.Pair<BigDecimal,Object>> internalPlanRepresentation,BigDecimal execDelta, BigDecimal stepSize, boolean events) throws CloneNotSupportedException {
+//        BigDecimal previous = BigDecimal.ZERO;
+//        State current = (PDDLState) this.getInit();
+//        System.out.println("Internal Plan: "+internalPlanRepresentation);
+//        ArrayList<Pair<BigDecimal,TransitionGround>> explicitPlan = new ArrayList();
+//        org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> lastEle = null;
+//        
+//        for (org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> ele : internalPlanRepresentation) {
+//            TransitionGround right = (TransitionGround) ele.getRight();
+//            if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
+//                final org.jgrapht.alg.util.Pair<State, Integer> stateCollectionPair
+//                        = simulation(current,  execDelta, stepSize, false, null);
+//                if (stateCollectionPair == null) {
+//                    System.out.println("Constraint violated");
+//                    return null;
+//                } else {
+//                    current = stateCollectionPair.getFirst();
+//                }
+//                for (var v: stateCollectionPair.getSecond()){
+//                    previous.add(stepSize);
+//                    if (v.getSemantics().equals(Transition.Semantics.EVENT)){
+//                            explicitPlan.add(Pair.of(previous, v));
+//                    }
+//                }
+//                lastEle = ele;
+//            }else{
+//                
+//            }
+//            previous = ele.getKey();
+//            if (ele.getRight() != null && right.getSemantics().equals(Transition.Semantics.ACTION)) {
+//                current.apply(right, current.clone());
+//            }
+//        }
+////        System.out.println(current);
+//        if (current.satisfy(this.getGoals()))
+//            return explicitPlan;
+//        return null;
+//                  
+//    }
     
     
     protected void advanceTime(Object frontier, SearchNode current_node, SearchProblem generingProblem, Object2FloatMap<State> g) {
 
-        final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current_node.s, planningDelta, executionDelta, true);
+        final ImmutablePair<State, Integer> stateCollectionPair = intelligentSimulation(current_node.s, planningDelta, executionDelta, true);
 
     }
 
-    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent) {
+    protected ImmutablePair<State, Integer> intelligentSimulation(State s, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent) {
         return simulation(s,  horizon, executionDelta, intelligent, null);
     }
 
-
-    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulation(State s, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString) {
+    protected ImmutablePair<State, Integer> simulation(State s, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString) {
+        return simulation(s,horizon,executionDelta,intelligent, traceString,null);
+    }
+    protected ImmutablePair<State, Integer> simulation(State s, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString, ArrayList<TransitionGround> events) {
         final PDDLState next = (PDDLState) s.clone();
         if (horizon.compareTo(executionDelta) == -1) {
             System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
@@ -1615,17 +1618,17 @@ public class PDDLProblem implements SearchProblem {
         }
         final int iterations = horizon.divideToIntegralValue(executionDelta).intValue();
         PDDLState previousNext = next;
-        final ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
-        executedProcesses.addAll(applyAllEvents(next));
+        
+        applyAllEvents(next,events);
         for (int i = 0; i < iterations; i++) {
             boolean atLeastOne = false;
-            final ArrayList<NumEffect> numEffect = new ArrayList();
+            ArrayList<NumEffect> numEffect = new ArrayList();
             for (final TransitionGround act : this.getProcessesSet()) {
                 if (act.getSemantics() == Transition.Semantics.PROCESS) {
-                    TransitionGround gp = (TransitionGround) act;
+                    final TransitionGround gp = (TransitionGround) act;
                     if (gp.isApplicable(next)) {
                         atLeastOne = true;
-                        for (NumEffect eff : (Collection<NumEffect>) gp.getConditionalNumericEffects().getAllEffects()) {
+                        for (final NumEffect eff : (Collection<NumEffect>) gp.getConditionalNumericEffects().getAllEffects()) {
                             numEffect.add(eff);
                         }
                     }
@@ -1634,63 +1637,67 @@ public class PDDLProblem implements SearchProblem {
                 }
             }
             if (!atLeastOne) {
+                numEffect.clear();
                 if (i == 0) {
                     return null;
                 }
-                return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
+                return ImmutablePair.of(previousNext, i);
             }
             //execute
-            final TransitionGround waiting = new TransitionGround(numEffect);
-            next.apply(waiting, next.clone());
+            for (var v: numEffect){
+                next.apply(v,next.clone());
+            }
+                
+            //next.apply(waiting, next.clone());
             next.time = next.time.add(executionDelta);
-//            next.time += executionDelta.floatValue();
-//            next.time = round2((float)next.time,4);
+            if (events == null){
+                numEffect.clear();
+            }
             if (!next.satisfy(this.globalConstraints)) {
                 if (i == 0 || !intelligent) {
                     return null;
                 }
-                return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
+                return ImmutablePair.of(previousNext, i-1);
             }
-            
-            executedProcesses.add(null);
-            executedProcesses.addAll(applyAllEvents(next));
+            if (events != null){
+                events.add(TransitionGround.waitingAction());
+            }
+            applyAllEvents(next,events);
             if (traceString != null) {
                 traceString.append(next.toString()).append("\n");
             }
             if (intelligent && next.satisfy(this.getGoals())) {
-                return new org.jgrapht.alg.util.Pair(next, executedProcesses);
+                return ImmutablePair.of(next, i);
             }
             previousNext = next;
         }
-        return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
+        return ImmutablePair.of(previousNext, iterations);
     }
 
     private boolean notDiv(double horizon, double executionDelta) {
         final double v = Math.IEEEremainder(horizon, executionDelta);
         return v >= Double.MIN_VALUE;
     }
-    
-    private ArrayList<TransitionGround> applyAllEvents(State s) {
-        final ArrayList<TransitionGround> ret = new ArrayList<>();
+    private void applyAllEvents(State s){
+        applyAllEvents(s,null);
+    }
+    private void applyAllEvents(final State s, final ArrayList<TransitionGround> ret) {
         while (true) {
             boolean at_least_one = false;
             for (final TransitionGround ev : this.getEventsSet()) {
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
                     s.apply(ev, s.clone());
-                    ret.add(ev);
+                    if (ret != null)
+                        ret.add(ev);
                 }
             }
             if (!at_least_one) {
-                return ret;
+                return ;
             }
         }
 
     }
-
-    private ArrayList<TransitionGround> actionConsequence(State successorState) {
-        return applyAllEvents(successorState);
-    }        
     
     
     public List<PDDLState> simulate(List<org.apache.commons.lang3.tuple.Pair<BigDecimal, TransitionGround>> timedPlan, String delta, PDDLState s, PDDLProblem problem, boolean fullStates) {
@@ -1706,19 +1713,19 @@ public class PDDLProblem implements SearchProblem {
                 if (fullStates){
                     final int intValue = subtract.divideToIntegralValue(deltaDecimal).intValue();
                     for (int i = 0; i< intValue; i++){
-                        final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, deltaDecimal, deltaDecimal, false, null);
+                        final ImmutablePair<State, Integer> simulatedState = this.simulation(s, deltaDecimal, deltaDecimal, false, null);
                         if (simulatedState == null){
                             throw new RuntimeException("Global constraints are not satisfied starting from "+s);
                         }
-                        s = (PDDLState) simulatedState.getFirst();
+                        s = (PDDLState) simulatedState.getLeft();
                         res.add(s.clone());
                     }
                 }else{
-                    final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, subtract, deltaDecimal, false, null);
+                    final ImmutablePair<State, Integer> simulatedState = this.simulation(s, subtract, deltaDecimal, false, null);
                     if (simulatedState == null){
                         throw new RuntimeException("Global constraints are not satisfied starting from "+s);
                     }
-                    s = (PDDLState) simulatedState.getFirst();
+                    s = (PDDLState) simulatedState.getLeft();
                     res.add(s.clone());
                 }
             }

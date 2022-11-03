@@ -210,9 +210,12 @@ public class TransitionGround extends Transition {
         return impact;
     }
 
-
+    private static TransitionGround waiting;
     public static TransitionGround waitingAction() {
-       return new TransitionGround(null, null, null,null,null,null);
+       if (waiting == null){
+           waiting  = new TransitionGround("waiting", Semantics.PROCESS, null,null,null,null);
+       }
+       return waiting;
     }
     public boolean isWaiting(){
         return parameters == null;

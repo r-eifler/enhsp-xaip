@@ -12,9 +12,9 @@ public class SimpleSearchNode {
 
     public SimpleSearchNode (State s, Object transition, SimpleSearchNode father, float g) {
         this.s = s;
-        if (!(transition instanceof ArrayList))
+        if (!(transition instanceof Integer)){
             this.transition = transition;
-        else{
+        }else{
             this.transition = null;
         }
         this.father = father;

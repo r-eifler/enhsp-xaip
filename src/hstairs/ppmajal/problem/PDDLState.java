@@ -322,7 +322,7 @@ protected DoubleArrayList numFluents;
     }
 
 
-    private void apply(PostCondition effect, State prev) {        
+    public void apply(PostCondition effect, State prev) {        
         if (effect instanceof AndCond){
             for (PostCondition c: (PostCondition[])((AndCond) effect).sons){
                 this.apply((PostCondition)c, prev);
