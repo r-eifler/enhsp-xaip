@@ -1517,7 +1517,6 @@ public class PDDLProblem implements SearchProblem {
 
         org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> lastEle = null;
         for (org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> ele : internalPlanRepresentation) {
-            System.out.println(ele);
             TransitionGround right = (TransitionGround) ele.getRight();
             if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
                 final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
@@ -1551,6 +1550,46 @@ public class PDDLProblem implements SearchProblem {
         return current.satisfy(this.getGoals());
     }
 
+    public ArrayList<Pair<BigDecimal,TransitionGround>> constructPlan(List<org.apache.commons.lang3.tuple.Pair<BigDecimal,Object>> internalPlanRepresentation,BigDecimal execDelta, BigDecimal stepSize, boolean events) throws CloneNotSupportedException {
+        BigDecimal previous = BigDecimal.ZERO;
+        State current = (PDDLState) this.getInit();
+        System.out.println("Internal Plan: "+internalPlanRepresentation);
+        ArrayList<Pair<BigDecimal,TransitionGround>> explicitPlan = new ArrayList();
+        org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> lastEle = null;
+        
+        for (org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> ele : internalPlanRepresentation) {
+            TransitionGround right = (TransitionGround) ele.getRight();
+            if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
+                final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
+                        = simulation(current,  execDelta, stepSize, false, null);
+                if (stateCollectionPair == null) {
+                    System.out.println("Constraint violated");
+                    return null;
+                } else {
+                    current = stateCollectionPair.getFirst();
+                }
+                for (var v: stateCollectionPair.getSecond()){
+                    previous.add(stepSize);
+                    if (v.getSemantics().equals(Transition.Semantics.EVENT)){
+                            explicitPlan.add(Pair.of(previous, v));
+                    }
+                }
+                lastEle = ele;
+            }else{
+                
+            }
+            previous = ele.getKey();
+            if (ele.getRight() != null && right.getSemantics().equals(Transition.Semantics.ACTION)) {
+                current.apply(right, current.clone());
+            }
+        }
+//        System.out.println(current);
+        if (current.satisfy(this.getGoals()))
+            return explicitPlan;
+        return null;
+                  
+    }
+    
     
     protected void advanceTime(Object frontier, SearchNode current_node, SearchProblem generingProblem, Object2FloatMap<State> g) {
 

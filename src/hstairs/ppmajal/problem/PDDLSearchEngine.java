@@ -114,10 +114,10 @@ public class PDDLSearchEngine extends SearchEngine {
                     ArrayList arrayList = new ArrayList(c.list_of_actions);
                     Collections.reverse(arrayList);
                     for (final Object o: arrayList ){
-                        if (o == null){
+                        if (o == null){//This is when this is a process
                             time = time.subtract(executionDelta);
                             plan.addFirst(Pair.of(time, waiting));
-                        }else{
+                        }else{ //This case is when this is an event
                             TransitionGround t = (TransitionGround)o;
                             plan.addFirst(Pair.of(time,t));
                         }
