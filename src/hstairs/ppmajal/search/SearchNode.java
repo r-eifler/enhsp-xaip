@@ -95,7 +95,7 @@ public class SearchNode extends SimpleSearchNode {
     }
 
     public SearchNode (State s1, float action_cost_to_get_here, float fExt,float hValue, boolean saving_json) {
-        super(s1, null, null, action_cost_to_get_here);
+        super(s1, 0, null, action_cost_to_get_here);
 
         f = fExt;
         //System.out.println("F:"+f);

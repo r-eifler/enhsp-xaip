@@ -213,7 +213,10 @@ public class TransitionGround extends Transition {
     private static TransitionGround waiting;
     public static TransitionGround waitingAction() {
        if (waiting == null){
-           waiting  = new TransitionGround("waiting", Semantics.PROCESS, null,null,null,null);
+           waiting  = new TransitionGround("------>waiting", 
+                    Transition.Semantics.PROCESS, new ArrayList<>(), 
+                    null,
+                    new ConditionalEffects(),new ConditionalEffects());
        }
        return waiting;
     }

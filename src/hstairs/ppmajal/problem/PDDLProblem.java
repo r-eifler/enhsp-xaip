@@ -1509,14 +1509,13 @@ public class PDDLProblem implements SearchProblem {
     public boolean validate(List<org.apache.commons.lang3.tuple.Pair<BigDecimal,Object>> internalPlanRepresentation,BigDecimal execDelta, BigDecimal stepSize, String planTrace) throws CloneNotSupportedException {
         BigDecimal previous = BigDecimal.ZERO;
         State current = (PDDLState) this.getInit();
-        System.out.println("Plan under Validation: "+internalPlanRepresentation);
+        System.out.println("Plan under Validation/Simulation: "+internalPlanRepresentation);
         StringBuilder planTraceString = null;
         if (planTrace != null){ 
             planTraceString = new StringBuilder();
             planTraceString.append(current.toString()).append("\n");
         }
 
-        org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> lastEle = null;
         for (org.apache.commons.lang3.tuple.Pair<BigDecimal, Object> ele : internalPlanRepresentation) {
             TransitionGround right = (TransitionGround) ele.getRight();
             if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
@@ -1528,7 +1527,6 @@ public class PDDLProblem implements SearchProblem {
                 } else {
                     current = stateCollectionPair.getLeft();
                 }
-                lastEle = ele;
             }
             previous = ele.getKey();
             if (ele.getRight() != null && right.getSemantics().equals(Transition.Semantics.ACTION)) {
@@ -1650,14 +1648,11 @@ public class PDDLProblem implements SearchProblem {
                 
             //next.apply(waiting, next.clone());
             next.time = next.time.add(executionDelta);
-            if (events == null){
-                numEffect.clear();
-            }
             if (!next.satisfy(this.globalConstraints)) {
                 if (i == 0 || !intelligent) {
                     return null;
                 }
-                return ImmutablePair.of(previousNext, i-1);
+                return ImmutablePair.of(previousNext, i);
             }
             if (events != null){
                 events.add(TransitionGround.waitingAction());
@@ -1667,7 +1662,7 @@ public class PDDLProblem implements SearchProblem {
                 traceString.append(next.toString()).append("\n");
             }
             if (intelligent && next.satisfy(this.getGoals())) {
-                return ImmutablePair.of(next, i);
+                return ImmutablePair.of(next, i+1);
             }
             previousNext = next;
         }

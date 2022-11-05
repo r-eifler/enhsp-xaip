@@ -18,25 +18,21 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.search.SearchEngine;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 import com.hstairs.ppmajal.search.SearchNode;
 import com.hstairs.ppmajal.search.SimpleSearchNode;
-import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import static net.java.jinterval.text2interval.jna.T.s;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 
 
@@ -104,23 +100,25 @@ public class PDDLSearchEngine extends SearchEngine {
 
             }
         }else {
+           
             triggeredEvents = new HashMap();
-            System.out.println("Extracting plan with execution delta: "+executionDelta);
-            BigDecimal time = ((PDDLState)c.s).time;
-            TransitionGround waiting = new TransitionGround("------>waiting", Transition.Semantics.PROCESS, new ArrayList<>(), null,new ConditionalEffects(),new ConditionalEffects());
-            while ((c.transition != null || c.waitingPoints > 0)) {
-                if (c.transition != null){
+            System.out.println("Extracting plan with execution delta: " + executionDelta);
+            BigDecimal time = ((PDDLState) c.s).time;
+            TransitionGround waiting = TransitionGround.waitingAction();
+            State current = null;
+            while (c != null ) {
+                if (c.transition != null) {
                     // This is an action
-                    plan.addFirst(ImmutablePair.of(((PDDLState)c.s).time, (TransitionGround) c.transition));
-                }else{ //This is when I am waiting
+                    plan.addFirst(ImmutablePair.of(((PDDLState) c.s).time, (TransitionGround) c.transition));
+                } else { //This is when I am waiting
                     for (int i = 0 ; i < c.waitingPoints; i++ ){
                         time = time.subtract(executionDelta);
                         plan.addFirst(ImmutablePair.of(time, waiting));                       
                     }
                 }
+                current = c.s;
                 c = (SearchNode) c.father;
             }
-            State current = c.s;
             final LinkedList<ImmutablePair<BigDecimal,TransitionGround>> finalPlan = new LinkedList<>();
             BigDecimal currentTime = new BigDecimal(0);
             for (org.apache.commons.lang3.tuple.Pair<BigDecimal, TransitionGround> ele : plan) {
@@ -133,6 +131,9 @@ public class PDDLSearchEngine extends SearchEngine {
                     if (stateCollectionPair == null) {
                         throw new RuntimeException("This can't be possible");
                     } else {
+                        if (sponteneousTransitions.isEmpty()){
+                            System.out.println("something fishy just happened");
+                        }
                         for (var v: sponteneousTransitions){
                             finalPlan.add(ImmutablePair.
                                     of(currentTime, v));
