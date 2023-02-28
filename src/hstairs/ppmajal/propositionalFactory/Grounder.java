@@ -497,9 +497,9 @@ public class Grounder {
                                         final boolean foundToBeNotNull = routine.getRight();
                                         final Map<Variable, Set<PDDLObject>> t1 = routine.getLeft();
                                         if (foundToBeNotNull) {
-                                            if (!t1.isEmpty()) {
+                                            //if (!t1.isEmpty()) {
                                                 updateCombo(S, S1, t1);
-                                            }
+                                            //}
                                         }
                                     }
                                     S = S1;
@@ -697,6 +697,8 @@ public class Grounder {
                                 if (!a.equals(b)) {
                                     foundToBeTrue = false;
                                     break;
+                                }else{
+
                                 }
                             }
                         }

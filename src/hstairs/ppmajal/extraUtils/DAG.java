@@ -32,8 +32,10 @@ public class DAG {
             root = a;
         }
         vertexes.add(a);
-        edges.put(a, new HashSet());
-        edgesReversed.put(a, new HashSet());
+        if (edges.get(a) == null)
+            edges.put(a, new HashSet());
+        if (edgesReversed.get(a) == null)
+            edgesReversed.put(a, new HashSet());
     }
     public void addEdge(String a, String b){
         Set get = edges.get(a);

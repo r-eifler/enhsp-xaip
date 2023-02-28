@@ -18,7 +18,9 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.hstairs.ppmajal.expressions.BinaryOp;
 import com.hstairs.ppmajal.expressions.Expression;
+import com.hstairs.ppmajal.expressions.PDDLNumber;
 
 /**
  * @author enrico
@@ -28,14 +30,10 @@ public class Metric {
     private Expression metExpr;
     private String optimization;
 
-    public Metric ( ) {
-        super();
+    public Metric ( String text, Expression expr) {
+        optimization = text;
+        metExpr = expr;
     }
-
-    public Metric (String optimization) {
-        this.optimization = optimization;
-    }
-
     /**
      * @return the metExpr
      */
@@ -43,12 +41,6 @@ public class Metric {
         return metExpr;
     }
 
-    /**
-     * @param metExpr the metExpr to set
-     */
-    public void setMetExpr (Expression metExpr) {
-        this.metExpr = metExpr;
-    }
 
     /**
      * @return the optimization

@@ -49,8 +49,12 @@ public class PDDLSearchEngine extends SearchEngine {
     //This is a hack!
     private HashMap<Float,TransitionGround> triggeredEvents;
 
+    
     public PDDLSearchEngine(PDDLProblem problem, SearchHeuristic h) {
-        super(h, problem);
+        this(System.out,problem,h);
+    }
+    public PDDLSearchEngine(PrintStream out, PDDLProblem problem, SearchHeuristic h) {
+        super(out,h, problem);
         executionDelta = problem.executionDelta;
         planningDelta = problem.planningDelta;
         if (!problem.isReadyForSearch()){

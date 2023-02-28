@@ -742,9 +742,10 @@ public class H1 implements SearchHeuristic {
             throw new RuntimeException("Helpful Transitions can only be activatated in combination with the relaxed plan extraction");
         }
         Collection<Pair<TransitionGround, Integer>> res = new ArrayList<>();
-        for (final int actionId : plan) {
+        for (final int actionTransitionId : plan) {
+            int actionId = cp.tr2CpTrMap()[actionTransitionId].iterator().next();//Assume that there is a one-to-one relantioship between actions in the heuristic and actions in the search
             if (getActionInit()[actionId]) {
-                final IntArraySet right = repetitionsInThePlan[actionId];
+                final IntArraySet right = repetitionsInThePlan[actionTransitionId];
                 if (maxMRP) {
                     int max = 0;
                     for (int i : right) {
@@ -753,7 +754,7 @@ public class H1 implements SearchHeuristic {
                         }
                     }
                     if (max > 1) {
-                        res.add(Pair.of((TransitionGround) getTransition(cp.cpTr2TrMap()[actionId]), max));
+                        res.add(Pair.of((TransitionGround) getTransition(actionTransitionId), max));
                     }
                 } else {
                     int min = Integer.MAX_VALUE;
@@ -763,7 +764,7 @@ public class H1 implements SearchHeuristic {
                         }
                     }
                     if (min > 1) {
-                        res.add(Pair.of((TransitionGround) getTransition(actionId), min));
+                        res.add(Pair.of((TransitionGround) getTransition(actionTransitionId), min));
                     }
                 }
             }

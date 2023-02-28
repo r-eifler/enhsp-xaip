@@ -151,7 +151,7 @@ public class PDDLProblem implements SearchProblem {
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
-        metric = new Metric("NO");
+        metric = new Metric("NO",null);
         actions = new LinkedHashSet();
         simplifyActions = true;
         possStates = null;
@@ -373,7 +373,7 @@ public class PDDLProblem implements SearchProblem {
     public void genActualFluentsAndCleanTransitions(){
         this.getActualFluents();
         if (this.metric != null && this.metric.getMetExpr() != null) {
-            this.metric.setMetExpr(this.metric.getMetExpr().normalize());
+            this.metric = new Metric(this.metric.getOptimization(),this.metric.getMetExpr().normalize());
         } else {
             this.metric = null;
         }
@@ -499,11 +499,11 @@ public class PDDLProblem implements SearchProblem {
         }
 
         if (this.metric != null && this.metric.getMetExpr() != null) {
-            this.metric.setMetExpr(this.metric.getMetExpr().weakEval(this, this.getActualFluents()));
+            this.metric= new Metric(this.metric.getOptimization(),this.metric.getMetExpr().weakEval(this, this.getActualFluents()));
             if (this.metric.getMetExpr() == null) {
                 this.metric = null;
             } else {
-                this.metric.setMetExpr(this.metric.getMetExpr().normalize());
+                this.metric = new Metric(this.metric.getOptimization(),this.metric.getMetExpr().normalize());
             }
         } else {
             this.metric = null;
@@ -1184,8 +1184,8 @@ public class PDDLProblem implements SearchProblem {
 
     protected void addMetric(Tree t) {
         //System.out.println(t.toStringTree());
-        metric = new Metric(t.getChild(0).getText());
-        metric.setMetExpr(createExpression(t.getChild(1)));
+        metric = new Metric(t.getChild(0).getText(),createExpression(t.getChild(1)));
+        
     }
 
     /**
@@ -1195,9 +1195,7 @@ public class PDDLProblem implements SearchProblem {
         return metric;
     }
 
-    public void setMetric(Metric m) {
-        this.metric = m;
-    }
+
 
     /**
      * @param string - the name of the object we want

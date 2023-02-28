@@ -128,6 +128,14 @@ public class TransitionGround extends Transition {
     private List<Pair<Condition, Float>> getSdac(PDDLState init, Metric metric) {
         return getSdac(init,metric,false);
     }
+    
+    private float getImpact(Float n, String opt){
+        if (opt.equals("maximize")){
+            return -1 * n;
+        }else{
+            return n;
+        }
+    }
     private List<Pair<Condition, Float>> getSdac(PDDLState init, Metric metric, boolean sdacEnabled) {
         if (this.sdac == null) {
             this.sdac = new ArrayList<>();
@@ -143,11 +151,11 @@ public class TransitionGround extends Transition {
                             }
                         }
                     }
-
+                        
                     if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
                             || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
                         BoolPredicate truePredicate = BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE);
-                        this.sdac.add(Pair.of(truePredicate, exprImpact));
+                        this.sdac.add(Pair.of(truePredicate, getImpact(exprImpact,metric.getOptimization())));
                     }
                 }else{
                     final ConditionalEffects<NumEffect> conditionalNumericEffects1 = this.getConditionalNumericEffects();
@@ -165,7 +173,7 @@ public class TransitionGround extends Transition {
                         
                         if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
                                 || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-                            this.sdac.add(Pair.of(ele.getKey(), exprImpact));
+                            this.sdac.add(Pair.of(ele.getKey(), getImpact(exprImpact,metric.getOptimization())));
                         }
                     }
                     final ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
@@ -180,7 +188,7 @@ public class TransitionGround extends Transition {
 
                     if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
                             || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-                        this.sdac.add(Pair.of(BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE), exprImpact));
+                        this.sdac.add(Pair.of(BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE), getImpact(exprImpact,metric.getOptimization())));
                     }
                     
                 }
