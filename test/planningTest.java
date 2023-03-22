@@ -43,14 +43,14 @@ public class planningTest extends TestCase {
                 + "-planner sat-aibr";
         System.out.println(enhspPath);
         String[] args = input.split(" ");
-        run(args,24);
+        run(args,20);
         
         //car
          input = "-o " + enhspPath + "examples/pddl+/car_non_linear/domain.pddl -f "
                 + "" + enhspPath + "examples/pddl+/car_non_linear/instances/instance_1_30.0_0.1_10.0.pddl "
                 + "-planner sat-hadd";
         args = input.split(" ");
-        run(args,213);
+        run(args,193);
 
         //counter
         input = "-o " + enhspPath + "examples/pddl2_1/counters/domain.pddl -f "

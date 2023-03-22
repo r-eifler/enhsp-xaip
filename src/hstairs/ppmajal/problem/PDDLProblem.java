@@ -1601,7 +1601,8 @@ public class PDDLProblem implements SearchProblem {
     protected ImmutablePair<State, Integer> simulation(State s, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString) {
         return simulation(s,horizon,executionDelta,intelligent, traceString,null);
     }
-    protected ImmutablePair<State, Integer> simulation(State s, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString, ArrayList<TransitionGround> events) {
+    protected ImmutablePair<State, Integer> simulation(State s, BigDecimal horizon, BigDecimal executionDelta, 
+            boolean intelligent, StringBuilder traceString, ArrayList<TransitionGround> events) {
         final PDDLState next = (PDDLState) s.clone();
         if (horizon.compareTo(executionDelta) == -1) {
             System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
@@ -1613,10 +1614,11 @@ public class PDDLProblem implements SearchProblem {
             System.out.println("WARNING: Planning delta should be a multiple of delta execution");
         }
         final int iterations = horizon.divideToIntegralValue(executionDelta).intValue();
-        PDDLState previousNext = next;
         
         applyAllEvents(next,events);
         for (int i = 0; i < iterations; i++) {
+            PDDLState previousNext = next.clone();
+
             boolean atLeastOne = false;
             ArrayList<NumEffect> numEffect = new ArrayList();
             for (final TransitionGround act : this.getProcessesSet()) {
@@ -1641,7 +1643,7 @@ public class PDDLProblem implements SearchProblem {
             }
             //execute
             for (var v: numEffect){
-                next.apply(v,next.clone());
+                next.apply(v,previousNext);
             }
                 
             //next.apply(waiting, next.clone());
@@ -1662,9 +1664,8 @@ public class PDDLProblem implements SearchProblem {
             if (intelligent && next.satisfy(this.getGoals())) {
                 return ImmutablePair.of(next, i+1);
             }
-            previousNext = next;
         }
-        return ImmutablePair.of(previousNext, iterations);
+        return ImmutablePair.of(next, iterations);
     }
 
     private boolean notDiv(double horizon, double executionDelta) {
