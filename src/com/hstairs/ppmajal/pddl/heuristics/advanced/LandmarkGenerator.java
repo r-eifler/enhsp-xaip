@@ -26,6 +26,11 @@ public class LandmarkGenerator extends LM{
         super(problem);
     }
     
+    /**
+     * Wrapper to pass easily to Python an action landmark. Consists of the
+     * actions (as strings for Python), each of their contributions, and the
+     * target of the additive landmark.
+     */
     public record ActionLandmark(
         ArrayList<String> actions, 
         ArrayList<Double> contributions, 
@@ -38,6 +43,11 @@ public class LandmarkGenerator extends LM{
         }
     }
     
+    /**
+     * Return the list of action landmarks.
+     * @param s state to compute action landmarks.
+     * @return list of action landmarks.
+     */
     public List<ActionLandmark> getActionLandmarks(State s) {
         final IntOpenHashSet landmarks = getLandmarks(s);
         ArrayList<ActionLandmark> actionLandmarks = new ArrayList<>();
@@ -59,7 +69,10 @@ public class LandmarkGenerator extends LM{
                     if (t instanceof Comparison) {
                         c = getNumericContribution(a, lm);
                     }
-                    achievers.add(Transition.getTransition(cp.cpTr2TrMap()[a]).toString());
+                    
+                    Transition transition = 
+                            Transition.getTransition(cp.cpTr2TrMap()[a]);
+                    achievers.add(transition.toString());
                     contributions.add(c);
                 }
                 
