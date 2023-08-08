@@ -632,13 +632,15 @@ public final class PDDLDomain {
         ArrayList<TransitionSchema> output = new ArrayList(input);
         ListIterator<TransitionSchema> iterator = output.listIterator();
         while (iterator.hasNext()) {
-            TransitionSchema next = iterator.next();
-            iterator.set(new TransitionSchema(next.getParameters(), next.getName(),
-                    next.getConditionalPropositionalEffects(),
-                    next.getConditionalNumericEffects(),
+            final TransitionSchema next = iterator.next();
+            final TransitionSchema transitionSchema = new TransitionSchema(next.getParameters(), next.getName(),
+                    next.getConditionalPropositionalEffects().pushNotToTerminals(),
+                    next.getConditionalNumericEffects().pushNotToTerminals(),
                     next.getPreconditions().pushNotToTerminals(),
                     next.getSemantics(),
-                    next.getForallEffects()));
+                    next.getForallEffects());
+            iterator.set(transitionSchema);
+            
         }
         return output;
 

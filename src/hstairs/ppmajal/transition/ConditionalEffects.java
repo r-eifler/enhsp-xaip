@@ -197,6 +197,40 @@ public class ConditionalEffects<T> {
         }
         return ret;
     }
+    public ConditionalEffects pushNotToTerminals(){
+       ConditionalEffects res = new ConditionalEffects();
+        if (actualConditionalEffects != null) {
+            for (Map.Entry<Condition, Collection<T>> entry : actualConditionalEffects.entrySet()) {
+                Collection<T> toAdd = new ArrayList();
+                for (T e : entry.getValue()) {
+                    if (e instanceof Condition) {
+                        T name = (T) ((Condition) e).pushNotToTerminals();
+                        if (!toAdd.contains(name)){
+                            toAdd.add((T) ((Condition) e).pushNotToTerminals());
+                        }
+                    } else if (e instanceof NumEffect) {
+                        toAdd.add(e);
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+                final Condition condition = entry.getKey().pushNotToTerminals();
+                toAdd.forEach(t1 -> res.add(condition,t1));
+            }
+        }
+        if (unconditionalEffect != null) {
+            for (T e : unconditionalEffect) {
+                if (e instanceof Condition) {
+                    res.add((T) ((Condition) e).pushNotToTerminals());
+                } else if (e instanceof NumEffect) {
+                    res.add(e);
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+            }
+        }
+        return res;
+    }
     public enum VariableType {PROPEFFECT, NUMEFFECT}
 
  
