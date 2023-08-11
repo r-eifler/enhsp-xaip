@@ -349,12 +349,7 @@ protected DoubleArrayList numFluents;
                     this.setNumFluent(nf.getFluentAffected(),  nf.getRight().eval(prev));
                 }
             }
-        } else if (effect instanceof ConditionalEffect) {
-            ConditionalEffect cond = (ConditionalEffect) effect;
-            if (this.satisfy(cond.activation_condition)) {
-                this.apply(cond.effect,prev);
-            }
-        }
+        } 
     }
 
 

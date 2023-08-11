@@ -396,7 +396,7 @@ public class FactoryConditions {
             case PddlParser.WHEN_EFFECT:
                 Condition lhs = createCondition(tree.getChild(0), parameters);
                 PostCondition rhs = this.createPostCondition(parameters, tree.getChild(1));
-                return new ConditionalEffect(lhs, rhs);
+                return new ConditionalEffectAsACondition(lhs, rhs);
             default:
                 throw new RuntimeException("Error in : "+tree+" whose type is"+tree.getType());
         }
@@ -612,7 +612,7 @@ public class FactoryConditions {
         return res;
     }
 
-    public static void addEffectFromConditonalEffects(ConditionalEffect cond, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect) {
+    public static void addEffectFromConditonalEffects(ConditionalEffectAsACondition cond, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect) {
         if (cond.effect instanceof AndCond) {
             final AndCond temp = (AndCond) cond.effect;
             for (Object son : temp.sons) {
@@ -639,12 +639,11 @@ public class FactoryConditions {
                     propEffect.add((Terminal) o);
                 } else if (o instanceof NumEffect) {
                     numEffect.add((NumEffect) o);
-                } else if (o instanceof ConditionalEffect) {
-                    ConditionalEffect cond = (ConditionalEffect) o;
+                } else if (o instanceof ConditionalEffectAsACondition) {
+                    ConditionalEffectAsACondition cond = (ConditionalEffectAsACondition) o;
                     addEffectFromConditonalEffects(cond, propEffect, numEffect);
                 } else if (o instanceof ForAll) {
                     forAllResult.add((ForAll) o);
-                    
                 }
             }
         } else if (res instanceof BoolPredicate) {
@@ -653,8 +652,8 @@ public class FactoryConditions {
             propEffect.add((Terminal) res);
         } else if (res instanceof NumEffect) {
             numEffect.add((NumEffect) res);
-        } else if (res instanceof ConditionalEffect) {
-            ConditionalEffect cond = (ConditionalEffect) res;
+        } else if (res instanceof ConditionalEffectAsACondition) {
+            ConditionalEffectAsACondition cond = (ConditionalEffectAsACondition) res;
             addEffectFromConditonalEffects(cond, propEffect, numEffect);
         } else if (res instanceof ForAll) {
             forAllResult.add((ForAll) res);
@@ -672,8 +671,8 @@ public class FactoryConditions {
                     propEffect.add((Terminal) o);
                 } else if (o instanceof NumEffect) {
                     numEffect.add((NumEffect) o);
-                } else if (o instanceof ConditionalEffect) {
-                    ConditionalEffect cond = (ConditionalEffect) o;
+                } else if (o instanceof ConditionalEffectAsACondition) {
+                    ConditionalEffectAsACondition cond = (ConditionalEffectAsACondition) o;
                     addEffectFromConditonalEffects(cond, propEffect, numEffect);
                 } else if (o instanceof ForAll) {
                     throw new UnsupportedOperationException();
@@ -685,8 +684,8 @@ public class FactoryConditions {
             propEffect.add((Terminal) res);
         } else if (res instanceof NumEffect) {
             numEffect.add((NumEffect) res);
-        } else if (res instanceof ConditionalEffect) {
-            ConditionalEffect cond = (ConditionalEffect) res;
+        } else if (res instanceof ConditionalEffectAsACondition) {
+            ConditionalEffectAsACondition cond = (ConditionalEffectAsACondition) res;
             addEffectFromConditonalEffects(cond, propEffect, numEffect);
         } else if (res instanceof ForAll) {
             throw new UnsupportedOperationException();

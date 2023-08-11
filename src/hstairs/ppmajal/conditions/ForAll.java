@@ -260,12 +260,8 @@ public class ForAll extends ComplexCondition implements PostCondition {
             Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);
             Collection and = new HashSet();
             for (ParametersAsTerms ele : combo) {
-                Map sub = g.obtain_sub_from_instance(parameters, ele);
-                sub.putAll(substitution);
-//                 System.out.println(this);
-//                Condition son = (Condition) this.sons.iterator().next();
-//                and.addConditions(son.ground(sub, objects));
-                
+                Map sub = Grounder.ObtainSubFromInstance(parameters, ele);
+                sub.putAll(substitution);        
                 for (final var c : this.sons) {
                     and.add(((Condition)c).ground(sub, objects));
                 }

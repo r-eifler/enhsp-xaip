@@ -268,8 +268,8 @@ public abstract class ComplexCondition extends Condition {
             } else if (o instanceof NumEffect) {
                 NumEffect a = (NumEffect) o;
                 ret.add(a.clone());
-            } else if (o instanceof ConditionalEffect) {
-                ConditionalEffect a = (ConditionalEffect) o;
+            } else if (o instanceof ConditionalEffectAsACondition) {
+                ConditionalEffectAsACondition a = (ConditionalEffectAsACondition) o;
                 ret.add(a.clone());
             } else if (o instanceof ForAll) {
                 ForAll a = (ForAll) o;

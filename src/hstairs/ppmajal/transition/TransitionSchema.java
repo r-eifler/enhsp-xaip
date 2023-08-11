@@ -3,7 +3,7 @@ package com.hstairs.ppmajal.transition;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ConditionalEffect;
+import com.hstairs.ppmajal.conditions.ConditionalEffectAsACondition;
 import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.PostCondition;
 import com.hstairs.ppmajal.conditions.Terminal;
@@ -95,8 +95,8 @@ public class TransitionSchema extends Transition {
         Collection<BoolPredicate> ret = (Collection<BoolPredicate>) super.getPropositionAffected();
         for (var f : this.forallEffects){
             for (var s : f.sons){
-                if (s instanceof ConditionalEffect){
-                    PostCondition effect = ((ConditionalEffect) s).effect;
+                if (s instanceof ConditionalEffectAsACondition){
+                    PostCondition effect = ((ConditionalEffectAsACondition) s).effect;
                     ret.addAll(getBoolPredicates(effect));
                 }else{
                     ret.addAll(getBoolPredicates((PostCondition) s));
@@ -111,8 +111,8 @@ public class TransitionSchema extends Transition {
         Collection<NumFluent> ret = (Collection<NumFluent>) super.getAllNumericAffected();
         for (var f : this.forallEffects) {
             for (var s : f.sons) {
-                if (s instanceof ConditionalEffect) {
-                    PostCondition effect = ((ConditionalEffect) s).effect;
+                if (s instanceof ConditionalEffectAsACondition) {
+                    PostCondition effect = ((ConditionalEffectAsACondition) s).effect;
                     ret.addAll(getNumPredicates(effect));
                 } else {
                     ret.addAll(getNumPredicates((PostCondition) s));

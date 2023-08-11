@@ -22,7 +22,6 @@ import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ConditionalEffect;
 import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.PostCondition;
@@ -342,8 +341,8 @@ public class FDGrounderInstantiate extends ExternalGrounder{
                 fromForAllEffects((PostCondition) v, str);
             }
             str.append(")");
-        }else if (pc instanceof ConditionalEffect){
-            pc.pddlPrint(false, str);
+        } else {
+            throw new RuntimeException("Still there is something to be handled here");
         }
     }
     

@@ -230,11 +230,6 @@ public class RelState extends Object {
             }
         } else if (effect instanceof NumEffect) {
             ((NumEffect) effect).apply(this,prev);
-        } else if (effect instanceof ConditionalEffect) {
-            ConditionalEffect cond = (ConditionalEffect) effect;
-            if (this.satisfy(cond.activation_condition)) {
-                this.apply(cond.effect,prev);
-            }
         }
     }
 

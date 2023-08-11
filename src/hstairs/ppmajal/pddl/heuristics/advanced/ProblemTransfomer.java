@@ -170,9 +170,9 @@ public class ProblemTransfomer {
                 }
                 return addSmartRedundantConstraints(preconditions.transformEquality());
             case "brute":
-                return preconditions.transformEquality().introduce_red_constraints();
+                return preconditions.transformEquality().normalize().introduce_red_constraints();
             default:
-                return preconditions.transformEquality();
+                return preconditions.transformEquality().normalize();
         }
     }
 

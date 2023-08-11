@@ -624,7 +624,7 @@ public class Grounder {
         return combo;
     }
 
-    public static Map obtain_sub_from_instance (SchemaParameters parameters, ParametersAsTerms par) {
+    public static Map ObtainSubFromInstance (SchemaParameters parameters, ParametersAsTerms par) {
 
         int i = 0;
         Map substitution = new Object2ObjectArrayMap();
@@ -641,7 +641,7 @@ public class Grounder {
 
     public static TransitionGround ground(TransitionSchema a, ParametersAsTerms parametersAsTerms, PDDLObjects po, PDDLProblem problem) {
 
-        Map substitution = obtain_sub_from_instance(a.getParameters(), parametersAsTerms);
+        Map substitution = ObtainSubFromInstance(a.getParameters(), parametersAsTerms);
         final ConditionalEffects groundedConditionalPropEffects = a.getConditionalPropositionalEffects().ground(substitution,po);
         final ConditionalEffects groundedConditionalNumericEffects = a.getConditionalNumericEffects().ground(substitution,po);
         final Condition preconditions = a.getPreconditions().ground(substitution,po);

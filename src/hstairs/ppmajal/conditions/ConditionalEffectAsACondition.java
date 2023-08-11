@@ -28,14 +28,14 @@ import java.util.*;
 /**
  * @author enrico
  */
-public class ConditionalEffect extends Condition implements PostCondition {
+public class ConditionalEffectAsACondition extends Condition implements PostCondition {
 
     public Condition activation_condition;
     public PostCondition effect;
 
 
 
-    public ConditionalEffect (Condition lhs, PostCondition rhs) {
+    public ConditionalEffectAsACondition (Condition lhs, PostCondition rhs) {
         this.activation_condition = lhs;
         Collection res = new HashSet();
         if (rhs instanceof AndCond) {
@@ -51,7 +51,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     public Condition clone ( ) {
-        return new ConditionalEffect(activation_condition.clone(), (PostCondition) effect.clone());
+        return new ConditionalEffectAsACondition(activation_condition.clone(), (PostCondition) effect.clone());
     }
 
     public String toString ( ) {
@@ -73,8 +73,8 @@ public class ConditionalEffect extends Condition implements PostCondition {
             if (this.effect == null){
                 return null;
             }
-        } else if (this.effect instanceof ConditionalEffect) {
-            ConditionalEffect sub = (ConditionalEffect) this.effect;
+        } else if (this.effect instanceof ConditionalEffectAsACondition) {
+            ConditionalEffectAsACondition sub = (ConditionalEffectAsACondition) this.effect;
             this.effect = (PostCondition) sub.weakEval(s, invF);
 
         } else if (this.effect instanceof NumEffect) {
@@ -84,22 +84,22 @@ public class ConditionalEffect extends Condition implements PostCondition {
         return this;
     }
 
-    public ConditionalEffect ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public ConditionalEffectAsACondition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
 //        if (ret.activation_condition!=null){
         Condition activation_condition = this.activation_condition.ground(substitution, po);
         PostCondition effect = null;
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
             effect = (PostCondition) con.ground(substitution, po);
-        } else if (this.effect instanceof ConditionalEffect) {
-            ConditionalEffect sub = (ConditionalEffect) this.effect;
+        } else if (this.effect instanceof ConditionalEffectAsACondition) {
+            ConditionalEffectAsACondition sub = (ConditionalEffectAsACondition) this.effect;
             effect = sub.ground(substitution, po);
         } else if (this.effect instanceof NumEffect) {
             NumEffect ne = (NumEffect) this.effect;
             effect = (NumEffect) ne.ground(substitution, po);
         }
 //        }
-        return new ConditionalEffect(activation_condition,effect);
+        return new ConditionalEffectAsACondition(activation_condition,effect);
     }
 
     @Override
@@ -134,8 +134,8 @@ public class ConditionalEffect extends Condition implements PostCondition {
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
             this.effect = (PostCondition) con.normalize();
-        } else if (this.effect instanceof ConditionalEffect) {
-            ConditionalEffect sub = (ConditionalEffect) this.effect;
+        } else if (this.effect instanceof ConditionalEffectAsACondition) {
+            ConditionalEffectAsACondition sub = (ConditionalEffectAsACondition) this.effect;
             this.effect = (PostCondition) sub.normalize();
         } else if (this.effect instanceof NumEffect) {
             ((NumEffect) this.effect).getRight().normalize();
@@ -190,7 +190,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ConditionalEffect other = (ConditionalEffect) obj;
+        final ConditionalEffectAsACondition other = (ConditionalEffectAsACondition) obj;
         if (!Objects.equals(this.activation_condition, other.activation_condition)) {
             return false;
         }

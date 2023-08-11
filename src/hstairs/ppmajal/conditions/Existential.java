@@ -227,7 +227,7 @@ public class Existential extends ComplexCondition {
             Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);
             Collection res = new HashSet();
             for (ParametersAsTerms ele : combo) {
-                Map sub = g.obtain_sub_from_instance(parameters, ele);
+                Map sub = g.ObtainSubFromInstance(parameters, ele);
                 sub.putAll(substitution);
                 Condition son = (Condition) this.sons[0];
                 res.add(son.ground(sub, objects));
