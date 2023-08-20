@@ -1,10 +1,8 @@
 package enhsp2;
 
+import com.hstairs.ppmajal.PDDLProblem.*;
 import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.pddl.heuristics.PDDLHeuristic;
-import com.hstairs.ppmajal.problem.PDDLProblem;
-import com.hstairs.ppmajal.problem.PDDLSearchEngine;
-import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.search.SearchEngine;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 import com.hstairs.ppmajal.transition.TransitionGround;
@@ -25,6 +23,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 /*
@@ -169,7 +168,7 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
             printStats();
             setHeuristic();
             do {
-                LinkedList sp = search();
+                LinkedList sp = searchRefactored();
                 if (sp == null) {
                     return;
                 }
@@ -440,9 +439,20 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
         h = PDDLHeuristic.getHeuristic(heuristic, heuristicProblem, redundantConstraints, helpfulActionsPruning, helpfulTransitions);
     }
 
-   
+    private LinkedList<ImmutablePair<BigDecimal, TransitionGround>> searchRefactored() throws Exception {
+        PDDLPlanner planner = new PDDLPlanner(searchEngineString,
+                heuristic,redundantConstraints,
+                helpfulActionsPruning,helpfulTransitions,
+                Float.parseFloat(this.hw),new BigDecimal(deltaPlanning),new BigDecimal(deltaExecution),tieBreaking,
+                saving_json);
 
-    private LinkedList<Pair<BigDecimal, Object>> search() throws Exception {
+        PDDLSolution plan = planner.plan(problem, h);
+
+        return plan.rawPlan();
+    }
+
+
+        private LinkedList<Pair<BigDecimal, Object>> search() throws Exception {
 
         LinkedList<Pair<BigDecimal, Object>> rawPlan = null;//raw list of actions returned by the search strategies
 
@@ -451,7 +461,7 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
             @Override
             public void run() {
                 if (saving_json) {
-                    searchEngine.searchSpaceHandle.print_json(getProblem().getPddlFileReference() + ".sp_log");
+                    searchEngine.searchSpaceHandle.printJson(getProblem().getPddlFileReference() + ".sp_log");
                 }
             }
         });
@@ -513,6 +523,9 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
         } else if ("ucs".equals(searchEngineString)) {
             System.out.println("Running Pure Uniform Cost Search");
             rawPlan = searchEngine.UCS(getProblem());
+        }else if ("ehc".equals(searchEngineString)) {
+            System.out.println("Running Pure Uniform Cost Search");
+            rawPlan = searchEngine.enforcedHillClimbing(getProblem(), SearchEngine.Explorator.BRFS);
         }else {
             throw new RuntimeException("Search strategy is not correct");
         }
@@ -608,7 +621,7 @@ public Pair<PDDLDomain, PDDLProblem> parseDomainProblem(String domainFile, Strin
 //            System.out.println("Number of LP invocations:" + ((quasi_hm) searchEngine.getHeuristic()).n_lp_invocations);
 //        }
         if (saving_json) {
-            searchEngine.searchSpaceHandle.print_json(getProblem().getPddlFileReference() + ".sp_log");
+            searchEngine.searchSpaceHandle.printJson(getProblem().getPddlFileReference() + ".sp_log");
         }
     }
 

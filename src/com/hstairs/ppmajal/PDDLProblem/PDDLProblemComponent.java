@@ -1,8 +1,5 @@
-package enhsp2;
-
-
-/* 
- * Copyright (C) 2015-2017, Enrico Scala, contact: enricos83@gmail.com
+/*
+ * Copyright (C) 2017 Enrico Scala.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,17 +16,21 @@ package enhsp2;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+package com.hstairs.ppmajal.PDDLProblem;
+
+import com.hstairs.ppmajal.conditions.Condition;
+import java.util.Collection;
+
+/**
+ * @author Enrico Scala
+ */
+public abstract class PDDLProblemComponent {
 
 
-public class main {
-
-
-
-    public static void main(String[] args) throws Exception {
-        enhsp2.ENHSP p = new enhsp2.ENHSP(false);
-        p.parseInput(args);
-        p.configurePlanner();
-        p.parsingDomainAndProblem(args);
-        p.planning();
+    public abstract Condition unifyVariablesReferences (PDDLProblem p);
+    protected void addAll(Collection res, Object[] sons) {
+        for (final Object o : sons) {
+            res.add(o);
+        }
     }
 }
