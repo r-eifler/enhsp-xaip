@@ -1464,7 +1464,6 @@ public class PDDLProblem implements SearchProblem {
                         }
                     }
                 }else if (current instanceof Pair){
-                    
                     final Pair<TransitionGround,Integer> tempVar= (Pair<TransitionGround,Integer>)this.current;
                     final int b = applyActionMTimes(tempVar.getFirst(), tempVar.getSecond());
                     if (b > 1) {
@@ -1480,11 +1479,11 @@ public class PDDLProblem implements SearchProblem {
             final State prev = source.clone();
             int i=0;
             while (i<counter){
-                i++;
                 prev.apply((act), source);
                 if (!act.isApplicable(newState) || !newState.satisfy(globalConstraints)){
                     return i;
                 }
+                i++;
                 newState = prev;
             }
             return i;

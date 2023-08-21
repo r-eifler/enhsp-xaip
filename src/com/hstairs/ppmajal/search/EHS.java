@@ -69,7 +69,7 @@ public class EHS extends SearchEngineClass{
         Queue<SearchNode> frontier = new LinkedList<>();
         float currentValue = heuristic.computeEstimate(init.s);
         frontier.add(init);
-        if (this.helpfulActionsPruning) {
+        if (this.helpfulActions) {
             //throw new UnsupportedOperationException();
             init.helpfulActions = heuristic.getTransitions(true);
         }
@@ -108,7 +108,7 @@ public class EHS extends SearchEngineClass{
                         nodesEvaluated++;
                         SearchNode newNode = new SearchNode(temp, act, node, newG, 0);
                         frontier.add(newNode);
-                        if (this.helpfulActionsPruning) {
+                        if (this.helpfulActions) {
                             newNode.helpfulActions = heuristic.getTransitions(true);
                         }
                         if (problem.milestoneReached(d, currentValue, temp)) {

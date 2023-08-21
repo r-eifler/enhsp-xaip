@@ -15,11 +15,11 @@ public abstract class SearchEngineClass {
     protected long totalTime;
     protected long heuristicTime;
     State lastState;
-    final boolean helpfulActionsPruning;
+    final boolean helpfulActions;
     private SearchNode searchSpaceHandle;
 
     protected SearchEngineClass(boolean helpfulActionsPruning) {
-        this.helpfulActionsPruning = helpfulActionsPruning;
+        this.helpfulActions = helpfulActionsPruning;
     }
     public abstract SearchStats getStats();
 
@@ -49,7 +49,7 @@ public abstract class SearchEngineClass {
         return plan;
     }
     Object[] getActionsToSearch(SimpleSearchNode currentNode, SearchProblem problem, SearchHeuristic h) {
-        if (helpfulActionsPruning && currentNode != null) {
+        if (helpfulActions && currentNode != null) {
             return ((SearchNode)currentNode).helpfulActions;
         }
         return h.getTransitions(false);

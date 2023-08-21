@@ -4,20 +4,28 @@ import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jgrapht.alg.util.Pair;
 
 import java.io.PrintStream;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 
 public class LazyWAStar extends WAStar{
 
 
-    public LazyWAStar(boolean saveSearchSpace) {
-        super(1, false, true, new TieBreaker(SearchEngine.TieBreaking.ARBITRARY), saveSearchSpace);
+    final private boolean helpfulActionsWithPruning;
+
+    public LazyWAStar(float hw, boolean optimality, boolean helpfulActions, boolean saveSearchSpace) {
+        super(hw, optimality, helpfulActions , new TieBreaker(SearchEngine.TieBreaking.LOWERG), saveSearchSpace);
+        this.helpfulActionsWithPruning = false;
     }
 
+    Object[] getActionsToSearch(SimpleSearchNode currentNode, SearchProblem problem, SearchHeuristic h) {
+        if (helpfulActionsWithPruning && currentNode != null) {
+            return ((SearchNode)currentNode).helpfulActions;
+        }
+        return h.getTransitions(false);
+    }
     @Override
     public SimpleSearchNode search(SearchProblem problem, SearchHeuristic h, PrintStream out) {
         zeroCounters();
@@ -40,21 +48,18 @@ public class LazyWAStar extends WAStar{
         }
         SearchNode init = new SearchNode(initState.clone(),
                 0,hw*hAtInit,hAtInit, saveSearchSpace);
-        if (this.helpfulActionsPruning) {
-            init.helpfulActions = h.getTransitions(helpfulActionsPruning);
+        if (this.helpfulActions) {
+            init.helpfulActions = h.getTransitions(helpfulActions);
         }
-
         super.initHandle(init); //This is to inspect the search space if needed
-
         frontier.enqueue(init);
-
-        Object2FloatMap<State> gValue = new Object2FloatOpenHashMap<>();
-        gValue.put(initState, 0f);//The initial state is at 0 distance, of course.
+        Object2FloatMap<State> gValueMap = new Object2FloatOpenHashMap<>();
+        gValueMap.put(initState, 0f);//The initial state is at 0 distance, of course.
         float bestf = 0;
         previous = 0;
         while (!frontier.isEmpty()) {
             final SearchNode currentNode = frontier.dequeue();
-            if (currentNode.gValue == getPreviousCost(gValue, currentNode.s)){
+            if (currentNode.gValue == getPreviousCost(gValueMap, currentNode.s)){
                 nodesExpanded++;
                 long fromTheBeginning = (System.currentTimeMillis() - timeAtStart);
                 final Boolean res = problem.goalSatisfied(currentNode.s);
@@ -66,59 +71,53 @@ public class LazyWAStar extends WAStar{
                     return currentNode;
                 }
                 final long start = System.currentTimeMillis();
-                final float hValue = h.computeEstimate(currentNode.s);
+                final float hExpanded = h.computeEstimate(currentNode.s);
+
+                List helpful = helpfulActions ?  List.of(h.getTransitions(true)): null;
+
                 heuristicTime += System.currentTimeMillis() - start;
                 bestf = printInfoDuringSearch(timeAtStart,out,bestf,fromTheBeginning,
                         nodesExpanded,nodesEvaluated,frontier,currentNode);
                 for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s,
-                        getActionsToSearch(currentNode, problem, h)); it.hasNext();) {
+                        getActionsToSearch(currentNode,problem,h)); it.hasNext();) {
                     final Pair<State, Object> next = it.next();
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
                     final float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.gValue);
                     if (Objects.equals(successorG, this.G_DEFAULT)) {
                         deadEndsDetected++;
-                        continue;
-                    }
-                    switch (this.queueSuccessor(frontier, successorState, currentNode, act,
-                            getPreviousCost(gValue, successorState), successorG, gValue, h, hw)) {
-                        case inserted -> nodesEvaluated++;
-                        case deadend -> deadEndsDetected++;
-                        case duplicated -> duplicatedDetected++;
+                    }else{
+                        float previousCost = getPreviousCost(gValueMap, successorState);
+                        if (Objects.equals(previousCost,this.G_DEFAULT) || (optimality && successorG < previousCost) ){ //Otherwise already seen
+                            float hValue = hExpanded;
+                            Object t;
+                            if (act instanceof ImmutablePair){
+                                t = ((ImmutablePair<?, ?>) act).getLeft();
+                            }else{
+                                t = act;
+                            }
+                            if (!helpfulActions || helpfulActionsWithPruning || helpful.contains(t)){
+                                hValue -= (successorG - currentNode.gValue);
+                            }
+                            hValue = Math.max(0,hValue);
+
+                            final SearchNode toExplore = new SearchNode(successorState, act,
+                                    currentNode, successorG, !optimality
+                                    ? hValue:successorG+hValue*hw, hValue, saveSearchSpace);
+                            if (saveSearchSpace) {
+                                currentNode.add_descendant(toExplore);
+                            }
+                            addInFrontier(frontier, toExplore);
+                            gValueMap.put(successorState.getRepresentative(), successorG);
+                            nodesEvaluated++;
+                        }else{
+                            duplicatedDetected++;
+                        }
                     }
                 }
             }
         }
+        System.out.println("Problem not solvable");
         return null;
     }
-    protected retCode queueSuccessor(Object frontier, State successorState,
-                                     SearchNode current_node, Object actionsBefore,
-                                     float prev_cost, float gSuccessor, Object2FloatMap<State> g, SearchHeuristic h,
-                                     float hw) {
-        if (Objects.equals(prev_cost, this.G_DEFAULT) || gSuccessor < prev_cost) {
-            final long start = System.currentTimeMillis();
-            final float hValue = h.computeEstimate(successorState);
-            heuristicTime += System.currentTimeMillis() - start;
-            if (hValue != Float.MAX_VALUE) {// && (d + succ_g) < this.depthLimit) {
-                final SearchNode node = !optimality ?
-                        new SearchNode(successorState, actionsBefore,
-                                current_node, gSuccessor, hValue * hw, hValue, saveSearchSpace)
-                        : new SearchNode(successorState, actionsBefore,
-                        current_node, gSuccessor, hValue * hw + gSuccessor, hValue, saveSearchSpace);
-                if (this.helpfulActionsPruning) {
-                    node.helpfulActions = h.getTransitions(helpfulActionsPruning);
-                }
-                if (saveSearchSpace) {
-                    current_node.add_descendant(node);
-                }
-                addInFrontier(frontier, node);
-                g.put(successorState.getRepresentative(), gSuccessor);
-                return retCode.inserted;
-            } else {
-                return retCode.deadend;
-            }
-        }
-        return retCode.duplicated;
-    }
-
 }

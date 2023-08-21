@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package hstairs.ppmajal.pddl.heuristics.advanced;
+package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;

@@ -46,8 +46,8 @@ public class WAStar extends SearchEngineClass{
                                 current_node, gSuccessor, hValue * hw, hValue, saveSearchSpace)
                         : new SearchNode(successorState, actionsBefore,
                         current_node, gSuccessor, hValue * hw + gSuccessor, hValue, saveSearchSpace);
-                if (this.helpfulActionsPruning) {
-                    node.helpfulActions = h.getTransitions(helpfulActionsPruning);
+                if (this.helpfulActions) {
+                    node.helpfulActions = h.getTransitions(helpfulActions);
                 }
                 if (saveSearchSpace) {
                     current_node.add_descendant(node);
@@ -91,8 +91,8 @@ public class WAStar extends SearchEngineClass{
         }
         SearchNode init = new SearchNode(initState.clone(),
                 0,hw*hAtInit,hAtInit, saveSearchSpace);
-        if (this.helpfulActionsPruning) {
-            init.helpfulActions = h.getTransitions(helpfulActionsPruning);
+        if (this.helpfulActions) {
+            init.helpfulActions = h.getTransitions(helpfulActions);
         }
 
         super.initHandle(init); //This is to inspect the search space if needed

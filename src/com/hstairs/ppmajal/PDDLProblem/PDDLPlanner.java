@@ -15,7 +15,7 @@ public class PDDLPlanner {
     final String heuristic;
     final String redundantConstraints;
     final boolean helpfulTransitions;
-    final boolean helpfulActionPruning;
+    final boolean helpfulActions;
     final float hWeigth;
 
     final public BigDecimal executionDelta;
@@ -32,7 +32,7 @@ public class PDDLPlanner {
         this.heuristic = heuristic;
         this.redundantConstraints = redundantConstraints;
         this.helpfulTransitions = helpfulTransitions;
-        this.helpfulActionPruning = helpfulActionPruning;
+        this.helpfulActions = helpfulActionPruning;
         this.hWeigth = hWeigth;
         this.executionDelta = executionDelta;
         this.planningDelta = planningDelta;
@@ -56,24 +56,32 @@ public class PDDLPlanner {
         }
         switch (search.toLowerCase()){
             case "wastar" :
-                searchEngine = new WAStar(hWeigth, true, helpfulActionPruning, tb, saveSearchSpace);
+                searchEngine = new WAStar(hWeigth, true, helpfulActions, tb, saveSearchSpace);
                 break;
             case "gbfs":
-                searchEngine = new WAStar(hWeigth, false, helpfulActionPruning, tb, saveSearchSpace);
+                searchEngine = new WAStar(hWeigth, false, helpfulActions, tb, saveSearchSpace);
                 break;
             case "ehs":
-                searchEngine = new EHS(helpfulActionPruning);
+                searchEngine = new EHS(helpfulActions);
                 break;
             case "ida":
-                searchEngine = new IDAStar(helpfulActionPruning,hWeigth,false,false,
+                searchEngine = new IDAStar(helpfulActions,hWeigth,false,false,
                         false,System.out);
                 break;
+            case "lazygbfs":
+                searchEngine = new LazyWAStar(hWeigth,false,helpfulActions,saveSearchSpace);
+                break;
+            case "lazywastar":
+                searchEngine = new LazyWAStar(hWeigth,true,helpfulActions,saveSearchSpace);
+                break;
             default:
-                searchEngine = new WAStar(hWeigth, false, helpfulActionPruning, tb, saveSearchSpace);
+                searchEngine = new WAStar(hWeigth, false, helpfulActions, tb, saveSearchSpace);
                 break;
         }
 
         final SimpleSearchNode solutionHandle = searchEngine.search(p, h, System.out);
+        if (solutionHandle == null)
+            return new PDDLSolution(null,null,searchEngine.getStats(), -1);
         return new PDDLSolution(this.extractPlan(solutionHandle,p),
                 (PDDLState) solutionHandle.s, searchEngine.getStats(), solutionHandle.gValue);
     }
