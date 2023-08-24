@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.AndCond;
@@ -62,22 +57,28 @@ public class LM extends H1 {
 
     @Override
     public float computeEstimate(State s) {
-
+        if ("lmCount".equals(mode)) {
+            return countMissing();
+        } else if ("lp".equals(mode)) {
+            return lpSolver.solve(s, getLandmarks(s));
+        }
+        return 0f;
+    }
+    
+    public IntOpenHashSet getLandmarks(State s) {
+        resetAndExpand(s);
+        return lmA[cp.goal()];
+    }
+    
+    void resetAndExpand(State s) {
         final IntArrayList q = quickReset(s);
-
+        
         while (!q.isEmpty()) {
             final int a = q.popInt();
             if (a != cp.goal()) {
                 expand(a, q);
             }
         }
-
-        if ("lmCount".equals(mode)) {
-            return countMissing();
-        } else if ("lp".equals(mode)) {
-            return lpSolver.solve(s, lmA[cp.goal()]);
-        }
-        return 0f;
     }
 
     boolean checkReached(final Condition c) {
