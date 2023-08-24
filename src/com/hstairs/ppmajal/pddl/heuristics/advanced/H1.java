@@ -36,8 +36,6 @@ import com.hstairs.ppmajal.search.SearchHeuristic;
 import com.hstairs.ppmajal.transition.Transition;
 import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import hstairs.ppmajal.pddl.heuristics.advanced.CompactPDDLProblem;
-import hstairs.ppmajal.pddl.heuristics.advanced.ProblemTransfomer;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import static java.lang.Math.ceil;

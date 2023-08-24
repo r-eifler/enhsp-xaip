@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hstairs.ppmajal.pddl.heuristics.advanced.experimental;
+package com.hstairs.ppmajal.pddl.heuristics.advanced.experimental;
 
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
