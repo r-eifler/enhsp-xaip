@@ -15,8 +15,8 @@ public class LazyWAStar extends WAStar{
 
     final private boolean helpfulActionsWithPruning;
 
-    public LazyWAStar(float hw, boolean optimality, boolean helpfulActions, boolean saveSearchSpace) {
-        super(hw, optimality, helpfulActions , new TieBreaker(SearchEngine.TieBreaking.LOWERG), saveSearchSpace);
+    public LazyWAStar(float hw, boolean optimality, boolean helpfulActions, boolean saveSearchSpace, TieBreaker tb) {
+        super(hw, optimality, helpfulActions , tb, saveSearchSpace);
         this.helpfulActionsWithPruning = false;
     }
 
@@ -96,11 +96,14 @@ public class LazyWAStar extends WAStar{
                             }else{
                                 t = act;
                             }
-                            if (!helpfulActions || helpfulActionsWithPruning || helpful.contains(t)){
-                                hValue -= (successorG - currentNode.gValue);
+                            //if (!helpfulActions || helpfulActionsWithPruning || helpful.contains(t)){
+                            if ( helpfulActions && helpful.contains(t)){
+                                    hValue -= (successorG - currentNode.gValue);
+                            }else{
+                                //System.out.println("Is this done?");
+                                //hValue*=1.9f;
                             }
                             hValue = Math.max(0,hValue);
-
                             final SearchNode toExplore = new SearchNode(successorState, act,
                                     currentNode, successorG, !optimality
                                     ? hValue:successorG+hValue*hw, hValue, saveSearchSpace);
@@ -117,7 +120,7 @@ public class LazyWAStar extends WAStar{
                 }
             }
         }
-        System.out.println("Problem not solvable");
+
         return null;
     }
 }

@@ -1479,13 +1479,14 @@ public class PDDLProblem implements SearchProblem {
             final State prev = source.clone();
             int i=0;
             while (i<counter){
-                prev.apply((act), source);
-                if (!act.isApplicable(newState) || !newState.satisfy(globalConstraints)){
-                    return i;
+                if (act.isApplicable(prev) && prev.satisfy(globalConstraints)){
+                    prev.apply((act), prev.clone());
+                    i++;
+                }else{
+                    break;
                 }
-                i++;
-                newState = prev;
             }
+            newState = prev;
             return i;
         }
 
