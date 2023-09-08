@@ -31,7 +31,7 @@ import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.propositionalFactory.*;
-import com.hstairs.ppmajal.search.SearchNode;
+import com.hstairs.ppmajal.search.searchnodes.SearchNode;
 import com.hstairs.ppmajal.search.SearchProblem;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
@@ -306,23 +306,24 @@ public class PDDLProblem implements SearchProblem {
     }
 
     
-    public void prepareForSearch(boolean aibrPreprocessing) throws Exception {
-        this.prepareForSearch(aibrPreprocessing, false);
+    public boolean prepareForSearch(boolean aibrPreprocessing) throws Exception {
+        return this.prepareForSearch(aibrPreprocessing, false);
     }
 
-    public void prepareForSearch(boolean aibrPreprocessing, boolean stopAfterGrounding) throws Exception {
+    public boolean prepareForSearch(boolean aibrPreprocessing, boolean stopAfterGrounding) throws Exception {
 
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();
         this.genActualFluentsAndCleanTransitions();
         out.println("Grounding Time: " + this.getGroundingTime());
         if (stopAfterGrounding) {
-            return;
+            return true;
         }
-        this.simplifyAndSetupInit(aibrPreprocessing);
+        if (!this.simplifyAndSetupInit(aibrPreprocessing))
+            return false;
         groundGoals = generate_inequalities(getGoals());
         readyForSearch = true;
-
+        return true;
     }
 
     protected Condition generate_inequalities(Condition con) {
@@ -423,10 +424,10 @@ public class PDDLProblem implements SearchProblem {
         return new ArrayList(res);
     }
 
-    protected void easyCleanUp(){
-        this.easyCleanUp(false);
+    protected boolean easyCleanUp(){
+        return this.easyCleanUp(false);
     }
-    protected void easyCleanUp(boolean aibrPreprocessing) {
+    protected boolean easyCleanUp(boolean aibrPreprocessing) {
         //out.println("prova");
 //        this.saveInitInit();
         sweepStructuresForUnreachableStatements();
@@ -452,7 +453,7 @@ public class PDDLProblem implements SearchProblem {
                 final float v = heuristic.computeEstimate(this.init);
                 if (v == Float.MAX_VALUE){
                     out.println("Problem Detected as Unsolvable");
-                    System.exit(-1);
+                    return false;
                 }
                 final Collection<TransitionGround> transitions = heuristic.getAllTransitions();
                 actions = new ArrayList<>();
@@ -473,7 +474,7 @@ public class PDDLProblem implements SearchProblem {
                 }
                 sweepStructuresForUnreachableStatements();
         }
-
+        return true;
 //        this.makePddlState(); //remake init so as to account for only reachable actions
     }
 
@@ -512,21 +513,22 @@ public class PDDLProblem implements SearchProblem {
 
     }
 
-    public void simplifyAndSetupInit() throws Exception {
-        simplifyAndSetupInit(true);
+    public boolean simplifyAndSetupInit() throws Exception {
+        return simplifyAndSetupInit(true);
     }
 
-    public void simplifyAndSetupInit(boolean aibrPreprocessing) throws Exception {
+    public boolean simplifyAndSetupInit(boolean aibrPreprocessing) throws Exception {
 
         long start = System.currentTimeMillis();
 
-        easyCleanUp(aibrPreprocessing);
+        if (!easyCleanUp(aibrPreprocessing))
+            return false;
 
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
         out.println("|F|:" + totNumberOfBoolVariables);
         out.println("|X|:" + totNumberOfNumVariables);
-
+        return true;
     }
 
 //    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition liftedGoals, AndCond globalConstraints) {

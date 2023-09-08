@@ -33,7 +33,8 @@ public class H1Fix extends H1 {
 
     public H1Fix(PDDLProblem problem, boolean saferVersion,  boolean maxHelpfulTransitions, String redConstraints, 
             boolean helpfulActionsComputation, boolean reachability, boolean helpfulTransitions, boolean conjunctionsMax, boolean hmprpEstimate) {
-        super(problem, true, true, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax);
+        super(problem, true, true, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability,
+                helpfulTransitions, conjunctionsMax,false);
         this.prec = new IntArraySet[cp.numActions()];
         this.saferVersion = saferVersion;
         visitedActions = new boolean[cp.numActions()];

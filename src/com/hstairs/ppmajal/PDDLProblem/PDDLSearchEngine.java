@@ -19,10 +19,10 @@
 package com.hstairs.ppmajal.PDDLProblem;
 
 import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.search.SearchEngine;
+import com.hstairs.ppmajal.search.old.OldSearchEngineMethods;
 import com.hstairs.ppmajal.search.SearchHeuristic;
-import com.hstairs.ppmajal.search.SearchNode;
-import com.hstairs.ppmajal.search.SimpleSearchNode;
+import com.hstairs.ppmajal.search.searchnodes.SearchNode;
+import com.hstairs.ppmajal.search.searchnodes.SimpleSearchNode;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import java.io.PrintStream;
@@ -33,13 +33,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 
 /**
  * @author enrico
  */
-public class PDDLSearchEngine extends SearchEngine {
+public class PDDLSearchEngine extends OldSearchEngineMethods {
 
     protected Collection<TransitionGround> reachableProcesses;
     protected Collection<TransitionGround> reachableEvents;

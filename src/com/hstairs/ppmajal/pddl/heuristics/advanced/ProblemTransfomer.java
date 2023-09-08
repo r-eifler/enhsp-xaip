@@ -44,7 +44,7 @@ public class ProblemTransfomer {
     private static Int2ObjectOpenHashMap transition2cptransitionMap;
     private static Int2IntOpenHashMap cptransition2transitionMap;
 
-    public static CompactPDDLProblem generateCompactProblem(PDDLProblem problem, String redConstraints) {
+    public static CompactPDDLProblem generateCompactProblem(PDDLProblem problem, String redConstraints, boolean unitaryCost) {
         int nTransitions = Transition.totNumberOfTransitions + 1;
         pseudoGoal = nTransitions - 1;
         p = problem;
@@ -80,7 +80,11 @@ public class ProblemTransfomer {
                 propEffectFunction[v1] = (IntArraySet) propEffectFunctionMap.get(v1);
                 numericEffectFunction[v1] = (Collection) numericEffectFunctionMap.get(v1);
                 final TransitionGround t = (TransitionGround) Transition.getTransition(cptransition2transitionMap.get(v1));
-                actionCost[v1] = t.getActionCost(p.getInit(), p.getMetric(), p.isSdac());
+                if (unitaryCost){
+                    actionCost[v1] = 1;
+                }else {
+                    actionCost[v1] = t.getActionCost(p.getInit(), p.getMetric(), p.isSdac());
+                }
             }
             for (int v1 : transition2cptransitionMap.keySet()) {
                 transition2cptransition[v1] = (Collection) transition2cptransitionMap.get(v1);

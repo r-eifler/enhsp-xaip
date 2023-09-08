@@ -1,6 +1,8 @@
 package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.search.searchnodes.SearchNode;
+import com.hstairs.ppmajal.search.searchnodes.SimpleSearchNode;
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -11,7 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class EHS extends SearchEngineClass{
+public class EHS extends SearchEngine {
 
 
     public EHS(boolean helpfulActionsPruning) {

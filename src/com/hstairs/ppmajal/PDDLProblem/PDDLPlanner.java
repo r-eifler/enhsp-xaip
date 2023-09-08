@@ -2,6 +2,8 @@ package com.hstairs.ppmajal.PDDLProblem;
 
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.search.*;
+import com.hstairs.ppmajal.search.searchnodes.SearchNode;
+import com.hstairs.ppmajal.search.searchnodes.SimpleSearchNode;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -22,12 +24,13 @@ public class PDDLPlanner {
     final public BigDecimal planningDelta;
     final String t;
     final private boolean saveSearchSpace;
-    private SearchEngineClass searchEngine;
+    private final float boundG;
+    private SearchEngine searchEngine;
 
     public PDDLPlanner(String search, String heuristic, String redundantConstraints,
                        boolean helpfulActionPruning, boolean helpfulTransitions,
                        float hWeigth, BigDecimal planningDelta, BigDecimal executionDelta, String t,
-                       boolean saveSearchSpace) {
+                       boolean saveSearchSpace, float depthLimit) {
         this.search = search;
         this.heuristic = heuristic;
         this.redundantConstraints = redundantConstraints;
@@ -38,10 +41,10 @@ public class PDDLPlanner {
         this.planningDelta = planningDelta;
         this.t = t;
         this.saveSearchSpace = saveSearchSpace;
+        this.boundG = depthLimit;
     }
     public SearchNode searchSpaceHandle;
     public PDDLSolution plan(PDDLProblem p, SearchHeuristic h){
-        System.out.println("Start Search");
         TieBreaker tb;
         switch (t){
             case "smaller_g":
@@ -56,10 +59,10 @@ public class PDDLPlanner {
         }
         switch (search.toLowerCase()){
             case "wastar" :
-                searchEngine = new WAStar(hWeigth, true, helpfulActions, tb, saveSearchSpace);
+                searchEngine = new WAStar(hWeigth, true, helpfulActions, tb, saveSearchSpace, boundG);
                 break;
             case "gbfs":
-                searchEngine = new WAStar(hWeigth, false, helpfulActions, tb, saveSearchSpace);
+                searchEngine = new WAStar(hWeigth, false, helpfulActions, tb, saveSearchSpace, boundG);
                 break;
             case "ehs":
                 searchEngine = new EHS(helpfulActions);
@@ -69,13 +72,13 @@ public class PDDLPlanner {
                         false,System.out);
                 break;
             case "lazygbfs":
-                searchEngine = new LazyWAStar(hWeigth,false,helpfulActions,saveSearchSpace, tb);
+                searchEngine = new LazyWAStar(hWeigth,false,helpfulActions,saveSearchSpace, tb, boundG);
                 break;
             case "lazywastar":
-                searchEngine = new LazyWAStar(hWeigth,true,helpfulActions,saveSearchSpace, tb);
+                searchEngine = new LazyWAStar(hWeigth,true,helpfulActions,saveSearchSpace, tb, boundG);
                 break;
             default:
-                searchEngine = new WAStar(hWeigth, false, helpfulActions, tb, saveSearchSpace);
+                searchEngine = new WAStar(hWeigth, false, helpfulActions, tb, saveSearchSpace, boundG);
                 break;
         }
 

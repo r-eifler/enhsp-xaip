@@ -37,6 +37,7 @@ import com.hstairs.ppmajal.transition.Transition;
 import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.ProblemTransfomer;
+import ilog.cplex.IloCplex;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import static java.lang.Math.ceil;
@@ -113,22 +114,23 @@ public class H1 implements SearchHeuristic {
     
     
     public H1(PDDLProblem problem) {
-        this(problem, true, false, false, "no", false, false, false, false, null);
+        this(problem, true, false, false, "no", false, false, false, false, null, false);
     }
 
 
     
     public H1(PDDLProblem problem, boolean additive) {
-        this(problem, additive, false, false, "no", false, false, false, false, null);
+        this(problem, additive, false, false, "no", false, false, false, false, null, false);
     }
 
     public H1(PDDLProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
-            boolean helpfulTransitions, boolean conjunctionsMax) {
-        this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null);
+            boolean helpfulTransitions, boolean conjunctionsMax, boolean unitaryCost) {
+        this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions,
+                redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null, unitaryCost );
     }
 
     public H1(PDDLProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
-            boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap) {
+            boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap, boolean unitaryCost) {
 
         long startSetup = System.currentTimeMillis();
         this.additive = additive;
@@ -139,7 +141,7 @@ public class H1 implements SearchHeuristic {
         allComparisons = new IntArraySet();
         freePreconditionActions = new IntArraySet();
 //        problem.prettyPrint();
-        cp = ProblemTransfomer.generateCompactProblem(problem, redConstraints);
+        cp = ProblemTransfomer.generateCompactProblem(problem, redConstraints, unitaryCost);
 //        System.out.println(cp);
         useSmartConstraints = "smart".equals(redConstraints);
 

@@ -1,6 +1,8 @@
 package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.search.searchnodes.IdaStarSearchNode;
+import com.hstairs.ppmajal.search.searchnodes.SimpleSearchNode;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import org.jgrapht.alg.util.Pair;
@@ -11,7 +13,7 @@ import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.TimeoutException;
 
-public class IDAStar extends SearchEngineClass {
+public class IDAStar extends SearchEngine {
     final private float hWeigth;
     final private boolean idaStarWithMemory;
     private Object2FloatMap<State> idaStar;

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package com.hstairs.ppmajal.search;
+package com.hstairs.ppmajal.search.searchnodes;
 
 import com.hstairs.ppmajal.problem.State;
 import java.io.FileWriter;

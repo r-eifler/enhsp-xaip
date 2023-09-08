@@ -32,7 +32,7 @@ public class H1Res extends H1 {
     final private boolean ordering;
     
     public H1Res(PDDLProblem p, String red, boolean twolevel, boolean ordering) {
-        super(p, false, false, false, red, false, false, false, false);
+        super(p, false, false, false, red, false, false, false, false,false);
         
         localCost = new float[cp.numActions()][totNumberOfTerms];
         terminalConditions = new IntArraySet[cp.numActions()];

@@ -1,5 +1,7 @@
 package com.hstairs.ppmajal.search;
 
+import com.hstairs.ppmajal.search.searchnodes.SearchNode;
+
 import java.util.Comparator;
 
 public class TieBreaker implements Comparator<SearchNode> {

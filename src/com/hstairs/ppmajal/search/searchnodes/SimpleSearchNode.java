@@ -1,7 +1,6 @@
-package com.hstairs.ppmajal.search;
+package com.hstairs.ppmajal.search.searchnodes;
 
 import com.hstairs.ppmajal.problem.State;
-import java.util.ArrayList;
 
 public class SimpleSearchNode {
     final public State s;

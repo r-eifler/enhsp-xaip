@@ -1,6 +1,8 @@
 package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.search.searchnodes.SearchNode;
+import com.hstairs.ppmajal.search.searchnodes.SimpleSearchNode;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
@@ -11,19 +13,22 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Queue;
 
-public class WAStar extends SearchEngineClass{
+public class WAStar extends SearchEngine {
     protected final boolean optimality;
     protected long previous;
     protected float hAtInit;
     final protected float hw;
     final protected TieBreaker tieBreaker;
     final protected boolean saveSearchSpace;
-    public WAStar(float hw, boolean optimality, boolean helpfulActionsPruning, TieBreaker tieBreaker, boolean saveSearchSpace){
+    final protected float gBound;
+
+    public WAStar(float hw, boolean optimality, boolean helpfulActionsPruning, TieBreaker tieBreaker, boolean saveSearchSpace, float gBound){
         super(helpfulActionsPruning);
         this.optimality = optimality;
         this.hw = hw;
         this.tieBreaker = tieBreaker;
         this.saveSearchSpace = saveSearchSpace;
+        this.gBound = gBound;
     }
     public SearchStats getStats(){
         return new SearchStats(nodesExpanded,nodesEvaluated,deadEndsDetected,duplicatedDetected,totalTime,heuristicTime);
@@ -33,9 +38,9 @@ public class WAStar extends SearchEngineClass{
     }
     enum retCode{inserted, deadend, duplicated};
     protected retCode queueSuccessor(Object frontier, State successorState,
-                                        SearchNode current_node, Object actionsBefore,
-                                        float prev_cost, float gSuccessor, Object2FloatMap<State> g, SearchHeuristic h,
-                                        float hw) {
+                                     SearchNode current_node, Object actionsBefore,
+                                     float prev_cost, float gSuccessor, Object2FloatMap<State> g, SearchHeuristic h,
+                                     float hw) {
         if (Objects.equals(prev_cost, this.G_DEFAULT) || gSuccessor < prev_cost) {
             final long start = System.currentTimeMillis();
             final float hValue = h.computeEstimate(successorState);
@@ -124,15 +129,17 @@ public class WAStar extends SearchEngineClass{
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
                     final float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.gValue);
-                    if (Objects.equals(successorG, this.G_DEFAULT)) {
-                        deadEndsDetected++;
-                        continue;
-                    }
-                    switch (this.queueSuccessor(frontier, successorState, currentNode, act,
-                            getPreviousCost(gValue, successorState), successorG, gValue, h, hw)) {
-                        case inserted -> nodesEvaluated++;
-                        case deadend -> deadEndsDetected++;
-                        case duplicated -> duplicatedDetected++;
+                    if (successorG < gBound) {
+                        if (Objects.equals(successorG, this.G_DEFAULT)) {
+                            deadEndsDetected++;
+                            continue;
+                        }
+                        switch (this.queueSuccessor(frontier, successorState, currentNode, act,
+                                getPreviousCost(gValue, successorState), successorG, gValue, h, hw)) {
+                            case inserted -> nodesEvaluated++;
+                            case deadend -> deadEndsDetected++;
+                            case duplicated -> duplicatedDetected++;
+                        }
                     }
                 }
             }

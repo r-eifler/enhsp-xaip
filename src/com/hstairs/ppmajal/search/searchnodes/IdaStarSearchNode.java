@@ -1,4 +1,4 @@
-package com.hstairs.ppmajal.search;
+package com.hstairs.ppmajal.search.searchnodes;
 
 import com.hstairs.ppmajal.problem.State;
 
