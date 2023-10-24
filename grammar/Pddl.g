@@ -56,7 +56,9 @@ tokens {
 	MINUS_OP;
 	UNARY_MINUS;
 	SIN;
+	ASIN;
 	COS;
+	ACOS;
 	ATAN;
 	TAN;
 	ABS;
@@ -365,6 +367,8 @@ fExp
 	| '(' '-' fExp ')' -> ^(UNARY_MINUS fExp)
 	| '(' 'sin' fExp ')' -> ^(SIN fExp)
 	| '(' 'cos' fExp ')' -> ^(COS fExp)
+	| '(' 'asin' fExp ')' -> ^(ASIN fExp)
+	| '(' 'acos' fExp ')' -> ^(ACOS fExp)
 	| '(' 'atan' fExp ')' -> ^(ATAN fExp)
 	| '(' 'tan' fExp ')' -> ^(TAN fExp)
 	| '(' 'abs' fExp ')' -> ^(ABS fExp)
@@ -577,23 +581,7 @@ conGD
 
 
 REQUIRE_KEY
-    : ':strips'
-    | ':typing'
-    | ':negative-preconditions'
-    | ':disjunctive-preconditions'
-    | ':equality'
-    | ':existential-preconditions'
-    | ':universal-preconditions'
-    | ':quantified-preconditions'
-    | ':conditional-effects'
-    | ':fluents'
-    | ':adl'
-    | ':durative-actions'
-    | ':derived-predicates'
-    | ':timed-initial-literals'
-    | ':preferences'
-    | ':constraints'
-    | ':'ANY_CHAR*
+    : ':'ANY_CHAR*
     ;
 
 

@@ -106,7 +106,6 @@ public class FactoryConditions {
                     }
                 }
                 return new OrCond(or);
-
             case PddlParser.ONEOF:
                 Collection oneOf = new HashSet();
                 for (int i = 0; i < tree.getChildCount(); i++) {
@@ -185,9 +184,11 @@ public class FactoryConditions {
                 }
                 return new Existential(p,exist);
             case PddlParser.IMPLY_GD:
-                System.out.println("Implication not supported yet:" + tree.getText());
-                return null;
-            //Create an equality structure for comparing Objects
+                Collection implyOr = new HashSet();
+                Condition ret_val = createCondition(tree.getChild(0),parTable);
+                implyOr.add(NotCond.createNotCond(ret_val));
+                implyOr.add(createCondition(tree.getChild(1),parTable));
+                return new OrCond(implyOr);
             default:
                 break;
         }

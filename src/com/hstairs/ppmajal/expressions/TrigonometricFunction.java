@@ -69,12 +69,16 @@ public class TrigonometricFunction extends BinaryOp {
                 return (Math.sin(getArg().eval(s)));
             case "cos":
                 return (Math.cos(getArg().eval(s)));
+            case "asin":
+                return (Math.asin(getArg().eval(s)));
+            case "acos":
+                return (Math.acos(getArg().eval(s)));
             case "tan":
                 return (Math.tan(getArg().eval(s)));
             case "atan":
                 return (Math.atan(getArg().eval(s)));
             default:
-                throw new RuntimeException("Wrong operator in trigonometric defintion (" + this.operator + ")");
+                throw new RuntimeException("Wrong operator in trigonometric definition (" + this.operator + ")");
         }
     }
 
@@ -122,6 +126,14 @@ public class TrigonometricFunction extends BinaryOp {
             case "cos":
 //                ret = arg.cos();
                 ret = arg.cos();
+                break;
+            case "asin":
+//                ret = arg.sin();
+                ret = arg.asin();
+                break;
+            case "acos":
+//                ret = arg.cos();
+                ret = arg.acos();
                 break;
             case "tan":
 //                ret = arg.cos();
