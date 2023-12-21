@@ -43,6 +43,11 @@ public class AndCond extends ComplexCondition implements PostCondition {
     public AndCond (Collection sons ) {
         super(sons);
     }
+    public AndCond (Collection sons , boolean unsatisfiable, boolean valid) {
+        super(sons);
+        this.setUnsatisfiable(unsatisfiable);
+        this.setValid(valid);
+    }
     
 
     /**
@@ -531,7 +536,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                 sons1.add(cond);
             }
         }
-        return new AndCond(sons1);
+        return new AndCond(sons1, this.isUnsatisfiable(),this.isValid());
     }
 
     public static Comparison generateRedConstraints(Comparison a1, Comparison a2) {

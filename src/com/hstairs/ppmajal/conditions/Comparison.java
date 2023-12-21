@@ -144,7 +144,8 @@ public class Comparison extends Terminal {
     }
 
     public boolean isSatisfied(Double first, Double second){
-        if ((first == null) || (second == null)) {
+        if ((first == null) || (second == null) ||
+            first.isNaN() || second.isNaN()) {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
