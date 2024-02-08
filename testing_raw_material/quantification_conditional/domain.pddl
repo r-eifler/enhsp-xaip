@@ -11,9 +11,6 @@
                     (forall (?i -interpretation) 
                       (when (b ?i)  (a ?i) )) 
                     
-                    (forall (?i -interpretation) 
-                      (when (b ?i)  (a ?i) )) 
-                    
                   )
   )
 )

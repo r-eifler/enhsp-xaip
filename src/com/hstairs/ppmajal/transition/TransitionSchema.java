@@ -66,7 +66,7 @@ public class TransitionSchema extends Transition {
             final Collection<BoolPredicate> involvedPredicates = ((AndCond) effect).getInvolvedPredicates();
             ret.addAll(involvedPredicates);
         } else if (effect instanceof Terminal) {
-            final Collection<BoolPredicate> terminalConditions = ((BoolPredicate) effect).getInvolvedPredicates();
+            final Collection<BoolPredicate> terminalConditions = ((Terminal) effect).getInvolvedPredicates();
             ret.addAll(terminalConditions);
         }
         return ret;
