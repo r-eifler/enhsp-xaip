@@ -141,6 +141,16 @@ public class MultiOp extends Expression {
     }
 
     @Override
+    public boolean is_constant() {
+        for(Object exp : expr){
+            if(! ((Expression) exp).is_constant()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public ExtendedNormExpression normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

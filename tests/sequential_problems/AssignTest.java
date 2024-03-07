@@ -59,7 +59,7 @@ public class AssignTest {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(2, temp.getPlanSize("unit_test_instances/assign_test/domain.pddl",
-                    "unit_test_instances/assign_test/sample.pddl", h));
+                    "unit_test_instances/assign_test/sample.pddl", h, "internal"));
         }
 
 

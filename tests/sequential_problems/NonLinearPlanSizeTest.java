@@ -59,7 +59,7 @@ public class NonLinearPlanSizeTest {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(7, temp.getPlanSize("unit_test_instances/absolute_value/domain.pddl",
-                    "unit_test_instances/absolute_value/sample.pddl", h));
+                    "unit_test_instances/absolute_value/sample.pddl", h, "internal"));
         }
 
         for (String h : heuristics) {
@@ -67,7 +67,7 @@ public class NonLinearPlanSizeTest {
                 
             
             assertEquals(12, temp.getPlanSize("unit_test_instances/trigonometric_functions/domain.pddl",
-                    "unit_test_instances/trigonometric_functions/sample.pddl", h));
+                    "unit_test_instances/trigonometric_functions/sample.pddl", h, "internal"));
             }
         }
 

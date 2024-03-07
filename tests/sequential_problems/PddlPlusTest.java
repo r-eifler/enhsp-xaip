@@ -59,7 +59,7 @@ public class PddlPlusTest {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(17, temp.getPlanSize("unit_test_instances/car_linear_mt_sc/domain.pddl",
-                    "unit_test_instances/car_linear_mt_sc/sample.pddl", h,1,1,18));
+                    "unit_test_instances/car_linear_mt_sc/sample.pddl", h, "internal", 1,1,18));
         }
 
 

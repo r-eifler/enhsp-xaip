@@ -34,7 +34,15 @@ public interface SearchHeuristic {
      * @return Distance to the goal
      */
     float computeEstimate(State s);
-    
+
+    /**
+     *
+     * @param s A state of the system
+     * @return distance to each individual goal fact.
+     */
+    float[] computeEstimateIndividualGoals(State s);
+
+
     default Collection getAllEstimates(){
         return Collections.EMPTY_LIST;
     }

@@ -54,6 +54,6 @@ public class DepotsBigHeuristicTest {
         //get pddl description
         PlannerUtils temp = new PlannerUtils();
         assertEquals(27, temp.heuristicEstimate("unit_test_instances/depotsbig/domain.pddl",
-                "unit_test_instances/depotsbig/sample.pddl", "hadd"));
+                "unit_test_instances/depotsbig/sample.pddl", "hadd", "internal"));
     }
 }

@@ -155,6 +155,11 @@ public class BinaryOp extends Expression {
     }
 
     @Override
+    public boolean is_constant() {
+        return this.lhs.is_constant() && this.rhs.is_constant();
+    }
+
+    @Override
     public ExtendedNormExpression normalize ( ) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         this.setLhs(this.getLhs().normalize());

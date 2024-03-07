@@ -143,6 +143,20 @@ public class Comparison extends Terminal {
         return isSatisfied(first, second);
     }
 
+    public double variable_eval(State s) {
+        if(right.is_constant()){
+            return left.eval(s);
+        }
+        return right.eval(s);
+    }
+
+    public boolean dominates(Double first, Double second) {
+        if(right.is_constant()){
+            return isSatisfied(first, second);
+        }
+        return isSatisfied(second, first);
+    }
+
     public boolean isSatisfied(Double first, Double second){
         if ((first == null) || (second == null) ||
             first.isNaN() || second.isNaN()) {

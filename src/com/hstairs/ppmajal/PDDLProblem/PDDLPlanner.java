@@ -77,6 +77,9 @@ public class PDDLPlanner {
             case "lazywastar":
                 searchEngine = new LazyWAStar(hWeigth,true,helpfulActions,saveSearchSpace, tb, boundG);
                 break;
+            case "gsbnb" :
+                searchEngine = new GSBnB(hWeigth, true, helpfulActions, tb, saveSearchSpace, boundG);
+                break;
             default:
                 searchEngine = new WAStar(hWeigth, false, helpfulActions, tb, saveSearchSpace, boundG);
                 break;

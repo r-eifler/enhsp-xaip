@@ -16,11 +16,8 @@ import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  *
@@ -38,6 +35,8 @@ public class ProblemTransfomer {
     private static int[] cptransition2transition;
     private static boolean conditionalEffectsSensitive = true;
     private static int pseudoGoal;
+
+    private static ArrayList<Integer> individual_goals;
     private static Int2ObjectOpenHashMap preconditionFunctionMap;
     private static Int2ObjectOpenHashMap propEffectFunctionMap;
     private static Int2ObjectOpenHashMap numericEffectFunctionMap;
@@ -47,6 +46,8 @@ public class ProblemTransfomer {
     public static CompactPDDLProblem generateCompactProblem(PDDLProblem problem, String redConstraints, boolean unitaryCost) {
         int nTransitions = Transition.totNumberOfTransitions + 1;
         pseudoGoal = nTransitions - 1;
+        int num_goals = ((AndCond) problem.getGoals()).sons.length;
+
         p = problem;
 
         if (conditionalEffectsSensitive) {
@@ -68,13 +69,13 @@ public class ProblemTransfomer {
         v = fillPreEff(v, redConstraints, new LinkedHashSet(p.getProcessesSet()));
         if (conditionalEffectsSensitive) {
             pseudoGoal = v;
-            preconditionFunction = new Condition[v + 1];
-            propEffectFunction = new Collection[v + 1];
-            numericEffectFunction = new Collection[v + 1];
+            preconditionFunction = new Condition[v + 1 + num_goals];
+            propEffectFunction = new Collection[v + 1 + num_goals];
+            numericEffectFunction = new Collection[v + 1 + num_goals];
             transition2cptransition = new Collection[nTransitions];
-            cptransition2transition = new int[v + 1];
+            cptransition2transition = new int[v + 1 + num_goals];
 
-            actionCost = new float[v + 1];
+            actionCost = new float[v + 1 + num_goals];
             for (int v1 : preconditionFunctionMap.keySet()) {
                 preconditionFunction[v1] = (Condition) preconditionFunctionMap.get(v1);
                 propEffectFunction[v1] = (IntArraySet) propEffectFunctionMap.get(v1);
@@ -94,13 +95,22 @@ public class ProblemTransfomer {
                 cptransition2transition[v1] = cptransition2transitionMap.get(v1);
             }
 
-            nTransitions = v + 1;
+            nTransitions = v + 1 + num_goals;
         }
         preconditionFunction[pseudoGoal] = normalizeAndTighthenCondition(p.getGoals(), redConstraints);
 
+        individual_goals = new ArrayList<>();
+        int index = pseudoGoal + 1;
+        for(Object con : ((AndCond) problem.getGoals()).sons){
+//            System.out.println(con + "  ");
+            individual_goals.add(index);
+            preconditionFunction[index] = normalizeAndTighthenCondition((Condition) con, redConstraints);
+            index++;
+        }
+
         return new CompactPDDLProblem(preconditionFunction,
                 propEffectFunction, numericEffectFunction, actionCost,
-                nTransitions, pseudoGoal, transition2cptransition, cptransition2transition);
+                nTransitions, pseudoGoal, individual_goals, transition2cptransition, cptransition2transition);
     }
 
     private static int fillPreEff(int offset, String redConstraints, Collection<TransitionGround> transitions) {

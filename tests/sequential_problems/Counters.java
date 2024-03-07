@@ -59,7 +59,7 @@ public class Counters {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(3, temp.getPlanSize("unit_test_instances/fn-counters-small_instances/domain.pddl",
-                    "unit_test_instances/fn-counters-small_instances/instance_3.pddl", h, 0, 1,1000));
+                    "unit_test_instances/fn-counters-small_instances/instance_3.pddl", h, "internal", 0, 1,1000));
         }
 
     }

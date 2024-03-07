@@ -203,6 +203,11 @@ public class NumFluent extends Expression {
     }
 
     @Override
+    public boolean is_constant() {
+        return false;
+    }
+
+    @Override
     public HomeMadeRealInterval eval (RelState s) {
         if (Double.isNaN(s.functionInfValue(this))) {
             return null;

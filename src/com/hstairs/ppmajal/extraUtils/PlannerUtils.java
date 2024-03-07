@@ -39,9 +39,9 @@ public class PlannerUtils {
     SearchHeuristic h;
 
 
-    private void setup(String domainFileName, String problemFileName, String heuristic) throws Exception {
+    private void setup(String domainFileName, String problemFileName, String heuristic, String groundingMethod) throws Exception {
         d = new PDDLDomain(domainFileName);
-        p = new PDDLProblem(problemFileName, d.constants, d.getTypes(), d, System.out, heuristic, true, false,new BigDecimal(1.0),new BigDecimal(1.0));
+        p = new PDDLProblem(problemFileName, d.constants, d.getTypes(), d, System.out, groundingMethod, true, false,new BigDecimal(1.0),new BigDecimal(1.0));
         d.substituteEqualityConditions();
         if (!d.getProcessesSchema().isEmpty()) {
             p.setDeltaTimeVariable("1");
@@ -69,12 +69,12 @@ public class PlannerUtils {
                 throw new IllegalStateException("Unexpected value: " + heuristic);
         }
     }
-    public int getPlanSize (String domainFileName, String problemFileName, String heuristic) throws Exception {
-        return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1, Integer.MAX_VALUE);
+    public int getPlanSize (String domainFileName, String problemFileName, String heuristic, String groundingMethod) throws Exception {
+        return this.getPlanSize(domainFileName, problemFileName, heuristic, groundingMethod, 1, 1, Integer.MAX_VALUE);
     }
 
-    public int getPlanSize(String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
-        setup(domainFileName,problemFileName,heuristic);
+    public int getPlanSize(String domainFileName, String problemFileName, String heuristic, String groundingMethod, int wg, int wh, int depthBound) throws Exception {
+        setup(domainFileName,problemFileName,heuristic, groundingMethod);
         PDDLSearchEngine search = new PDDLSearchEngine(p, h);
         if (!p.getProcessesSet().isEmpty()){
             search.planningDelta = new BigDecimal(1.0f);
@@ -85,8 +85,8 @@ public class PlannerUtils {
         return pairs.size();
     }
 
-    public int heuristicEstimate (String domainFileName, String problemFileName, String heuristic) throws Exception {
-        setup(domainFileName,problemFileName,heuristic);
+    public int heuristicEstimate (String domainFileName, String problemFileName, String heuristic, String groundingMethod) throws Exception {
+        setup(domainFileName,problemFileName,heuristic, groundingMethod);
         final float v = h.computeEstimate(p.getInit());
         return (int)v;
     }

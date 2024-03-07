@@ -100,6 +100,11 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
+    public boolean is_constant() {
+        return true;
+    }
+
+    @Override
     public ExtendedNormExpression normalize ( ) {
         ExtendedAddendum a = new ExtendedAddendum();
         a.n = this.number;

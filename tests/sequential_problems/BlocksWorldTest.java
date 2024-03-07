@@ -59,7 +59,7 @@ public class BlocksWorldTest {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(20, temp.getPlanSize("unit_test_instances/blocks/domain.pddl",
-                    "unit_test_instances/blocks/task12.pddl", h));
+                    "unit_test_instances/blocks/task12.pddl", h, "internal"));
         }
 
 

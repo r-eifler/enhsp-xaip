@@ -59,7 +59,7 @@ public class Quantifiers {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(3, temp.getPlanSize("unit_test_instances/quantification/domain.pddl",
-                    "unit_test_instances/quantification/sample.pddl", h));
+                    "unit_test_instances/quantification/sample.pddl", h, "internal"));
         }
 
 

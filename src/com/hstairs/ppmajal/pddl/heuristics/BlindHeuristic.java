@@ -47,6 +47,11 @@ public class BlindHeuristic implements SearchHeuristic {
     }
 
     @Override
+    public float[] computeEstimateIndividualGoals(State s) {
+        return new float[0];
+    }
+
+    @Override
     public Object[] getTransitions(boolean helpful) {
         return staticActions;
     }   

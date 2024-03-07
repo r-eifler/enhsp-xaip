@@ -431,6 +431,16 @@ public class ExtendedNormExpression extends Expression {
         return ret;
     }
 
+    @Override
+    public boolean is_constant() {
+        for(ExtendedAddendum extadd : summations){
+            if(! extadd.is_constant()){
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * @param problem
      * @param invFluents

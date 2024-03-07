@@ -59,7 +59,7 @@ public class OptimalityTest {
         PlannerUtils temp = new PlannerUtils();
         for (final String h : heuristics) {
             assertEquals(3, temp.getPlanSize("unit_test_instances/cost_optimal_planning/domain.pddl",
-                    "unit_test_instances/cost_optimal_planning/sample.pddl", h));
+                    "unit_test_instances/cost_optimal_planning/sample.pddl", h, "internal"));
         }
 
 

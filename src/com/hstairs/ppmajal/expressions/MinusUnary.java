@@ -68,6 +68,11 @@ public class MinusUnary extends Expression {
     }
 
     @Override
+    public boolean is_constant() {
+        return element.is_constant();
+    }
+
+    @Override
     public ExtendedNormExpression normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

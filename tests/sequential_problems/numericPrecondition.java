@@ -59,7 +59,7 @@ public class numericPrecondition {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(2, temp.getPlanSize("unit_test_instances/easy_numeric_precondition/domain.pddl",
-                    "unit_test_instances/easy_numeric_precondition/sample.pddl", h));
+                    "unit_test_instances/easy_numeric_precondition/sample.pddl", h, "internal"));
         }
 
 

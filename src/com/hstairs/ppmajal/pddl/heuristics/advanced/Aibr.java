@@ -297,6 +297,11 @@ public final class Aibr implements SearchHeuristic {
         return Float.MAX_VALUE;
     }
 
+    @Override
+    public float[] computeEstimateIndividualGoals(State s) {
+        return new float[0];
+    }
+
     private float fixPointComputation(Collection<TransitionGround> reachable, RelState s) {
         int counter = 0;
         int horizon = Integer.MAX_VALUE;

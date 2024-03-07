@@ -58,6 +58,8 @@ public abstract class Expression extends Object {
 
     public abstract double eval (State s);
 
+    public abstract boolean is_constant();
+
     //public abstract PDDLState apply(PDDLState s);
     public abstract ExtendedNormExpression normalize ( );
 

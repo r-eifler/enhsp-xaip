@@ -73,6 +73,10 @@ public class ExtendedAddendum {
         return ret;
     }
 
+    public boolean is_constant() {
+        return f == null;
+    }
+
     @Override
     public boolean equals (Object obj) {
         if (obj == null) {

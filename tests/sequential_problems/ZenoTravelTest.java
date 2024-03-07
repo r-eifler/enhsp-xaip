@@ -59,7 +59,7 @@ public class ZenoTravelTest {
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(9, temp.getPlanSize("unit_test_instances/zenotravel/domain.pddl",
-                    "unit_test_instances/zenotravel/sample.pddl", h));
+                    "unit_test_instances/zenotravel/sample.pddl", h, "internal"));
         }
 
 

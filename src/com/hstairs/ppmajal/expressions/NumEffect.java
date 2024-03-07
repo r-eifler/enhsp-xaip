@@ -153,6 +153,11 @@ public class NumEffect extends Expression implements PostCondition {
 
     }
 
+    @Override
+    public boolean is_constant() {
+        return false;
+    }
+
     /**
      * @return
      */

@@ -1,8 +1,10 @@
+/*
 
 import sequential_problems.NonLinearPlanSizeTest;
 import sequential_problems.OptimalityTest;
 import sequential_problems.PddlPlusTest;
 
+*/
 /*
  * Copyright (C) 2018 enrico.
  *
@@ -20,11 +22,14 @@ import sequential_problems.PddlPlusTest;
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
- */
+ *//*
 
+
+*/
 /**
  * @author enrico
- */
+ *//*
+
 public class Runner {
 
     public static void main (String[] args) {
@@ -47,3 +52,4 @@ public class Runner {
     }
 
 }
+*/

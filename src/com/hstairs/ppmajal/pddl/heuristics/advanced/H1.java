@@ -159,6 +159,11 @@ public class H1 implements SearchHeuristic {
         allActions.add(cp.goal());
         updatePreconditionFunction(cp.goal());
 
+        for(int g : cp.goals()){
+            allActions.add(g);
+            updatePreconditionFunction(g);
+        }
+
         termsArrayShifter = new ArrayShifter(getAllConditions());
         totNumberOfTermsRefactored = termsArrayShifter.getMaxTid();
 
@@ -299,20 +304,21 @@ public class H1 implements SearchHeuristic {
         final FibonacciHeap h = this.smallSetup(gs);
         while (!h.isEmpty()) {
             final int actionId = (int) h.removeMin().getData();
+
 //            System.out.println(Transition.getTransition(actionId));
 //            for (int i=0;i<=Transition.totNumberOfTransitions;i++)
 //                System.out.println(cp.actionCost()[i]);
             if (actionId == cp.goal() && !isReachability()) {
                 break;
             }
-            if (isReachability() && actionId != cp.goal()) {
+            if (isReachability() && ! cp.goals().contains(actionId) && actionId != cp.goal()) {
                 if (reachableTransitions == null) {
                     reachableTransitions = new IntArraySet();
                 }
                 reachableTransitions.add(actionId);
             }
             closed[actionId] = true;
-            if (actionId != cp.goal()) {
+            if(! cp.goals().contains(actionId) && actionId != cp.goal()){
                 expand(actionId, h, gs);
             }
         }
@@ -330,7 +336,38 @@ public class H1 implements SearchHeuristic {
         }
 //        System.exit(-1);
         return getActionHCost()[cp.goal()];
+    }
 
+    @Override
+    public float[] computeEstimateIndividualGoals(State s) {
+        final FibonacciHeap h = this.smallSetup(s);
+        while (!h.isEmpty()) {
+            final int actionId = (int) h.removeMin().getData();
+
+            if (isReachability() && ! cp.goals().contains(actionId) && actionId != cp.goal()) {
+                if (reachableTransitions == null) {
+                    reachableTransitions = new IntArraySet();
+                }
+                reachableTransitions.add(actionId);
+            }
+            closed[actionId] = true;
+
+            if(! cp.goals().contains(actionId) && actionId != cp.goal()){
+                expand(actionId, h, s);
+            }
+        }
+
+//        System.out.println("-------------");
+//        System.out.println(getActionHCost()[cp.goal()]);
+
+        float[] res = new float[cp.goals().size()];
+        int j = 0;
+        for(int i : cp.goals()){
+//            System.out.print(getActionHCost()[i] + " ");
+            res[j++] = getActionHCost()[i];
+        }
+//        System.out.println();
+        return res;
     }
 
     void addActionsInPriority(final int i, final FibonacciHeap p, final float v) {

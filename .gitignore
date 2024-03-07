@@ -10,3 +10,7 @@ nbdist/
 .DS_Store
 nbproject/
 build.xml
+
+.classpath
+jar_dependencies
+.vscode
