@@ -151,6 +151,16 @@ public class Comparison extends Terminal {
     }
 
     public boolean dominates(Double first, Double second) {
+        if ((first == null) && (second == null)){
+            return true;
+        }
+        if(first == null){
+            return false;
+        }
+        if(second == null){
+            return  true;
+        }
+
         if(right.is_constant()){
             return isSatisfied(first, second);
         }

@@ -17,7 +17,7 @@ public class GoalSubsets {
         return subsets.contains(set);
     }
 
-    public boolean containsSuperset(GoalSubset set, List<Comparison> comparisons){
+    public boolean containsSuperset(GoalSubset set, ArrayList<Comparison> comparisons){
         for(GoalSubset gs : subsets){
             if(set.is_subset(gs, comparisons)){
                 return true;
@@ -27,7 +27,7 @@ public class GoalSubsets {
     }
 
 
-    public void add_and_subset_maximal(GoalSubset new_set, List<Comparison> comparisons){
+    public void add_and_subset_maximal(GoalSubset new_set, ArrayList<Comparison> comparisons){
 
         boolean can_be_added = true;
         for (Iterator<GoalSubset> it2 = subsets.iterator(); it2.hasNext(); ) {
@@ -46,7 +46,7 @@ public class GoalSubsets {
         }
     }
 
-    public void add_and_subset_minimal(GoalSubset new_set, List<Comparison> comparisons){
+    public void add_and_subset_minimal(GoalSubset new_set, ArrayList<Comparison> comparisons){
 
         boolean can_be_added = true;
         for (Iterator<GoalSubset> it2 = subsets.iterator(); it2.hasNext(); ) {
@@ -65,7 +65,7 @@ public class GoalSubsets {
         }
     }
 
-    public void make_subset_minimal(List<Comparison> comparisons){
+    public void make_subset_minimal(ArrayList<Comparison> comparisons){
         Set<GoalSubset> new_subsets = new HashSet<>();
         for (GoalSubset add_next : subsets) {
             boolean can_be_added = true;
@@ -86,15 +86,15 @@ public class GoalSubsets {
         subsets = new_subsets;
     }
 
-//    public GoalSubsets complement() {
-//        GoalSubsets complements = new GoalSubsets();
-//
-//        for (GoalSubset set : subsets) {
-//            complements.add(set.complement());
-//        }
-//
-//        return new GoalSubsets(complements);
-//    }
+    public GoalSubsets complement() {
+        GoalSubsets complements = new GoalSubsets();
+
+        for (GoalSubset set : subsets) {
+            complements.add(set.complement());
+        }
+
+        return complements;
+    }
 
     public GoalSubsets minus(GoalSubsets sets) {
         GoalSubsets resSet = new GoalSubsets();
@@ -107,41 +107,41 @@ public class GoalSubsets {
         return resSet;
     }
 
-    public GoalSubsets crossProduct(GoalSubsets sets) {
+    public GoalSubsets crossProduct(GoalSubsets sets, ArrayList<Comparison> comparisons) {
         GoalSubsets productSet = new GoalSubsets();
 
         for (GoalSubset s1 : subsets) {
             for (GoalSubset s2 : sets.subsets) {
-                productSet.add(s1.setUnion(s2));
+                productSet.add(s1.setUnion(s2, comparisons));
             }
         }
 
         return productSet;
     }
-//
-//    public GoalSubsets minimalHittingSets() {
-//        GoalSubsets hittingSet = new GoalSubsets();
-//
-//        Iterator<GoalSubset> it = subsets.iterator();
-//
-//        if (it.hasNext()) {
-//            for (GoalSubset sing : it.next().singletonSubsets()) {
-//                hittingSet.add(sing);
-//            }
-//
-//            while (it.hasNext()) {
-//                GoalSubset set = it.next();
-//
-//                GoalSubsets singletons = new GoalSubsets();
-//                for (GoalSubset sing : set.singletonSubsets()) {
-//                    singletons.add(sing);
-//                }
-//
-//                hittingSet = hittingSet.crossProduct(singletons);
-//                hittingSet.minimizeNonMinimalSubsets();
-//            }
-//        }
-//
-//        return hittingSet;
-//    }
+
+    public GoalSubsets minimalHittingSets(ArrayList<Comparison> comparisons) {
+        GoalSubsets hittingSet = new GoalSubsets();
+
+        Iterator<GoalSubset> it = subsets.iterator();
+
+        if (it.hasNext()) {
+            for (GoalSubset sing : it.next().singletonSubsets()) {
+                hittingSet.add(sing);
+            }
+
+            while (it.hasNext()) {
+                GoalSubset set = it.next();
+
+                GoalSubsets singletons = new GoalSubsets();
+                for (GoalSubset sing : set.singletonSubsets()) {
+                    singletons.add(sing);
+                }
+
+                hittingSet = hittingSet.crossProduct(singletons, comparisons);
+                hittingSet.make_subset_minimal(comparisons);
+            }
+        }
+
+        return hittingSet;
+    }
 }

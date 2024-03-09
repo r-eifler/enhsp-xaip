@@ -64,7 +64,6 @@
 		(= (swap-stack beluga bside) 0)
 
 		(= (swap-stack rack1 fside) 1)
-		(= (swap-stack rack2 fside) 1)
 		(= (swap-stack rack3 fside) 1)
 
 		(= (rack-used rack1) 0)
@@ -73,8 +72,8 @@
 
 	)
   (:goal (and
-  		(<= (total-swaps) 2)
-  		(<= (rack-used rack1)  2)
+  		(<= (total-swaps) 1)
+  		; (<= (rack-used rack1)  0)
 		(on part1 part2 bside)
 		(in part2 plA)
 		(in part1 plA)

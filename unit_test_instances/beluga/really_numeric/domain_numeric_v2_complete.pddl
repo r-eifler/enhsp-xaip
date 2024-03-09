@@ -1,8 +1,8 @@
 (define (domain beluga)
-  (:requirements :strips :typing :fluents :equality)
+  (:requirements :strips :typing :fluents :equality :action-costs)
   (:types
 		side location production-line - object
-		truck rack jig hanger jig-type - location
+		truck rack jig hanger - location
 		beluga - rack
 )
 
@@ -38,6 +38,11 @@
 		(unload-process ?b - beluga)
 		(delivery-process ?pl - production-line)
 		(empty-size ?j - jig)
+		; for explanations
+		(total-swaps)
+		(swap-unstack-count ?j - jig ?s - side)
+		(swap-stack-count ?j - jig ?s - side)
+		(rack-in-use ?r - rack)
 	)
 
   (:action unload					
@@ -95,6 +100,8 @@
 			(clear ?j fside)
 			(increase (level ?r) (size ?j))
 			(increase (total-cost) 1)
+			(assign (rack-in-use ?r) 1)
+			(increase (total-swaps) (swap-stack-count ?j ?s))
 		)
 	)
 
@@ -120,6 +127,7 @@
 			(clear ?j ?s)
 			(increase (level ?r) (size ?j))
 			(increase (total-cost) 1)
+			(increase (total-swaps) (swap-stack-count ?j ?s))
 		)
 	)
 
@@ -143,6 +151,8 @@
 			(not (clear ?j ?os))
 			(decrease (level ?r) (size ?j))
 			(increase (total-cost) 1)
+			; (assign (rack-in-use ?r) 0)
+			(increase (total-swaps) (swap-unstack-count ?j ?s))
 		)
 	)
 
@@ -170,6 +180,7 @@
 			(not (clear ?j ?s))
 			(decrease (level ?r) (size ?j))
 			(increase (total-cost) 1)
+			(increase (total-swaps) (swap-unstack-count ?j ?s))
 		)
 	)
 
@@ -206,6 +217,10 @@
 			(empty ?t)
 			(empty ?j )
 			(assign (size ?j) (empty-size ?j))
+			(assign (swap-unstack-count ?j bside) 0)
+			(assign (swap-unstack-count ?j fside) 1)
+			(assign (swap-stack-count ?j bside) 1)
+			(assign (swap-stack-count ?j fside) 0)
 			(decrease (delivery-process ?pl) 1)
 			(decrease (to-process-parts ?b) 1)
 			(increase (total-cost) 1)

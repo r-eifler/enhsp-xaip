@@ -83,6 +83,7 @@ public class GSBnB extends SearchEngine {
 
         zeroCounters();
         final State initState = problem.getInit();
+        assert(initState != null);
         msgs.track(initState);
 
         final ObjectHeapPriorityQueue<SearchNode> frontier =

@@ -4,13 +4,11 @@ import com.hstairs.ppmajal.PDDLProblem.PDDLProblem;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.List;
 import java.util.ListIterator;
 
 public class MSGS extends GoalSubsets{
@@ -26,7 +24,7 @@ public class MSGS extends GoalSubsets{
         System.out.println("--------- INIT MSGS ------------");
         int index = 0;
         for(Object o : ((AndCond) problem.getGoals()).sons){
-            System.out.println(o);
+            System.out.println(index + ":  " + o);
             if(o instanceof BoolPredicate){
                 boolean_goals.add((BoolPredicate) o);
                 boolean_goals_id.add(index);
@@ -50,22 +48,25 @@ public class MSGS extends GoalSubsets{
 
         for(ListIterator<BoolPredicate> it = boolean_goals.listIterator(); it.hasNext();){
             BoolPredicate bp = it.next();
-            new_set_boolean.set(it.nextIndex(), s.satisfy(bp));
+            new_set_boolean.set(it.nextIndex() - 1, s.satisfy(bp));
 //            System.out.println(bp.toString() + " " +  s.satisfy(bp));
         }
-
-        List<Double> new_list_fluents = new ArrayList<>();
+        ArrayList<Double> new_list_fluents = new ArrayList<>();
         for(Comparison com : comparison_goals){
 //            System.out.println(com.toString() + "    eval = " +  com.variable_eval(s) + " ---> " +  s.satisfy(com));
             new_list_fluents.add(com.variable_eval(s));
         }
 
-        return new GoalSubset(new_set_boolean, new_list_fluents);
+        return new GoalSubset(boolean_goals.size(), new_set_boolean, new_list_fluents, true);
     }
 
     public boolean prune(SearchHeuristic h, float bound,  State s){
 
         float[] goal_estimates = h.computeEstimateIndividualGoals(s);
+//        System.out.println(goal_estimates.length);
+//        for(float f : goal_estimates){
+//            System.out.println(f);
+//        }
 
         BitSet new_set_boolean = new BitSet(boolean_goals.size());
         for(ListIterator<BoolPredicate> it = boolean_goals.listIterator(); it.hasNext();){
@@ -77,12 +78,12 @@ public class MSGS extends GoalSubsets{
         }
 //        System.out.println(new_set_boolean);
 
-        List<Double> new_list_fluents = new ArrayList<>();
+        ArrayList<Double> new_list_fluents = new ArrayList<>();
         for(ListIterator<Comparison> it = comparison_goals.listIterator(); it.hasNext();){
             Comparison com = it.next();
             int index = it.nextIndex() - 1;
 //            System.out.println(com.toString() + "    eval = " +  com.variable_eval(s) + " ---> " +  s.satisfy(com));
-            boolean reachable = goal_estimates[boolean_goals_id.get(index)] < Float.MAX_VALUE &&  goal_estimates[boolean_goals_id.get(index)] <= bound;
+            boolean reachable = goal_estimates[comparison_goals_id.get(index)] < Float.MAX_VALUE &&  goal_estimates[comparison_goals_id.get(index)] <= bound;
             if(reachable){
                 new_list_fluents.add(com.variable_eval(s));
             }
@@ -91,7 +92,7 @@ public class MSGS extends GoalSubsets{
             }
         }
 
-        GoalSubset reachable = new GoalSubset(new_set_boolean, new_list_fluents);
+        GoalSubset reachable = new GoalSubset(boolean_goals.size(), new_set_boolean, new_list_fluents, true);
         boolean prune = this.containsSuperset(reachable, comparison_goals);
         if(prune)
             num_pruned++;
@@ -106,12 +107,17 @@ public class MSGS extends GoalSubsets{
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
+        s.append("\n\n#pruned: ").append(num_pruned);
         s.append("\n--------------- MSGS --------------");
         for(GoalSubset sub : subsets){
             s.append("\n").append(sub.toString());
         }
+        s.append("\n--------------- MUGS --------------");
+        GoalSubsets mugs = this.complement().minimalHittingSets(comparison_goals);
+        for(GoalSubset sub : mugs.subsets){
+            s.append("\n").append(sub.toString());
+        }
 
-        s.append("\n\n#pruned: ").append(num_pruned);
         return s.toString();
     }
 }

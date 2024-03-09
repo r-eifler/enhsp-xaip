@@ -2,9 +2,13 @@ Type-checking unload
 ...action passes type checking.
 Type-checking load
 ...action passes type checking.
-Type-checking put-onto-rack
+Type-checking putdown-onto-rack
 ...action passes type checking.
-Type-checking put-onto-truck
+Type-checking stack-onto-rack
+...action passes type checking.
+Type-checking pickup-onto-truck
+...action passes type checking.
+Type-checking unstack-onto-truck
 ...action passes type checking.
 Type-checking beluga-complete
 ...action passes type checking.
@@ -12,87 +16,252 @@ Type-checking deliver-jig-to-hanger
 ...action passes type checking.
 Type-checking get-jig-from-hanger
 ...action passes type checking.
-Checking plan: manual_plan
+Checking plan: plan
 Plan to validate:
 
-Plan size: 26
+Plan size: 81
 1:
 (unload jig1c beluga1 bt1)
  
 2:
-(put-onto-rack jig1c bt1 rack4 bside fside)
+(putdown-onto-rack jig1c bt1 rack2 bside)
  
 3:
 (unload jig1b beluga1 bt1)
  
 4:
-(put-onto-rack jig1b bt1 rack3 bside fside)
+(pickup-onto-truck jig1c ft1 rack2 fside bside)
  
 5:
-(put-onto-truck jig1b ft1 rack3 fside)
+(putdown-onto-rack jig1b bt1 rack2 bside)
  
 6:
-(put-onto-truck jig1c bt1 rack4 bside)
+(pickup-onto-truck jig1b ft2 rack2 fside bside)
  
 7:
-(put-onto-rack jig1c bt1 rack2 bside fside)
+(deliver-jig-to-hanger jig1b ft2 hanger1 beluga1 pla1)
  
 8:
-(put-onto-truck jig1c ft2 rack2 fside)
+(get-jig-from-hanger jig1b ft2 hanger1)
  
 9:
-(unload jig2b beluga1 bt1)
+(putdown-onto-rack jig1b ft2 rack2 fside)
  
 10:
-(put-onto-rack jig2b bt1 rack1 bside fside)
+(pickup-onto-truck jig1b bt1 rack2 bside fside)
  
 11:
-(put-onto-rack jig1c ft2 rack2 fside bside)
- 
-12:
-(put-onto-truck jig2b ft2 rack1 fside)
- 
-13:
-(deliver-jig-to-hanger jig1b ft1 hanger1 beluga1 pla1)
- 
-14:
-(get-jig-from-hanger jig1b ft1 hanger1)
- 
-15:
-(put-onto-rack jig1b ft1 rack4 fside bside)
- 
-16:
-(put-onto-truck jig1b bt1 rack4 bside)
- 
-17:
 (load jig1b beluga1 bt1)
  
-18:
-(put-onto-truck jig1c ft1 rack2 fside)
+12:
+(unload jig2b beluga1 bt1)
  
-19:
+13:
+(putdown-onto-rack jig2b bt1 rack2 bside)
+ 
+14:
+(pickup-onto-truck jig2b ft2 rack2 fside bside)
+ 
+15:
 (deliver-jig-to-hanger jig2b ft2 hanger1 beluga1 pla1)
  
-20:
+16:
 (get-jig-from-hanger jig2b ft2 hanger1)
  
-21:
-(put-onto-rack jig2b ft2 rack4 fside bside)
+17:
+(putdown-onto-rack jig2b ft2 rack2 fside)
  
-22:
-(put-onto-truck jig2b bt1 rack4 bside)
+18:
+(pickup-onto-truck jig2b bt1 rack2 bside fside)
  
-23:
+19:
 (load jig2b beluga1 bt1)
  
-24:
-(deliver-jig-to-hanger jig1c ft1 hanger1 beluga1 pla1)
+20:
+(beluga-complete beluga1 beluga2)
  
-25:
+21:
+(deliver-jig-to-hanger jig1c ft1 hanger1 beluga2 pla1)
+ 
+22:
 (get-jig-from-hanger jig1c ft1 hanger1)
  
+23:
+(unload jig1wl beluga2 bt1)
+ 
+24:
+(putdown-onto-rack jig1wl bt1 rack2 bside)
+ 
+25:
+(putdown-onto-rack jig1c ft1 rack3 fside)
+ 
 26:
-(put-onto-rack jig1c ft1 rack4 fside bside)
+(pickup-onto-truck jig1c bt1 rack3 bside fside)
+ 
+27:
+(load jig1c beluga2 bt1)
+ 
+28:
+(unload jig2wl beluga2 bt1)
+ 
+29:
+(putdown-onto-rack jig2wl bt1 rack3 bside)
+ 
+30:
+(unload jig2c beluga2 bt1)
+ 
+31:
+(pickup-onto-truck jig2wl ft1 rack3 fside bside)
+ 
+32:
+(putdown-onto-rack jig2c bt1 rack3 bside)
+ 
+33:
+(unload jig2t beluga2 bt1)
+ 
+34:
+(pickup-onto-truck jig2c ft2 rack3 fside bside)
+ 
+35:
+(putdown-onto-rack jig2t bt1 rack3 bside)
+ 
+36:
+(pickup-onto-truck jig1wl bt1 rack2 bside fside)
+ 
+37:
+(putdown-onto-rack jig2wl ft1 rack2 fside)
+ 
+38:
+(pickup-onto-truck jig2t ft1 rack3 fside bside)
+ 
+39:
+(deliver-jig-to-hanger jig2t ft1 hanger1 beluga2 pla1)
+ 
+40:
+(get-jig-from-hanger jig2t ft1 hanger1)
+ 
+41:
+(deliver-jig-to-hanger jig2c ft2 hanger1 beluga2 pla1)
+ 
+42:
+(get-jig-from-hanger jig2c ft2 hanger1)
+ 
+43:
+(putdown-onto-rack jig2c ft2 rack3 fside)
+ 
+44:
+(pickup-onto-truck jig2wl ft2 rack2 fside bside)
+ 
+45:
+(putdown-onto-rack jig1wl bt1 rack2 bside)
+ 
+46:
+(pickup-onto-truck jig2c bt1 rack3 bside fside)
+ 
+47:
+(putdown-onto-rack jig2t ft1 rack3 fside)
+ 
+48:
+(load jig2c beluga2 bt1)
+ 
+49:
+(pickup-onto-truck jig2t bt1 rack3 bside fside)
+ 
+50:
+(load jig2t beluga2 bt1)
+ 
+51:
+(beluga-complete beluga2 beluga3)
+ 
+52:
+(unload jig1t beluga3 bt1)
+ 
+53:
+(putdown-onto-rack jig1t bt1 rack3 bside)
+ 
+54:
+(pickup-onto-truck jig1t ft1 rack3 fside bside)
+ 
+55:
+(unload jig1wr beluga3 bt1)
+ 
+56:
+(putdown-onto-rack jig1wr bt1 rack3 bside)
+ 
+57:
+(deliver-jig-to-hanger jig1t ft1 hanger1 beluga3 pla1)
+ 
+58:
+(pickup-onto-truck jig1wl bt1 rack2 bside fside)
+ 
+59:
+(get-jig-from-hanger jig1t ft1 hanger1)
+ 
+60:
+(putdown-onto-rack jig1t ft1 rack2 fside)
+ 
+61:
+(pickup-onto-truck jig1wr ft1 rack3 fside bside)
+ 
+62:
+(deliver-jig-to-hanger jig1wr ft1 hanger1 beluga3 pla1)
+ 
+63:
+(get-jig-from-hanger jig1wr ft1 hanger1)
+ 
+64:
+(deliver-jig-to-hanger jig2wl ft2 hanger1 beluga3 pla1)
+ 
+65:
+(get-jig-from-hanger jig2wl ft2 hanger1)
+ 
+66:
+(putdown-onto-rack jig2wl ft2 rack3 fside)
+ 
+67:
+(pickup-onto-truck jig1t ft2 rack2 fside bside)
+ 
+68:
+(putdown-onto-rack jig1wl bt1 rack2 bside)
+ 
+69:
+(pickup-onto-truck jig2wl bt1 rack3 bside fside)
+ 
+70:
+(load jig2wl beluga3 bt1)
+ 
+71:
+(putdown-onto-rack jig1wr ft1 rack3 fside)
+ 
+72:
+(pickup-onto-truck jig1wl ft1 rack2 fside bside)
+ 
+73:
+(deliver-jig-to-hanger jig1wl ft1 hanger1 beluga3 pla1)
+ 
+74:
+(get-jig-from-hanger jig1wl ft1 hanger1)
+ 
+75:
+(putdown-onto-rack jig1wl ft1 rack2 fside)
+ 
+76:
+(pickup-onto-truck jig1wl bt1 rack2 bside fside)
+ 
+77:
+(load jig1wl beluga3 bt1)
+ 
+78:
+(unload jig2wr beluga3 bt1)
+ 
+79:
+(putdown-onto-rack jig2wr bt1 rack2 bside)
+ 
+80:
+(pickup-onto-truck jig2wr ft1 rack2 fside bside)
+ 
+81:
+(deliver-jig-to-hanger jig2wr ft1 hanger1 beluga3 pla1)
  
 
 Plan Validation details
@@ -107,13 +276,15 @@ Updating (total-cost) (0) by 1 increase
 
 Checking next happening (time 2)
 Deleting (in jig1c bt1)
-Adding (in jig1c rack4)
+Deleting (empty rack2)
+Adding (in jig1c rack2)
 Adding (empty bt1)
-Updating (index jig1c bside) (0) by 1 assignment
-Updating (index jig1c fside) (0) by 0 assignment
-Updating (level rack4) (0) by 3 increase
-Updating (index-pointer rack4 bside) (0) by 1 increase
+Adding (clear jig1c bside)
+Adding (clear jig1c fside)
+Updating (level rack2) (0) by 3 increase
 Updating (total-cost) (1) by 1 increase
+Updating (rack-in-use rack2) (0) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
 
 Checking next happening (time 3)
 Deleting (in jig1b beluga1)
@@ -123,210 +294,820 @@ Updating (unload-process beluga1) (2) by 1 decrease
 Updating (total-cost) (2) by 1 increase
 
 Checking next happening (time 4)
-Deleting (in jig1b bt1)
-Adding (in jig1b rack3)
-Adding (empty bt1)
-Updating (index jig1b bside) (0) by 1 assignment
-Updating (index jig1b fside) (0) by 0 assignment
-Updating (level rack3) (0) by 3 increase
-Updating (index-pointer rack3 bside) (0) by 1 increase
+Deleting (in jig1c rack2)
+Deleting (empty ft1)
+Deleting (clear jig1c fside)
+Deleting (clear jig1c bside)
+Adding (in jig1c ft1)
+Adding (empty rack2)
+Updating (level rack2) (3) by 3 decrease
 Updating (total-cost) (3) by 1 increase
+Updating (total-swaps) (0) by 0 increase
 
 Checking next happening (time 5)
-Deleting (in jig1b rack3)
-Deleting (empty ft1)
-Adding (in jig1b ft1)
-Updating (level rack3) (3) by 3 decrease
-Updating (index-pointer rack3 fside) (0) by 1 decrease
+Deleting (in jig1b bt1)
+Deleting (empty rack2)
+Adding (in jig1b rack2)
+Adding (empty bt1)
+Adding (clear jig1b bside)
+Adding (clear jig1b fside)
+Updating (level rack2) (0) by 3 increase
 Updating (total-cost) (4) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
 
 Checking next happening (time 6)
-Deleting (in jig1c rack4)
-Deleting (empty bt1)
-Adding (in jig1c bt1)
-Updating (level rack4) (3) by 3 decrease
-Updating (index-pointer rack4 bside) (1) by 1 decrease
+Deleting (in jig1b rack2)
+Deleting (empty ft2)
+Deleting (clear jig1b fside)
+Deleting (clear jig1b bside)
+Adding (in jig1b ft2)
+Adding (empty rack2)
+Updating (level rack2) (3) by 3 decrease
 Updating (total-cost) (5) by 1 increase
+Updating (total-swaps) (0) by 0 increase
 
 Checking next happening (time 7)
-Deleting (in jig1c bt1)
-Adding (in jig1c rack2)
-Adding (empty bt1)
-Updating (index jig1c bside) (1) by 1 assignment
-Updating (index jig1c fside) (0) by 0 assignment
-Updating (level rack2) (0) by 3 increase
-Updating (index-pointer rack2 bside) (0) by 1 increase
+Deleting (empty hanger1)
+Deleting (in jig1b ft2)
+Adding (in jig1b hanger1)
+Adding (empty ft2)
+Adding (empty jig1b)
+Updating (size jig1b) (3) by 2 assignment
+Updating (swap-unstack-count jig1b bside) (1) by 0 assignment
+Updating (swap-unstack-count jig1b fside) (0) by 1 assignment
+Updating (swap-stack-count jig1b bside) (0) by 1 assignment
+Updating (swap-stack-count jig1b fside) (1) by 0 assignment
+Updating (delivery-process pla1) (10) by 1 decrease
+Updating (to-process-parts beluga1) (0) by 1 decrease
 Updating (total-cost) (6) by 1 increase
 
 Checking next happening (time 8)
-Deleting (in jig1c rack2)
+Deleting (in jig1b hanger1)
 Deleting (empty ft2)
-Adding (in jig1c ft2)
-Updating (level rack2) (3) by 3 decrease
-Updating (index-pointer rack2 fside) (0) by 1 decrease
+Adding (in jig1b ft2)
+Adding (empty hanger1)
 Updating (total-cost) (7) by 1 increase
 
 Checking next happening (time 9)
-Deleting (in jig2b beluga1)
-Deleting (empty bt1)
-Adding (in jig2b bt1)
-Updating (unload-process beluga1) (1) by 1 decrease
+Deleting (in jig1b ft2)
+Deleting (empty rack2)
+Adding (in jig1b rack2)
+Adding (empty ft2)
+Adding (clear jig1b bside)
+Adding (clear jig1b fside)
+Updating (level rack2) (0) by 2 increase
 Updating (total-cost) (8) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
 
 Checking next happening (time 10)
-Deleting (in jig2b bt1)
-Adding (in jig2b rack1)
-Adding (empty bt1)
-Updating (index jig2b bside) (0) by 1 assignment
-Updating (index jig2b fside) (0) by 0 assignment
-Updating (level rack1) (0) by 3 increase
-Updating (index-pointer rack1 bside) (0) by 1 increase
+Deleting (in jig1b rack2)
+Deleting (empty bt1)
+Deleting (clear jig1b bside)
+Deleting (clear jig1b fside)
+Adding (in jig1b bt1)
+Adding (empty rack2)
+Updating (level rack2) (2) by 2 decrease
 Updating (total-cost) (9) by 1 increase
+Updating (total-swaps) (0) by 0 increase
 
 Checking next happening (time 11)
-Deleting (in jig1c ft2)
-Adding (in jig1c rack2)
-Adding (empty ft2)
-Updating (index jig1c fside) (0) by 0 assignment
-Updating (index jig1c bside) (1) by 1 assignment
-Updating (level rack2) (0) by 3 increase
-Updating (index-pointer rack2 fside) (-1) by 1 increase
-Updating (total-cost) (10) by 1 increase
-
-Checking next happening (time 12)
-Deleting (in jig2b rack1)
-Deleting (empty ft2)
-Adding (in jig2b ft2)
-Updating (level rack1) (3) by 3 decrease
-Updating (index-pointer rack1 fside) (0) by 1 decrease
-Updating (total-cost) (11) by 1 increase
-
-Checking next happening (time 13)
-Deleting (empty hanger1)
-Deleting (in jig1b ft1)
-Adding (in jig1b hanger1)
-Adding (empty ft1)
-Adding (empty jig1b)
-Updating (size jig1b) (3) by 2 assignment
-Updating (delivery-process pla1) (10) by 1 decrease
-Updating (to-process-parts beluga1) (0) by 1 decrease
-Updating (total-cost) (12) by 1 increase
-
-Checking next happening (time 14)
-Deleting (in jig1b hanger1)
-Deleting (empty ft1)
-Adding (in jig1b ft1)
-Adding (empty hanger1)
-Updating (total-cost) (13) by 1 increase
-
-Checking next happening (time 15)
-Deleting (in jig1b ft1)
-Adding (in jig1b rack4)
-Adding (empty ft1)
-Updating (index jig1b fside) (0) by 1 assignment
-Updating (index jig1b bside) (1) by 0 assignment
-Updating (level rack4) (0) by 2 increase
-Updating (index-pointer rack4 fside) (0) by 1 increase
-Updating (total-cost) (14) by 1 increase
-
-Checking next happening (time 16)
-Deleting (in jig1b rack4)
-Deleting (empty bt1)
-Adding (in jig1b bt1)
-Updating (level rack4) (2) by 2 decrease
-Updating (index-pointer rack4 bside) (0) by 1 decrease
-Updating (total-cost) (15) by 1 increase
-
-Checking next happening (time 17)
 Deleting (in jig1b bt1)
 Adding (in jig1b beluga1)
 Adding (empty bt1)
 Updating (load-process beluga1) (2) by 1 decrease
-Updating (total-cost) (16) by 1 increase
+Updating (total-cost) (10) by 1 increase
 
-Checking next happening (time 18)
-Deleting (in jig1c rack2)
-Deleting (empty ft1)
-Adding (in jig1c ft1)
+Checking next happening (time 12)
+Deleting (in jig2b beluga1)
+Deleting (empty bt1)
+Adding (in jig2b bt1)
+Updating (unload-process beluga1) (1) by 1 decrease
+Updating (total-cost) (11) by 1 increase
+
+Checking next happening (time 13)
+Deleting (in jig2b bt1)
+Deleting (empty rack2)
+Adding (in jig2b rack2)
+Adding (empty bt1)
+Adding (clear jig2b bside)
+Adding (clear jig2b fside)
+Updating (level rack2) (0) by 3 increase
+Updating (total-cost) (12) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 14)
+Deleting (in jig2b rack2)
+Deleting (empty ft2)
+Deleting (clear jig2b fside)
+Deleting (clear jig2b bside)
+Adding (in jig2b ft2)
+Adding (empty rack2)
 Updating (level rack2) (3) by 3 decrease
-Updating (index-pointer rack2 fside) (0) by 1 decrease
-Updating (total-cost) (17) by 1 increase
+Updating (total-cost) (13) by 1 increase
+Updating (total-swaps) (0) by 0 increase
 
-Checking next happening (time 19)
+Checking next happening (time 15)
 Deleting (empty hanger1)
 Deleting (in jig2b ft2)
 Adding (in jig2b hanger1)
 Adding (empty ft2)
 Adding (empty jig2b)
 Updating (size jig2b) (3) by 2 assignment
+Updating (swap-unstack-count jig2b bside) (1) by 0 assignment
+Updating (swap-unstack-count jig2b fside) (0) by 1 assignment
+Updating (swap-stack-count jig2b bside) (0) by 1 assignment
+Updating (swap-stack-count jig2b fside) (1) by 0 assignment
 Updating (delivery-process pla1) (9) by 1 decrease
 Updating (to-process-parts beluga1) (-1) by 1 decrease
-Updating (total-cost) (18) by 1 increase
+Updating (total-cost) (14) by 1 increase
 
-Checking next happening (time 20)
+Checking next happening (time 16)
 Deleting (in jig2b hanger1)
 Deleting (empty ft2)
 Adding (in jig2b ft2)
 Adding (empty hanger1)
-Updating (total-cost) (19) by 1 increase
+Updating (total-cost) (15) by 1 increase
 
-Checking next happening (time 21)
+Checking next happening (time 17)
 Deleting (in jig2b ft2)
-Adding (in jig2b rack4)
+Deleting (empty rack2)
+Adding (in jig2b rack2)
 Adding (empty ft2)
-Updating (index jig2b fside) (0) by 2 assignment
-Updating (index jig2b bside) (1) by -1 assignment
-Updating (level rack4) (0) by 2 increase
-Updating (index-pointer rack4 fside) (1) by 1 increase
-Updating (total-cost) (20) by 1 increase
+Adding (clear jig2b bside)
+Adding (clear jig2b fside)
+Updating (level rack2) (0) by 2 increase
+Updating (total-cost) (16) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
 
-Checking next happening (time 22)
-Deleting (in jig2b rack4)
+Checking next happening (time 18)
+Deleting (in jig2b rack2)
 Deleting (empty bt1)
+Deleting (clear jig2b bside)
+Deleting (clear jig2b fside)
 Adding (in jig2b bt1)
-Updating (level rack4) (2) by 2 decrease
-Updating (index-pointer rack4 bside) (-1) by 1 decrease
-Updating (total-cost) (21) by 1 increase
+Adding (empty rack2)
+Updating (level rack2) (2) by 2 decrease
+Updating (total-cost) (17) by 1 increase
+Updating (total-swaps) (0) by 0 increase
 
-Checking next happening (time 23)
+Checking next happening (time 19)
 Deleting (in jig2b bt1)
 Adding (in jig2b beluga1)
 Adding (empty bt1)
 Updating (load-process beluga1) (1) by 1 decrease
-Updating (total-cost) (22) by 1 increase
+Updating (total-cost) (18) by 1 increase
 
-Checking next happening (time 24)
+Checking next happening (time 20)
+Deleting (is-phase beluga1)
+Adding (is-phase beluga2)
+Updating (total-cost) (19) by 1 increase
+
+Checking next happening (time 21)
 Deleting (empty hanger1)
 Deleting (in jig1c ft1)
 Adding (in jig1c hanger1)
 Adding (empty ft1)
 Adding (empty jig1c)
 Updating (size jig1c) (3) by 2 assignment
+Updating (swap-unstack-count jig1c bside) (1) by 0 assignment
+Updating (swap-unstack-count jig1c fside) (0) by 1 assignment
+Updating (swap-stack-count jig1c bside) (0) by 1 assignment
+Updating (swap-stack-count jig1c fside) (1) by 0 assignment
 Updating (delivery-process pla1) (8) by 1 decrease
-Updating (to-process-parts beluga1) (-2) by 1 decrease
-Updating (total-cost) (23) by 1 increase
+Updating (to-process-parts beluga2) (0) by 1 decrease
+Updating (total-cost) (20) by 1 increase
 
-Checking next happening (time 25)
+Checking next happening (time 22)
 Deleting (in jig1c hanger1)
 Deleting (empty ft1)
 Adding (in jig1c ft1)
 Adding (empty hanger1)
+Updating (total-cost) (21) by 1 increase
+
+Checking next happening (time 23)
+Deleting (in jig1wl beluga2)
+Deleting (empty bt1)
+Adding (in jig1wl bt1)
+Updating (unload-process beluga2) (4) by 1 decrease
+Updating (total-cost) (22) by 1 increase
+
+Checking next happening (time 24)
+Deleting (in jig1wl bt1)
+Deleting (empty rack2)
+Adding (in jig1wl rack2)
+Adding (empty bt1)
+Adding (clear jig1wl bside)
+Adding (clear jig1wl fside)
+Updating (level rack2) (0) by 6 increase
+Updating (total-cost) (23) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 25)
+Deleting (in jig1c ft1)
+Deleting (empty rack3)
+Adding (in jig1c rack3)
+Adding (empty ft1)
+Adding (clear jig1c bside)
+Adding (clear jig1c fside)
+Updating (level rack3) (0) by 2 increase
 Updating (total-cost) (24) by 1 increase
+Updating (rack-in-use rack3) (0) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
 
 Checking next happening (time 26)
-Deleting (in jig1c ft1)
-Adding (in jig1c rack4)
-Adding (empty ft1)
-Updating (index jig1c fside) (0) by 3 assignment
-Updating (index jig1c bside) (1) by -2 assignment
-Updating (level rack4) (0) by 2 increase
-Updating (index-pointer rack4 fside) (2) by 1 increase
+Deleting (in jig1c rack3)
+Deleting (empty bt1)
+Deleting (clear jig1c bside)
+Deleting (clear jig1c fside)
+Adding (in jig1c bt1)
+Adding (empty rack3)
+Updating (level rack3) (2) by 2 decrease
 Updating (total-cost) (25) by 1 increase
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 27)
+Deleting (in jig1c bt1)
+Adding (in jig1c beluga2)
+Adding (empty bt1)
+Updating (load-process beluga2) (3) by 1 decrease
+Updating (total-cost) (26) by 1 increase
+
+Checking next happening (time 28)
+Deleting (in jig2wl beluga2)
+Deleting (empty bt1)
+Adding (in jig2wl bt1)
+Updating (unload-process beluga2) (3) by 1 decrease
+Updating (total-cost) (27) by 1 increase
+
+Checking next happening (time 29)
+Deleting (in jig2wl bt1)
+Deleting (empty rack3)
+Adding (in jig2wl rack3)
+Adding (empty bt1)
+Adding (clear jig2wl bside)
+Adding (clear jig2wl fside)
+Updating (level rack3) (0) by 6 increase
+Updating (total-cost) (28) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 30)
+Deleting (in jig2c beluga2)
+Deleting (empty bt1)
+Adding (in jig2c bt1)
+Updating (unload-process beluga2) (2) by 1 decrease
+Updating (total-cost) (29) by 1 increase
+
+Checking next happening (time 31)
+Deleting (in jig2wl rack3)
+Deleting (empty ft1)
+Deleting (clear jig2wl fside)
+Deleting (clear jig2wl bside)
+Adding (in jig2wl ft1)
+Adding (empty rack3)
+Updating (level rack3) (6) by 6 decrease
+Updating (total-cost) (30) by 1 increase
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 32)
+Deleting (in jig2c bt1)
+Deleting (empty rack3)
+Adding (in jig2c rack3)
+Adding (empty bt1)
+Adding (clear jig2c bside)
+Adding (clear jig2c fside)
+Updating (level rack3) (0) by 3 increase
+Updating (total-cost) (31) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 33)
+Deleting (in jig2t beluga2)
+Deleting (empty bt1)
+Adding (in jig2t bt1)
+Updating (unload-process beluga2) (1) by 1 decrease
+Updating (total-cost) (32) by 1 increase
+
+Checking next happening (time 34)
+Deleting (in jig2c rack3)
+Deleting (empty ft2)
+Deleting (clear jig2c fside)
+Deleting (clear jig2c bside)
+Adding (in jig2c ft2)
+Adding (empty rack3)
+Updating (level rack3) (3) by 3 decrease
+Updating (total-cost) (33) by 1 increase
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 35)
+Deleting (in jig2t bt1)
+Deleting (empty rack3)
+Adding (in jig2t rack3)
+Adding (empty bt1)
+Adding (clear jig2t bside)
+Adding (clear jig2t fside)
+Updating (level rack3) (0) by 2 increase
+Updating (total-cost) (34) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (0) by 0 increase
+
+Checking next happening (time 36)
+Deleting (in jig1wl rack2)
+Deleting (empty bt1)
+Deleting (clear jig1wl bside)
+Deleting (clear jig1wl fside)
+Adding (in jig1wl bt1)
+Adding (empty rack2)
+Updating (level rack2) (6) by 6 decrease
+Updating (total-cost) (35) by 1 increase
+Updating (total-swaps) (0) by 1 increase
+
+Checking next happening (time 37)
+Deleting (in jig2wl ft1)
+Deleting (empty rack2)
+Adding (in jig2wl rack2)
+Adding (empty ft1)
+Adding (clear jig2wl bside)
+Adding (clear jig2wl fside)
+Updating (level rack2) (0) by 6 increase
+Updating (total-cost) (36) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (1) by 1 increase
+
+Checking next happening (time 38)
+Deleting (in jig2t rack3)
+Deleting (empty ft1)
+Deleting (clear jig2t fside)
+Deleting (clear jig2t bside)
+Adding (in jig2t ft1)
+Adding (empty rack3)
+Updating (level rack3) (2) by 2 decrease
+Updating (total-cost) (37) by 1 increase
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 39)
+Deleting (empty hanger1)
+Deleting (in jig2t ft1)
+Adding (in jig2t hanger1)
+Adding (empty ft1)
+Adding (empty jig2t)
+Updating (size jig2t) (2) by 1 assignment
+Updating (swap-unstack-count jig2t bside) (1) by 0 assignment
+Updating (swap-unstack-count jig2t fside) (0) by 1 assignment
+Updating (swap-stack-count jig2t bside) (0) by 1 assignment
+Updating (swap-stack-count jig2t fside) (1) by 0 assignment
+Updating (delivery-process pla1) (7) by 1 decrease
+Updating (to-process-parts beluga2) (-1) by 1 decrease
+Updating (total-cost) (38) by 1 increase
+
+Checking next happening (time 40)
+Deleting (in jig2t hanger1)
+Deleting (empty ft1)
+Adding (in jig2t ft1)
+Adding (empty hanger1)
+Updating (total-cost) (39) by 1 increase
+
+Checking next happening (time 41)
+Deleting (empty hanger1)
+Deleting (in jig2c ft2)
+Adding (in jig2c hanger1)
+Adding (empty ft2)
+Adding (empty jig2c)
+Updating (size jig2c) (3) by 2 assignment
+Updating (swap-unstack-count jig2c bside) (1) by 0 assignment
+Updating (swap-unstack-count jig2c fside) (0) by 1 assignment
+Updating (swap-stack-count jig2c bside) (0) by 1 assignment
+Updating (swap-stack-count jig2c fside) (1) by 0 assignment
+Updating (delivery-process pla1) (6) by 1 decrease
+Updating (to-process-parts beluga2) (-2) by 1 decrease
+Updating (total-cost) (40) by 1 increase
+
+Checking next happening (time 42)
+Deleting (in jig2c hanger1)
+Deleting (empty ft2)
+Adding (in jig2c ft2)
+Adding (empty hanger1)
+Updating (total-cost) (41) by 1 increase
+
+Checking next happening (time 43)
+Deleting (in jig2c ft2)
+Deleting (empty rack3)
+Adding (in jig2c rack3)
+Adding (empty ft2)
+Adding (clear jig2c bside)
+Adding (clear jig2c fside)
+Updating (level rack3) (0) by 2 increase
+Updating (total-cost) (42) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 44)
+Deleting (in jig2wl rack2)
+Deleting (empty ft2)
+Deleting (clear jig2wl fside)
+Deleting (clear jig2wl bside)
+Adding (in jig2wl ft2)
+Adding (empty rack2)
+Updating (level rack2) (6) by 6 decrease
+Updating (total-cost) (43) by 1 increase
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 45)
+Deleting (in jig1wl bt1)
+Deleting (empty rack2)
+Adding (in jig1wl rack2)
+Adding (empty bt1)
+Adding (clear jig1wl bside)
+Adding (clear jig1wl fside)
+Updating (level rack2) (0) by 6 increase
+Updating (total-cost) (44) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 46)
+Deleting (in jig2c rack3)
+Deleting (empty bt1)
+Deleting (clear jig2c bside)
+Deleting (clear jig2c fside)
+Adding (in jig2c bt1)
+Adding (empty rack3)
+Updating (level rack3) (2) by 2 decrease
+Updating (total-cost) (45) by 1 increase
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 47)
+Deleting (in jig2t ft1)
+Deleting (empty rack3)
+Adding (in jig2t rack3)
+Adding (empty ft1)
+Adding (clear jig2t bside)
+Adding (clear jig2t fside)
+Updating (level rack3) (0) by 1 increase
+Updating (total-cost) (46) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 48)
+Deleting (in jig2c bt1)
+Adding (in jig2c beluga2)
+Adding (empty bt1)
+Updating (load-process beluga2) (2) by 1 decrease
+Updating (total-cost) (47) by 1 increase
+
+Checking next happening (time 49)
+Deleting (in jig2t rack3)
+Deleting (empty bt1)
+Deleting (clear jig2t bside)
+Deleting (clear jig2t fside)
+Adding (in jig2t bt1)
+Adding (empty rack3)
+Updating (level rack3) (1) by 1 decrease
+Updating (total-cost) (48) by 1 increase
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 50)
+Deleting (in jig2t bt1)
+Adding (in jig2t beluga2)
+Adding (empty bt1)
+Updating (load-process beluga2) (1) by 1 decrease
+Updating (total-cost) (49) by 1 increase
+
+Checking next happening (time 51)
+Deleting (is-phase beluga2)
+Adding (is-phase beluga3)
+Updating (total-cost) (50) by 1 increase
+
+Checking next happening (time 52)
+Deleting (in jig1t beluga3)
+Deleting (empty bt1)
+Adding (in jig1t bt1)
+Updating (unload-process beluga3) (3) by 1 decrease
+Updating (total-cost) (51) by 1 increase
+
+Checking next happening (time 53)
+Deleting (in jig1t bt1)
+Deleting (empty rack3)
+Adding (in jig1t rack3)
+Adding (empty bt1)
+Adding (clear jig1t bside)
+Adding (clear jig1t fside)
+Updating (level rack3) (0) by 2 increase
+Updating (total-cost) (52) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 54)
+Deleting (in jig1t rack3)
+Deleting (empty ft1)
+Deleting (clear jig1t fside)
+Deleting (clear jig1t bside)
+Adding (in jig1t ft1)
+Adding (empty rack3)
+Updating (level rack3) (2) by 2 decrease
+Updating (total-cost) (53) by 1 increase
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 55)
+Deleting (in jig1wr beluga3)
+Deleting (empty bt1)
+Adding (in jig1wr bt1)
+Updating (unload-process beluga3) (2) by 1 decrease
+Updating (total-cost) (54) by 1 increase
+
+Checking next happening (time 56)
+Deleting (in jig1wr bt1)
+Deleting (empty rack3)
+Adding (in jig1wr rack3)
+Adding (empty bt1)
+Adding (clear jig1wr bside)
+Adding (clear jig1wr fside)
+Updating (level rack3) (0) by 6 increase
+Updating (total-cost) (55) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (2) by 0 increase
+
+Checking next happening (time 57)
+Deleting (empty hanger1)
+Deleting (in jig1t ft1)
+Adding (in jig1t hanger1)
+Adding (empty ft1)
+Adding (empty jig1t)
+Updating (size jig1t) (2) by 1 assignment
+Updating (swap-unstack-count jig1t bside) (1) by 0 assignment
+Updating (swap-unstack-count jig1t fside) (0) by 1 assignment
+Updating (swap-stack-count jig1t bside) (0) by 1 assignment
+Updating (swap-stack-count jig1t fside) (1) by 0 assignment
+Updating (delivery-process pla1) (5) by 1 decrease
+Updating (to-process-parts beluga3) (0) by 1 decrease
+Updating (total-cost) (56) by 1 increase
+
+Checking next happening (time 58)
+Deleting (in jig1wl rack2)
+Deleting (empty bt1)
+Deleting (clear jig1wl bside)
+Deleting (clear jig1wl fside)
+Adding (in jig1wl bt1)
+Adding (empty rack2)
+Updating (level rack2) (6) by 6 decrease
+Updating (total-cost) (57) by 1 increase
+Updating (total-swaps) (2) by 1 increase
+
+Checking next happening (time 59)
+Deleting (in jig1t hanger1)
+Deleting (empty ft1)
+Adding (in jig1t ft1)
+Adding (empty hanger1)
+Updating (total-cost) (58) by 1 increase
+
+Checking next happening (time 60)
+Deleting (in jig1t ft1)
+Deleting (empty rack2)
+Adding (in jig1t rack2)
+Adding (empty ft1)
+Adding (clear jig1t bside)
+Adding (clear jig1t fside)
+Updating (level rack2) (0) by 1 increase
+Updating (total-cost) (59) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (3) by 0 increase
+
+Checking next happening (time 61)
+Deleting (in jig1wr rack3)
+Deleting (empty ft1)
+Deleting (clear jig1wr fside)
+Deleting (clear jig1wr bside)
+Adding (in jig1wr ft1)
+Adding (empty rack3)
+Updating (level rack3) (6) by 6 decrease
+Updating (total-cost) (60) by 1 increase
+Updating (total-swaps) (3) by 0 increase
+
+Checking next happening (time 62)
+Deleting (empty hanger1)
+Deleting (in jig1wr ft1)
+Adding (in jig1wr hanger1)
+Adding (empty ft1)
+Adding (empty jig1wr)
+Updating (size jig1wr) (6) by 4 assignment
+Updating (swap-unstack-count jig1wr bside) (1) by 0 assignment
+Updating (swap-unstack-count jig1wr fside) (0) by 1 assignment
+Updating (swap-stack-count jig1wr bside) (0) by 1 assignment
+Updating (swap-stack-count jig1wr fside) (1) by 0 assignment
+Updating (delivery-process pla1) (4) by 1 decrease
+Updating (to-process-parts beluga3) (-1) by 1 decrease
+Updating (total-cost) (61) by 1 increase
+
+Checking next happening (time 63)
+Deleting (in jig1wr hanger1)
+Deleting (empty ft1)
+Adding (in jig1wr ft1)
+Adding (empty hanger1)
+Updating (total-cost) (62) by 1 increase
+
+Checking next happening (time 64)
+Deleting (empty hanger1)
+Deleting (in jig2wl ft2)
+Adding (in jig2wl hanger1)
+Adding (empty ft2)
+Adding (empty jig2wl)
+Updating (size jig2wl) (6) by 4 assignment
+Updating (swap-unstack-count jig2wl bside) (1) by 0 assignment
+Updating (swap-unstack-count jig2wl fside) (0) by 1 assignment
+Updating (swap-stack-count jig2wl bside) (0) by 1 assignment
+Updating (swap-stack-count jig2wl fside) (1) by 0 assignment
+Updating (delivery-process pla1) (3) by 1 decrease
+Updating (to-process-parts beluga3) (-2) by 1 decrease
+Updating (total-cost) (63) by 1 increase
+
+Checking next happening (time 65)
+Deleting (in jig2wl hanger1)
+Deleting (empty ft2)
+Adding (in jig2wl ft2)
+Adding (empty hanger1)
+Updating (total-cost) (64) by 1 increase
+
+Checking next happening (time 66)
+Deleting (in jig2wl ft2)
+Deleting (empty rack3)
+Adding (in jig2wl rack3)
+Adding (empty ft2)
+Adding (clear jig2wl bside)
+Adding (clear jig2wl fside)
+Updating (level rack3) (0) by 4 increase
+Updating (total-cost) (65) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (3) by 0 increase
+
+Checking next happening (time 67)
+Deleting (in jig1t rack2)
+Deleting (empty ft2)
+Deleting (clear jig1t fside)
+Deleting (clear jig1t bside)
+Adding (in jig1t ft2)
+Adding (empty rack2)
+Updating (level rack2) (1) by 1 decrease
+Updating (total-cost) (66) by 1 increase
+Updating (total-swaps) (3) by 1 increase
+
+Checking next happening (time 68)
+Deleting (in jig1wl bt1)
+Deleting (empty rack2)
+Adding (in jig1wl rack2)
+Adding (empty bt1)
+Adding (clear jig1wl bside)
+Adding (clear jig1wl fside)
+Updating (level rack2) (0) by 6 increase
+Updating (total-cost) (67) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 69)
+Deleting (in jig2wl rack3)
+Deleting (empty bt1)
+Deleting (clear jig2wl bside)
+Deleting (clear jig2wl fside)
+Adding (in jig2wl bt1)
+Adding (empty rack3)
+Updating (level rack3) (4) by 4 decrease
+Updating (total-cost) (68) by 1 increase
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 70)
+Deleting (in jig2wl bt1)
+Adding (in jig2wl beluga3)
+Adding (empty bt1)
+Updating (load-process beluga3) (2) by 1 decrease
+Updating (total-cost) (69) by 1 increase
+
+Checking next happening (time 71)
+Deleting (in jig1wr ft1)
+Deleting (empty rack3)
+Adding (in jig1wr rack3)
+Adding (empty ft1)
+Adding (clear jig1wr bside)
+Adding (clear jig1wr fside)
+Updating (level rack3) (0) by 4 increase
+Updating (total-cost) (70) by 1 increase
+Updating (rack-in-use rack3) (1) by 1 assignment
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 72)
+Deleting (in jig1wl rack2)
+Deleting (empty ft1)
+Deleting (clear jig1wl fside)
+Deleting (clear jig1wl bside)
+Adding (in jig1wl ft1)
+Adding (empty rack2)
+Updating (level rack2) (6) by 6 decrease
+Updating (total-cost) (71) by 1 increase
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 73)
+Deleting (empty hanger1)
+Deleting (in jig1wl ft1)
+Adding (in jig1wl hanger1)
+Adding (empty ft1)
+Adding (empty jig1wl)
+Updating (size jig1wl) (6) by 4 assignment
+Updating (swap-unstack-count jig1wl bside) (1) by 0 assignment
+Updating (swap-unstack-count jig1wl fside) (0) by 1 assignment
+Updating (swap-stack-count jig1wl bside) (0) by 1 assignment
+Updating (swap-stack-count jig1wl fside) (1) by 0 assignment
+Updating (delivery-process pla1) (2) by 1 decrease
+Updating (to-process-parts beluga3) (-3) by 1 decrease
+Updating (total-cost) (72) by 1 increase
+
+Checking next happening (time 74)
+Deleting (in jig1wl hanger1)
+Deleting (empty ft1)
+Adding (in jig1wl ft1)
+Adding (empty hanger1)
+Updating (total-cost) (73) by 1 increase
+
+Checking next happening (time 75)
+Deleting (in jig1wl ft1)
+Deleting (empty rack2)
+Adding (in jig1wl rack2)
+Adding (empty ft1)
+Adding (clear jig1wl bside)
+Adding (clear jig1wl fside)
+Updating (level rack2) (0) by 4 increase
+Updating (total-cost) (74) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 76)
+Deleting (in jig1wl rack2)
+Deleting (empty bt1)
+Deleting (clear jig1wl bside)
+Deleting (clear jig1wl fside)
+Adding (in jig1wl bt1)
+Adding (empty rack2)
+Updating (level rack2) (4) by 4 decrease
+Updating (total-cost) (75) by 1 increase
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 77)
+Deleting (in jig1wl bt1)
+Adding (in jig1wl beluga3)
+Adding (empty bt1)
+Updating (load-process beluga3) (1) by 1 decrease
+Updating (total-cost) (76) by 1 increase
+
+Checking next happening (time 78)
+Deleting (in jig2wr beluga3)
+Deleting (empty bt1)
+Adding (in jig2wr bt1)
+Updating (unload-process beluga3) (1) by 1 decrease
+Updating (total-cost) (77) by 1 increase
+
+Checking next happening (time 79)
+Deleting (in jig2wr bt1)
+Deleting (empty rack2)
+Adding (in jig2wr rack2)
+Adding (empty bt1)
+Adding (clear jig2wr bside)
+Adding (clear jig2wr fside)
+Updating (level rack2) (0) by 6 increase
+Updating (total-cost) (78) by 1 increase
+Updating (rack-in-use rack2) (1) by 1 assignment
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 80)
+Deleting (in jig2wr rack2)
+Deleting (empty ft1)
+Deleting (clear jig2wr fside)
+Deleting (clear jig2wr bside)
+Adding (in jig2wr ft1)
+Adding (empty rack2)
+Updating (level rack2) (6) by 6 decrease
+Updating (total-cost) (79) by 1 increase
+Updating (total-swaps) (4) by 0 increase
+
+Checking next happening (time 81)
+Deleting (empty hanger1)
+Deleting (in jig2wr ft1)
+Adding (in jig2wr hanger1)
+Adding (empty ft1)
+Adding (empty jig2wr)
+Updating (size jig2wr) (6) by 4 assignment
+Updating (swap-unstack-count jig2wr bside) (1) by 0 assignment
+Updating (swap-unstack-count jig2wr fside) (0) by 1 assignment
+Updating (swap-stack-count jig2wr bside) (0) by 1 assignment
+Updating (swap-stack-count jig2wr fside) (1) by 0 assignment
+Updating (delivery-process pla1) (1) by 1 decrease
+Updating (to-process-parts beluga3) (-4) by 1 decrease
+Updating (total-cost) (80) by 1 increase
 Plan executed successfully - checking goal
 Plan valid
-Final value: 26
+Final value: 81
 
 Successful plans:
-Value: 26
- manual_plan 
+Value: 81
+ plan 
 
