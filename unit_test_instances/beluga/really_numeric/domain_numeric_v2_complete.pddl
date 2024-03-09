@@ -109,12 +109,12 @@
 		:parameters (?j ?nj - jig ?t - truck ?r - rack ?s ?os - side)
 		:precondition (and
 			(not (= ?s ?os))
+			(not (= ?j ?nj))
 			(in ?j ?t)
 			(in ?nj ?r)
 			(clear ?nj ?s)
 			(atside ?t ?s)
 			(atside ?r ?s)
-			(empty ?r)
 			(>= (- (max-level ?r) (level ?r)) (size ?j))
 		)
 		:effect (and
