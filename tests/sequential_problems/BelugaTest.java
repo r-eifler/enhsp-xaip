@@ -85,7 +85,8 @@ public class BelugaTest {
 //        String problemFile = "unit_test_instances/beluga/problem_baby.pddl";
 
         String domainFile = "unit_test_instances/beluga/really_numeric/domain_numeric_v2_complete.pddl";
-        String problemFile = "unit_test_instances/beluga/really_numeric/problem_test.pddl";
+        String problemFile = "unit_test_instances/beluga/really_numeric/problem_test_small_exp.pddl";
+//        String problemFile = "unit_test_instances/beluga/really_numeric/problem_test_small_exp_only_2_belugas.pddl";
 
         final PDDLDomain localDomain = new PDDLDomain(domainFile);
         final PDDLProblem problem = new PDDLProblem(problemFile, localDomain.getConstants(),

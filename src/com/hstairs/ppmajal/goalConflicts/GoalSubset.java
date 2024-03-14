@@ -111,7 +111,7 @@ public class GoalSubset {
                 continue;
             }
             Double dominant = fluentGoalsPosComparison.get(i) == comparisons.get(i).dominates(set.fluentGoals.get(i), this.fluentGoals.get(i)) ?
-                    set.fluentGoals.get(i) : this.fluentGoals.get(i);
+                    this.fluentGoals.get(i) : set.fluentGoals.get(i);
             unionFluent.set(i, dominant);
         }
 

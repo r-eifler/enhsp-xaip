@@ -125,9 +125,10 @@ public class GSBnB extends SearchEngine {
                     deadEndsDetected++;
                     continue;
                 }else if (res) {
-                    System.out.println(msgs);
+//                    System.out.println(msgs);
                     totalTime = (System.currentTimeMillis() - timeAtStart);
-                    return currentNode;
+                    continue;
+//                    return currentNode;
                 }
                 bestf = printInfoDuringSearch(timeAtStart,out,bestf,fromTheBeginning,
                         nodesExpanded,nodesEvaluated,frontier,currentNode);

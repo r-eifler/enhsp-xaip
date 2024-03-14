@@ -43,6 +43,7 @@
 		(swap-unstack-count ?j - jig ?s - side)
 		(swap-stack-count ?j - jig ?s - side)
 		(rack-in-use ?r - rack)
+		(truck-in-use ?t - truck)
 	)
 
   (:action unload					
@@ -173,7 +174,7 @@
 			(not (clear ?j ?os))
 			(decrease (level ?r) (size ?j))
 			(increase (total-cost) 1)
-			; (assign (rack-in-use ?r) 0)
+			(assign (truck-in-use ?t) 1)
 			(increase (total-swaps) (swap-unstack-count ?j ?s))
 		)
 	)
@@ -201,6 +202,7 @@
 			(clear ?nj ?s)
 			(not (clear ?j ?s))
 			(decrease (level ?r) (size ?j))
+			(assign (truck-in-use ?t) 1)
 			(increase (total-cost) 1)
 			(increase (total-swaps) (swap-unstack-count ?j ?s))
 		)
