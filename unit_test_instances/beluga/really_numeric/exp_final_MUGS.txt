@@ -1,0 +1,24 @@
+(in jig2c beluga3) #s < 4 #r < 3
+(in jig2c beluga3) #s < 1
+(empty jig1t) #s < 1
+#s < 0
+(in jig0b beluga1) #s < 1
+(in jig2b beluga2) #s < 1
+(empty jig1wr) #s #s < 3 #r < 3
+(in jig1b beluga1) (empty jig2b) #s < 1
+(empty jig1wr) #s < 1
+(empty jig2t) #s < 3 #r < 3
+(empty jig2t) #s < 1
+(empty jig1b) #s < 1 #r < 3
+(in jig1b beluga1) (empty jig1b) #s < 1 (artifact from encoding)
+(empty jig2b) #s < 1  #r < 3
+(empty jig2c) #s < 2 #r < 3
+(empty jig2c) #s < 1
+(in jig1wl beluga3) #s < 1
+(in jig1wl beluga3) #s < 4 #r < 3
+(empty jig1wl) #s < 3 #r < 3
+(empty jig1wl) #s < 1
+#r < 2
+(empty jig2t) (in jig2c beluga3) #s < 5 #r < 3
+(empty jig2t) (in jig2c beluga3) #s < 2
+(in jig0c beluga2) #s < 1
