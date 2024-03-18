@@ -47,16 +47,13 @@
 
 		; TRUCKS
 		(empty bt1)
-		(= (truck-in-use bt1) 0)
 		(atside bt1 bside)
 
 		(empty ft1)
 		(atside ft1 fside)
-		(= (truck-in-use ft1) 0)
 
 		(empty ft2)
 		(atside ft2 fside)
-		(= (truck-in-use ft2) 0)
 
 		(empty hanger1)
 
@@ -305,17 +302,14 @@
 	)
   (:goal (and
 
-		; (empty jig1c)
 		(empty jig1b)
 		(empty jig1t)
 		(empty jig1wl)
-		(empty jig1wr)
+		; (empty jig1wr)
 
 		(empty jig2c)
 		(empty jig2b)
-		(empty jig2t)
-		; (empty jig2wl)
-		; (empty jig2wr)
+		; (empty jig2t)
 
 		; (= (load-process beluga1) 0)
 		; (= (load-process beluga2) 0)
@@ -332,42 +326,13 @@
 		(in jig0c beluga2)
 		(in jig1t beluga2)
 
-		(in jig1wl beluga3)
-		(in jig2c beluga3)
-
-		(in-at-some-point jig1b rack1)
-		(in-at-some-point jig1b rack2)
-		(in-at-some-point jig1b rack3)
-
-		(in-at-some-point jig1t rack1)
-		(in-at-some-point jig1t rack2)
-		(in-at-some-point jig1t rack3)
-
-		(in-at-some-point jig1wl rack1)
-		(in-at-some-point jig1wl rack2)
-		(in-at-some-point jig1wl rack3)
-
-		(in-at-some-point jig1wr rack1)
-		(in-at-some-point jig1wr rack2)
-		(in-at-some-point jig1wr rack3)
-
-		(in-at-some-point jig2c rack1)
-		(in-at-some-point jig2c rack2)
-		(in-at-some-point jig2c rack3)
-
-		(in-at-some-point jig2b rack1)
-		(in-at-some-point jig2b rack2)
-		(in-at-some-point jig2b rack3)
-
-		(in-at-some-point jig2t rack1)
-		(in-at-some-point jig2t rack2)
-		(in-at-some-point jig2t rack3)
+		; (in jig1wl beluga3)
+		; (in jig2c beluga3)
 
 		; (= (delivery-process plA1) 0)
 
 		; (<= (total-swaps) 5)
         (<= (+ (rack-in-use rack1) (+ (rack-in-use rack2) (rack-in-use rack3))) 3)
-		(<= (+ (truck-in-use ft1) (truck-in-use ft2)) 2)
 
 		(<= (total-swaps) 5)
         ; (<= (+ (rack-in-use rack1) (+ (rack-in-use rack2) (+ (rack-in-use rack3) (rack-in-use rack4)))) 4)

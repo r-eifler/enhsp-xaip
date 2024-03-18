@@ -47,16 +47,13 @@
 
 		; TRUCKS
 		(empty bt1)
-		(= (truck-in-use bt1) 0)
 		(atside bt1 bside)
 
 		(empty ft1)
 		(atside ft1 fside)
-		(= (truck-in-use ft1) 0)
 
 		(empty ft2)
 		(atside ft2 fside)
-		(= (truck-in-use ft2) 0)
 
 		(empty hanger1)
 
@@ -85,6 +82,7 @@
 		(= (size jig0c) 2)
 		(= (empty-size jig0c) 2)
 		(= (load-order jig0c) 2)
+		(= (total-swaps-jig jig0c) 0)
 		(= (swap-unstack-count jig0c bside) 0)
 		(= (swap-unstack-count jig0c fside) 1)
 		(= (swap-stack-count jig0c bside) 1)
@@ -95,6 +93,7 @@
 		(= (size jig0b) 2)
 		(= (empty-size jig0b) 2)
 		(= (load-order jig0b) 2)		
+		(= (total-swaps-jig jig0b) 0)
 		(= (swap-unstack-count jig0b bside) 0)
 		(= (swap-unstack-count jig0b fside) 1)
 		(= (swap-stack-count jig0b bside) 1)
@@ -113,6 +112,7 @@
 		(empty jig0t)
 		(= (size jig0t) 1)
 		(= (empty-size jig0t) 1)
+		(= (total-swaps-jig jig0t) 0)
 
 
 		; airplaine 1
@@ -133,6 +133,7 @@
 		(= (unload-order jig1b) 2)
 		(= (load-order jig1b) 1)
 		(= (process-order jig1b) 6)
+		(= (total-swaps-jig jig1b) 0)
 		(= (swap-unstack-count jig1b bside) 1)
 		(= (swap-unstack-count jig1b fside) 0)
 		(= (swap-stack-count jig1b bside) 0)
@@ -146,6 +147,7 @@
 		(= (unload-order jig1wl) 2)
 		(= (load-order jig1wl) 2)
 		(= (process-order jig1wl) 2)
+		(= (total-swaps-jig jig1wl) 0)
 		(= (swap-unstack-count jig1wl bside) 1)
 		(= (swap-unstack-count jig1wl fside) 0)
 		(= (swap-stack-count jig1wl bside) 0)
@@ -159,6 +161,7 @@
 		(= (unload-order jig1wr) 1)
 		; (= (load-order jigw) 1)
 		(= (process-order jig1wr) 3)
+		(= (total-swaps-jig jig1wr) 0)
 		(= (swap-unstack-count jig1wr bside) 1)
 		(= (swap-unstack-count jig1wr fside) 0)
 		(= (swap-stack-count jig1wr bside) 0)
@@ -172,6 +175,7 @@
 		(= (unload-order jig1t) 1)
 		(= (load-order jig1t) 1)
 		(= (process-order jig1t) 5)
+		(= (total-swaps-jig jig1t) 0)
 		(= (swap-unstack-count jig1t bside) 1)
 		(= (swap-unstack-count jig1t fside) 0)
 		(= (swap-stack-count jig1t bside) 0)
@@ -187,6 +191,7 @@
 		(= (unload-order jig2c) 3)
 		(= (load-order jig2c) 1)
 		(= (process-order jig2c) 4)
+		(= (total-swaps-jig jig2c) 0)
 		(= (swap-unstack-count jig2c bside) 1)
 		(= (swap-unstack-count jig2c fside) 0)
 		(= (swap-stack-count jig2c bside) 0)
@@ -200,6 +205,7 @@
 		(= (unload-order jig2b) 1)
 		(= (load-order jig2b) 3)
 		(= (process-order jig2b) 7)
+		(= (total-swaps-jig jig2b) 0)
 		(= (swap-unstack-count jig2b bside) 1)
 		(= (swap-unstack-count jig2b fside) 0)
 		(= (swap-stack-count jig2b bside) 0)
@@ -231,6 +237,7 @@
 		(= (unload-order jig2t) 2)
 		; (= (load-order jig2t) 1)
 		(= (process-order jig2t) 1)
+		(= (total-swaps-jig jig2t) 0)
 		(= (swap-unstack-count jig2t bside) 1)
 		(= (swap-unstack-count jig2t fside) 0)
 		(= (swap-stack-count jig2t bside) 0)
@@ -335,39 +342,21 @@
 		(in jig1wl beluga3)
 		(in jig2c beluga3)
 
-		(in-at-some-point jig1b rack1)
-		(in-at-some-point jig1b rack2)
-		(in-at-some-point jig1b rack3)
-
-		(in-at-some-point jig1t rack1)
-		(in-at-some-point jig1t rack2)
-		(in-at-some-point jig1t rack3)
-
-		(in-at-some-point jig1wl rack1)
-		(in-at-some-point jig1wl rack2)
-		(in-at-some-point jig1wl rack3)
-
-		(in-at-some-point jig1wr rack1)
-		(in-at-some-point jig1wr rack2)
-		(in-at-some-point jig1wr rack3)
-
-		(in-at-some-point jig2c rack1)
-		(in-at-some-point jig2c rack2)
-		(in-at-some-point jig2c rack3)
-
-		(in-at-some-point jig2b rack1)
-		(in-at-some-point jig2b rack2)
-		(in-at-some-point jig2b rack3)
-
-		(in-at-some-point jig2t rack1)
-		(in-at-some-point jig2t rack2)
-		(in-at-some-point jig2t rack3)
+		(<= (total-swaps-jig jig0c) 3)
+		(<= (total-swaps-jig jig0b) 3)
+		(<= (total-swaps-jig jig0t) 3)
+		(<= (total-swaps-jig jig1b) 3)
+		(<= (total-swaps-jig jig1t) 3)
+		(<= (total-swaps-jig jig1wl) 3)
+		(<= (total-swaps-jig jig1wr) 3)
+		(<= (total-swaps-jig jig2c) 3)
+		(<= (total-swaps-jig jig2b) 3)
+		(<= (total-swaps-jig jig2t) 3)
 
 		; (= (delivery-process plA1) 0)
 
 		; (<= (total-swaps) 5)
         (<= (+ (rack-in-use rack1) (+ (rack-in-use rack2) (rack-in-use rack3))) 3)
-		(<= (+ (truck-in-use ft1) (truck-in-use ft2)) 2)
 
 		(<= (total-swaps) 5)
         ; (<= (+ (rack-in-use rack1) (+ (rack-in-use rack2) (+ (rack-in-use rack3) (rack-in-use rack4)))) 4)

@@ -47,16 +47,13 @@
 
 		; TRUCKS
 		(empty bt1)
-		(= (truck-in-use bt1) 0)
 		(atside bt1 bside)
 
 		(empty ft1)
 		(atside ft1 fside)
-		(= (truck-in-use ft1) 0)
 
 		(empty ft2)
 		(atside ft2 fside)
-		(= (truck-in-use ft2) 0)
 
 		(empty hanger1)
 
@@ -367,8 +364,6 @@
 
 		; (<= (total-swaps) 5)
         (<= (+ (rack-in-use rack1) (+ (rack-in-use rack2) (rack-in-use rack3))) 3)
-		(<= (+ (truck-in-use ft1) (truck-in-use ft2)) 2)
-
 		(<= (total-swaps) 5)
         ; (<= (+ (rack-in-use rack1) (+ (rack-in-use rack2) (+ (rack-in-use rack3) (rack-in-use rack4)))) 4)
 		

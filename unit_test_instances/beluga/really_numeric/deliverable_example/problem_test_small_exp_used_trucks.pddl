@@ -335,34 +335,6 @@
 		(in jig1wl beluga3)
 		(in jig2c beluga3)
 
-		(in-at-some-point jig1b rack1)
-		(in-at-some-point jig1b rack2)
-		(in-at-some-point jig1b rack3)
-
-		(in-at-some-point jig1t rack1)
-		(in-at-some-point jig1t rack2)
-		(in-at-some-point jig1t rack3)
-
-		(in-at-some-point jig1wl rack1)
-		(in-at-some-point jig1wl rack2)
-		(in-at-some-point jig1wl rack3)
-
-		(in-at-some-point jig1wr rack1)
-		(in-at-some-point jig1wr rack2)
-		(in-at-some-point jig1wr rack3)
-
-		(in-at-some-point jig2c rack1)
-		(in-at-some-point jig2c rack2)
-		(in-at-some-point jig2c rack3)
-
-		(in-at-some-point jig2b rack1)
-		(in-at-some-point jig2b rack2)
-		(in-at-some-point jig2b rack3)
-
-		(in-at-some-point jig2t rack1)
-		(in-at-some-point jig2t rack2)
-		(in-at-some-point jig2t rack3)
-
 		; (= (delivery-process plA1) 0)
 
 		; (<= (total-swaps) 5)

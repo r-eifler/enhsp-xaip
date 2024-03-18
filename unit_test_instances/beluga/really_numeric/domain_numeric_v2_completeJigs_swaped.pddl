@@ -42,6 +42,7 @@
 		(total-swaps)
 		(swap-unstack-count ?j - jig ?s - side)
 		(swap-stack-count ?j - jig ?s - side)
+		(total-swaps-jig ?j - jig)
 		(rack-in-use ?r - rack)
 	)
 
@@ -121,9 +122,10 @@
 			(clear ?j bside)
 			(clear ?j fside)
 			(increase (level ?r) (size ?j))
-			(assign (rack-in-use ?r) 1)
 			(increase (total-cost) 1)
+			(assign (rack-in-use ?r) 1)
 			(increase (total-swaps) (swap-stack-count ?j ?s))
+			(increase (total-swaps-jig ?j) (swap-stack-count ?j ?s))
 		)
 	)
 
@@ -150,6 +152,7 @@
 			(increase (level ?r) (size ?j))
 			(increase (total-cost) 1)
 			(increase (total-swaps) (swap-stack-count ?j ?s))
+			(increase (total-swaps-jig ?j) (swap-stack-count ?j ?s))
 		)
 	)
 
@@ -174,6 +177,7 @@
 			(decrease (level ?r) (size ?j))
 			(increase (total-cost) 1)
 			(increase (total-swaps) (swap-unstack-count ?j ?s))
+			(increase (total-swaps-jig ?j) (swap-stack-count ?j ?s))
 		)
 	)
 
@@ -202,6 +206,7 @@
 			(decrease (level ?r) (size ?j))
 			(increase (total-cost) 1)
 			(increase (total-swaps) (swap-unstack-count ?j ?s))
+			(increase (total-swaps-jig ?j) (swap-stack-count ?j ?s))
 		)
 	)
 

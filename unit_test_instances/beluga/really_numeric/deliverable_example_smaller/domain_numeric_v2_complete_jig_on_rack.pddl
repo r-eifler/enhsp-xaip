@@ -22,6 +22,7 @@
 		(part-of ?j - jig ?pl - production-line)
 		(on ?j1 ?j2 - jig ?s - side)		; p1 is on p2 when looking at them from side s
 		(clear ?j - jig ?s - side)		; there is nothing on part p, when looking at it from side s
+		(in-at-some-point ?j - jig ?r - rack)
   )
 
 
@@ -115,14 +116,15 @@
 		)
 		:effect (and
 			(in ?j ?r)
+			(in-at-some-point ?j ?r)
 			(not (in ?j ?t))
 			(empty ?t)
 			(not (empty ?r))
 			(clear ?j bside)
 			(clear ?j fside)
 			(increase (level ?r) (size ?j))
-			(assign (rack-in-use ?r) 1)
 			(increase (total-cost) 1)
+			(assign (rack-in-use ?r) 1)
 			(increase (total-swaps) (swap-stack-count ?j ?s))
 		)
 	)
@@ -141,6 +143,7 @@
 		)
 		:effect (and
 			(in ?j ?r)
+			(in-at-some-point ?j ?r)
 			(not (in ?j ?t))
 			(empty ?t)
 			(on ?j ?nj ?s)
