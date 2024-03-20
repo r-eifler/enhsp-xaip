@@ -79,8 +79,8 @@ public class BelugaTest {
 //        String domainFile = "unit_test_instances/domain_gardening.pddl";
 //        String problemFile = "unit_test_instances/problem_gardening.pddl";
 
-//        String domainFile = "unit_test_instances/beluga/domain_numeric_sylvie.pddl";
-//        String problemFile = "unit_test_instances/beluga/problem_4_3_0.pddl";
+        String domainFile = "unit_test_instances/beluga/domain_numeric_sylvie.pddl";
+        String problemFile = "unit_test_instances/beluga/problem_4_3_0.pddl";
 //        String problemFile = "unit_test_instances/beluga/problem_6_5_0.pddl";
 //        String problemFile = "unit_test_instances/beluga/problem_baby.pddl";
 
@@ -101,8 +101,8 @@ public class BelugaTest {
 //        String problemFile = "unit_test_instances/beluga/really_numeric/problem_test_small_exp_jigs_on_rack.pddl";
 
         //num saps per jig
-        String domainFile = "unit_test_instances/beluga/really_numeric/deliverable_example_smaller/domain_numeric_v2_complete_jigs_swapped.pddl";
-        String problemFile = "unit_test_instances/beluga/really_numeric/deliverable_example_smaller/problem_exp_jigs_swapped.pddl";
+//        String domainFile = "unit_test_instances/beluga/really_numeric/deliverable_example_smaller/domain_numeric_v2_complete_jigs_swapped.pddl";
+//        String problemFile = "unit_test_instances/beluga/really_numeric/deliverable_example_smaller/problem_exp_jigs_swapped.pddl";
 
         final PDDLDomain localDomain = new PDDLDomain(domainFile);
         final PDDLProblem problem = new PDDLProblem(problemFile, localDomain.getConstants(),

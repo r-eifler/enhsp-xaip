@@ -66,8 +66,48 @@ public class GoalSubset {
 
     @Override
     public String toString(){
+        String s = "";
+        for (int i = 0; i < this.booleanGoals.length(); i++) {
+            if(this.booleanGoals.get(i)){
 
-        return this.booleanGoals.toString() + " -- " + this.fluentGoals.toString() + " (" + this.fluentGoalsPosComparison.toString() + ")";
+            }
+        }
+        return this.booleanGoals.toString() + " -- " + this.fluentGoals.toString(); //  + " (" + this.fluentGoalsPosComparison.toString() + ")";
+    }
+
+    private String swap_comperator(String op) {
+        switch (op) {
+            case ">=": return "<";
+            case "<=": return ">";
+            case "<": return ">=";
+            case ">": return "<=";
+        }
+        return "not supported!";
+    }
+    public String toString(ArrayList<String> boolean_goals_names, ArrayList<Comparison> comparisons){
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < this.booleanGoals.length(); i++) {
+            if(this.booleanGoals.get(i)){
+                s.append(boolean_goals_names.get(i));
+                if (i < this.booleanGoals.length() - 1){
+                        s.append('|');
+                }
+            }
+        }
+        s.append(" -- ");
+        for (int i = 0; i < this.fluentGoals.size(); i++) {
+            s.append(fluentGoals.get(i));
+            if(fluentGoals.get(i) != null) {
+                s.append(" ");
+                s.append(fluentGoalsPosComparison.get(i) ? comparisons.get(i).getComparator() : swap_comperator(comparisons.get(i).getComparator()));
+            }
+            if (i < this.fluentGoals.size() - 1){
+                s.append('|');
+            }
+//          s.append(boolean_goals_names.get(i)).append('|');
+        }
+        return s.toString();
+//        return this.booleanGoals.toString() + " -- " + this.fluentGoals.toString(); //  + " (" + this.fluentGoalsPosComparison.toString() + ")";
     }
 
     public List<GoalSubset> singletonSubsets() {

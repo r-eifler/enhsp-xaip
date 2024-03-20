@@ -13,6 +13,11 @@ import java.util.ListIterator;
 
 public class MSGS extends GoalSubsets{
 
+    private final PDDLProblem problem;
+
+    private ArrayList<String> boolean_goals_names = new ArrayList<String>();
+    private ArrayList<String> comparison_goals_names =  new ArrayList<String>();
+
     private final ArrayList<BoolPredicate> boolean_goals = new ArrayList<>();
     private final ArrayList<Integer> boolean_goals_id = new ArrayList<>();
     private final ArrayList<Comparison> comparison_goals = new ArrayList<>();
@@ -21,6 +26,8 @@ public class MSGS extends GoalSubsets{
     int num_pruned = 0;
 
     public MSGS(PDDLProblem problem){
+        this.problem = problem;
+
         System.out.println("--------- INIT MSGS ------------");
         int index = 0;
         for(Object o : ((AndCond) problem.getGoals()).sons){
@@ -28,12 +35,14 @@ public class MSGS extends GoalSubsets{
             if(o instanceof BoolPredicate){
                 boolean_goals.add((BoolPredicate) o);
                 boolean_goals_id.add(index);
+                boolean_goals_names.add(((BoolPredicate) o).toString());
                 index++;
                 continue;
             }
             if(o instanceof Comparison){
                 comparison_goals.add((Comparison) o);
                 comparison_goals_id.add(index);
+                comparison_goals_names.add(o.toString());
                 index++;
                 continue;
             }
@@ -121,12 +130,12 @@ public class MSGS extends GoalSubsets{
         s.append("\n\n#pruned: ").append(num_pruned);
         s.append("\n--------------- MSGS --------------");
         for(GoalSubset sub : subsets){
-            s.append("\n").append(sub.toString());
+            s.append("\n").append(sub.toString(boolean_goals_names, comparison_goals));
         }
         s.append("\n--------------- MUGS --------------");
         GoalSubsets mugs = this.complement().minimalHittingSets(comparison_goals);
         for(GoalSubset sub : mugs.subsets){
-            s.append("\n").append(sub.toString());
+            s.append("\n").append(sub.toString(boolean_goals_names, comparison_goals));
         }
 
         return s.toString();
