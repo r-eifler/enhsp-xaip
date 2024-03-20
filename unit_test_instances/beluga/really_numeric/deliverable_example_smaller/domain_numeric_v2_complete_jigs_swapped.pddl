@@ -177,7 +177,7 @@
 			(decrease (level ?r) (size ?j))
 			(increase (total-cost) 1)
 			(increase (total-swaps) (swap-unstack-count ?j ?s))
-			(increase (total-swaps-jig ?j) (swap-stack-count ?j ?s))
+			(increase (total-swaps-jig ?j) (swap-unstack-count ?j ?s))
 		)
 	)
 
@@ -206,7 +206,7 @@
 			(decrease (level ?r) (size ?j))
 			(increase (total-cost) 1)
 			(increase (total-swaps) (swap-unstack-count ?j ?s))
-			(increase (total-swaps-jig ?j) (swap-stack-count ?j ?s))
+			(increase (total-swaps-jig ?j) (swap-unstack-count ?j ?s))
 		)
 	)
 
