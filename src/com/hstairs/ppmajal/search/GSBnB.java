@@ -11,9 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import org.jgrapht.alg.util.Pair;
 
 import java.io.PrintStream;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 
 public class GSBnB extends SearchEngine {
     protected final boolean optimality;
@@ -38,12 +36,16 @@ public class GSBnB extends SearchEngine {
     protected float getPreviousCost(Object2FloatMap<State> gMap, State successorState) {
         return gMap.getOrDefault(successorState.getRepresentative(), G_DEFAULT);
     }
-    enum retCode{inserted, deadend, duplicated};
+    enum retCode{inserted, deadend, duplicated, pruned};
     protected retCode queueSuccessor(Object frontier, State successorState,
                                      SearchNode current_node, Object actionsBefore,
                                      float prev_cost, float gSuccessor, Object2FloatMap<State> g, SearchHeuristic h,
-                                     float hw) {
+                                     float hw, MSGS msgs) {
         if (Objects.equals(prev_cost, this.G_DEFAULT) || gSuccessor < prev_cost) {
+            if(msgs.prune(h, gBound, successorState)){
+//                System.out.println("Prune state!");
+                return retCode.pruned;
+            }
             final long start = System.currentTimeMillis();
             final float hValue = h.computeEstimate(successorState);
             heuristicTime += System.currentTimeMillis() - start;
@@ -113,11 +115,13 @@ public class GSBnB extends SearchEngine {
 
         Object2FloatMap<State> gValue = new Object2FloatOpenHashMap<>();
         gValue.put(initState, 0f);//The initial state is at 0 distance, of course.
+        Set<State> pruned_set = new HashSet<>();
         float bestf = 0;
         previous = 0;
         while (!frontier.isEmpty()) {
+
             final SearchNode currentNode = frontier.dequeue();
-            if (currentNode.gValue == getPreviousCost(gValue, currentNode.s)){
+            if (!pruned_set.contains(currentNode.s) && currentNode.gValue == getPreviousCost(gValue, currentNode.s)){
                 nodesExpanded++;
                 long fromTheBeginning = (System.currentTimeMillis() - timeAtStart);
                 final Boolean res = problem.goalSatisfied(currentNode.s);
@@ -125,9 +129,10 @@ public class GSBnB extends SearchEngine {
                     deadEndsDetected++;
                     continue;
                 }else if (res) {
+//                    System.out.println("Solution found!");
 //                    System.out.println(msgs);
-                    totalTime = (System.currentTimeMillis() - timeAtStart);
-                    continue;
+//                    totalTime = (System.currentTimeMillis() - timeAtStart);
+//                    continue;
 //                    return currentNode;
                 }
                 bestf = printInfoDuringSearch(timeAtStart,out,bestf,fromTheBeginning,
@@ -137,12 +142,8 @@ public class GSBnB extends SearchEngine {
                     final Pair<State, Object> next = it.next();
                     final State successorState = next.getFirst();
 
-                    if(msgs.prune(h, gBound, successorState)){
-                        continue;
-                    }
-                    msgs.track(successorState);
-
                     final Object act = next.getSecond();
+//                    System.out.println(act);
                     final float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.gValue);
                     if (successorG < gBound) {
                         if (Objects.equals(successorG, this.G_DEFAULT)) {
@@ -150,10 +151,19 @@ public class GSBnB extends SearchEngine {
                             continue;
                         }
                         switch (this.queueSuccessor(frontier, successorState, currentNode, act,
-                                getPreviousCost(gValue, successorState), successorG, gValue, h, hw)) {
-                            case inserted -> nodesEvaluated++;
+                                getPreviousCost(gValue, successorState), successorG, gValue, h, hw, msgs)) {
+                            case inserted -> {
+                                nodesEvaluated++;
+                                msgs.track(successorState);
+                            }
                             case deadend -> deadEndsDetected++;
-                            case duplicated -> duplicatedDetected++;
+                            case duplicated -> {
+                                duplicatedDetected++;
+                            }
+                            case pruned -> {
+                                pruned++;
+                                pruned_set.add(successorState);
+                            }
                         }
                     }
                 }

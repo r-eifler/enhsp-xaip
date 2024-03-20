@@ -26,6 +26,15 @@ public class GoalSubsets {
         return false;
     }
 
+    public boolean containsSupersetBinary(GoalSubset set){
+        for(GoalSubset gs : subsets){
+            if(set.is_subset_binary(gs)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public void add_and_subset_maximal(GoalSubset new_set, ArrayList<Comparison> comparisons){
 

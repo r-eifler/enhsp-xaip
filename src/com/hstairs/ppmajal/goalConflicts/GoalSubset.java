@@ -50,6 +50,20 @@ public class GoalSubset {
         return booleanGoalsAreSubset && fluentsAreSubset;
     }
 
+    public boolean is_subset_binary(GoalSubset gs2){
+        BitSet and = (BitSet) this.booleanGoals.clone();
+        and.and(gs2.booleanGoals);
+
+        boolean booleanGoalsAreSubset = and.equals(this.booleanGoals);
+
+        boolean fluentsAreSubset = true;
+        for(int i = 0; i < this.fluentGoals.size(); i++){
+            fluentsAreSubset &= gs2.fluentGoals.get(i) == null || this.fluentGoals.get(i) != null;
+        }
+
+        return booleanGoalsAreSubset && fluentsAreSubset;
+    }
+
     @Override
     public String toString(){
 

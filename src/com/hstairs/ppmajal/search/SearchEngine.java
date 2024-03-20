@@ -13,6 +13,7 @@ public abstract class SearchEngine {
     protected int nodesExpanded;
     protected int nodesEvaluated;
     protected int duplicatedDetected;
+    protected int pruned;
     //Timing information
     protected long totalTime;
     protected long heuristicTime;

@@ -62,6 +62,16 @@ public class MSGS extends GoalSubsets{
 
     public boolean prune(SearchHeuristic h, float bound,  State s){
 
+        // first check if numeric goal can still be satisfied!
+        for(ListIterator<Comparison> it = comparison_goals.listIterator(); it.hasNext();){
+            Comparison com = it.next();
+            int index = it.nextIndex() - 1;
+            if (! com.isSatisfied(s)) {
+                num_pruned++;
+                return true;
+            }
+        }
+
         float[] goal_estimates = h.computeEstimateIndividualGoals(s);
 //        System.out.println(goal_estimates.length);
 //        for(float f : goal_estimates){
@@ -85,6 +95,7 @@ public class MSGS extends GoalSubsets{
 //            System.out.println(com.toString() + "    eval = " +  com.variable_eval(s) + " ---> " +  s.satisfy(com));
             boolean reachable = goal_estimates[comparison_goals_id.get(index)] < Float.MAX_VALUE &&  goal_estimates[comparison_goals_id.get(index)] <= bound;
             if(reachable){
+                // indicates, that this condition can still be satisfied
                 new_list_fluents.add(com.variable_eval(s));
             }
             else{
