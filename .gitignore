@@ -12,5 +12,7 @@ nbproject/
 build.xml
 
 .classpath
-jar_dependencies
 .vscode
+
+enhsp-xaip*
+out/

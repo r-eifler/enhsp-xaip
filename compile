@@ -1,0 +1,10 @@
+#!/bin/bash
+
+rm -r out 2> /dev/null
+rm -r enhsp-xaip-dist 2> /dev/null
+mkdir out
+javac -d out -classpath "$(pwd)"/src/:"$(pwd)"/jar_dependencies/* src/*.java
+jar -cfm  enhsp-xaip.jar manifest.mf -C out/ .
+mkdir enhsp-xaip-dist
+cp -r jar_dependencies/ enhsp-xaip-dist/
+cp enhsp-xaip.jar enhsp-xaip-dist/

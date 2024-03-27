@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ "$#" = 0 ]; then
+    echo "#!/bin/bash
+
+    java -classpath "$(pwd)"/out/:"$(pwd)"/jar_dependencies/* GoalConflictAnalysis \"\$@\"" > enhsp-xaip
+    chmod +x enhsp-xaip
+else
+    echo "#!/bin/bash
+
+    java "$1 $2" -classpath "$(pwd)"/out/:"$(pwd)"/jar_dependencies/* GoalConflictAnalysis \"\$@\"" > enhsp-xaip
+    chmod +x enhsp-xaip
+fi
+
+

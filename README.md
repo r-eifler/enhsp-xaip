@@ -1,3 +1,40 @@
+
+
+# Goal Conflict Computation
+
+This is a preliminary implementation of the Branch and Bound Search Algorithm to compute
+minimal unsolvable goal subsets for numeric OSP.
+
+Publication describing the the Branch and Bound Search Algorithm for classical OSP.
+
+    @inproceedings{eifler:etal:ijcai20,
+        author       = {Rebecca Eifler and
+                        Marcel Steinmetz and
+                        {\'{A}}lvaro Torralba and
+                        J{\"{o}}rg Hoffmann},
+        title        = {Plan-Space Explanation via Plan-Property Dependencies: Faster Algorithms
+                        {\&} More Powerful Properties},
+        booktitle    = {Proceedings of the Twenty-Ninth International Joint Conference on
+                        Artificial Intelligence, {IJCAI} 2020},
+        pages        = {4091--4097},
+        year         = {2020}
+    }
+
+For now, we have the following limitations:
+
+* all goals are considered soft goals
+* only monotonically increasing/decreasing numeric conditions are supported as goals
+
+For dependencies and compilation instruction see: [ENHSP](https://gitlab.com/enricos83/ENHSP-Public)
+
+Run with:
+    
+    ./enhsp-xaip unit_test_instances/beluga/domain_numeric.pddl unit_test_instances/beluga/problem_4_3_0.pddl 
+
+BASED ON: https://github.com/hstairs
+
+original README:
+
 # What is PPMaJal?
 
 This repository contains the PPMaJal API, which is a planning manager library meant to build systems that speak the PDDL language. It supports many features that go way beyond classical planning, such as numeric representations, linear and non-linear constraints, autonomout processes, events, global constraints and other things.

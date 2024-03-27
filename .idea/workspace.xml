@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="74d0bc06-febd-4010-9a80-139c7b99c2a3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/jpddlplus.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jar_dependencies.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/sequential_problems/BelugaTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/tests/sequential_problems/BelugaTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_test_instances/beluga/domain_numeric_sylvie.pddl" beforeDir="false" afterPath="$PROJECT_DIR$/unit_test_instances/beluga/domain_numeric.pddl" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="2eGucVbR1Yb4SvZqzU4i2qP6EYB" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showVisibilityIcons" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Default.executor": "Run",
+    "Application.GoalConflictAnalysis.executor": "Run",
+    "JUnit.BelugaTest.basic.executor": "Run",
+    "JUnit.BelugaTest.hello2.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "mugs",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/rebecca/TUPLES/planner/jpddlplus/jar_dependencies",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.31724137"
+  }
+}]]></component>
+  <component name="RunManager" selected="JUnit.BelugaTest.basic">
+    <configuration name="Default" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="GoalConflictAnalysis" />
+      <module name="jpddlplus" />
+      <option name="PROGRAM_PARAMETERS" value="unit_test_instances/beluga/domain_numeric_sylvie.pddl unit_test_instances/beluga/problem_4_3_0.pddl" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GoalConflictAnalysis" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="GoalConflictAnalysis" />
+      <module name="jpddlplus" />
+      <option name="PROGRAM_PARAMETERS" value="unit_test_instances/beluga/domain_numeric_sylvie.pddlunit_test_instances/beluga/problem_4_3_0.pddl" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BelugaTest.basic" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="jpddlplus" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="sequential_problems.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="sequential_problems" />
+      <option name="MAIN_CLASS_NAME" value="sequential_problems.BelugaTest" />
+      <option name="METHOD_NAME" value="basic" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BelugaTest.hello2" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="jpddlplus" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="sequential_problems.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="sequential_problems" />
+      <option name="MAIN_CLASS_NAME" value="sequential_problems.BelugaTest" />
+      <option name="METHOD_NAME" value="hello2" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Default" />
+      <item itemvalue="Application.GoalConflictAnalysis" />
+      <item itemvalue="JUnit.BelugaTest.basic" />
+      <item itemvalue="JUnit.BelugaTest.hello2" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.BelugaTest.basic" />
+        <item itemvalue="Application.GoalConflictAnalysis" />
+        <item itemvalue="JUnit.BelugaTest.hello2" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-19.0.2-corretto-19.0.2-4caba194b151-6ca9ab15" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="74d0bc06-febd-4010-9a80-139c7b99c2a3" name="Changes" comment="" />
+      <created>1711543315513</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1711543315513</updated>
+    </task>
+    <servers />
+  </component>
+</project>
