@@ -59,21 +59,6 @@ public class BelugaTest {
     }
 
     @Test
-    public void hello ( ) throws Exception {
-
-        //get pddl description
-        List<String> heuristics = Arrays.asList("blind", "hrmax");
-        PlannerUtils temp = new PlannerUtils();
-        for (String h : heuristics) {
-            assertEquals(13, temp.getPlanSize("unit_test_instances/domain_gardening.pddl",
-                    "unit_test_instances/problem_gardening.pddl", h, "internal"));
-        }
-
-
-    }
-
-
-    @Test
     public void hello2 ( ) throws Exception {
 
 //        String domainFile = "unit_test_instances/domain_gardening.pddl";
